@@ -1,0 +1,7 @@
+set(MMWAVE_SDK_DEVICE "iwr68xx" CACHE STRING "mmWave SDK device")
+set(MMWAVE_SDK_DEVICE_TYPE "xwr68xx" CACHE STRING "mmWave SDK device type")
+set(MMWAVE_SHMEM_ALLOC "0x00000006" CACHE STRING "xWR68xx shared-memory allocation")
+set(MMWAVE_L3RAM_NUM_BANK "6" CACHE STRING "xWR68xx L3 RAM banks")
+set(MMWAVE_SHMEM_TCMA_NUM_BANK "0" CACHE STRING "xWR68xx TCMA shared memory banks")
+set(MMWAVE_SHMEM_TCMB_NUM_BANK "0" CACHE STRING "xWR68xx TCMB shared memory banks")
+set(MMWAVE_SHMEM_BANK_SIZE "0x20000" CACHE STRING "xWR68xx shared memory bank size")

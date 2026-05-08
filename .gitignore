@@ -1,0 +1,17 @@
+build/
+out/
+*.bin
+*.xer4f
+*.xe674
+*.oer4f
+*.oe674
+*.map
+*.tmp
+*.rprc.bin
+configPkg/
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+compile_commands.json
+.vs/
+.vscode/
