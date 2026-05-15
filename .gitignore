@@ -7,6 +7,8 @@ artifacts/
 reports/*
 packages/
 *.log
+__pycache__/
+*.pyc
 *.bin
 *.xer4f
 *.xe674
