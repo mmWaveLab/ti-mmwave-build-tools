@@ -12,6 +12,7 @@ required_paths=(
   "$TI_ROOT/xdctools_3_50_08_24_core/xs"
   "$TI_ROOT/bios_6_73_01_01/packages"
   "$TI_ROOT/dsplib_c64Px_3_4_0_0/packages"
+  "$TI_ROOT/dsplib_c674x_3_4_0_0/packages"
   "$TI_ROOT/mathlib_c674x_3_1_2_1/packages"
 )
 

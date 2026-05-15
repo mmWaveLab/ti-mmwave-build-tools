@@ -1,0 +1,55 @@
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN dpkg --add-architecture i386 \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        bash \
+        ca-certificates \
+        curl \
+        file \
+        git \
+        make \
+        mono-runtime \
+        ninja-build \
+        python3 \
+        python3-pip \
+        unzip \
+        libc6:i386 \
+        libgcc-s1:i386 \
+        libstdc++6:i386 \
+        zlib1g:i386 \
+        libncurses5 \
+        libtinfo5 \
+        libx11-6 \
+        libxext6 \
+        libxrender1 \
+        libxtst6 \
+    && python3 -m pip install --no-cache-dir "cmake>=3.29,<3.31" \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY ti /home/kj/ti
+COPY tools /opt/ti-mmwave-build-tools
+
+ENV TI_ROOT=/home/kj/ti
+ENV TI_MMWAVE_TOOLS_ROOT=/opt/ti-mmwave-build-tools
+ENV MMWAVE_SDK_ROOT=/home/kj/ti/mmwave_sdk_03_06_02_00-LTS
+ENV MMWAVE_SDK_PACKAGES=/home/kj/ti/mmwave_sdk_03_06_02_00-LTS/packages
+ENV R4F_CODEGEN_ROOT=/home/kj/ti/ti-cgt-arm_16.9.6.LTS
+ENV C674_CODEGEN_ROOT=/home/kj/ti/ti-cgt-c6000_8.3.3
+ENV XDC_ROOT=/home/kj/ti/xdctools_3_50_08_24_core
+ENV BIOS_ROOT=/home/kj/ti/bios_6_73_01_01
+ENV DSPLIB_C64PX_ROOT=/home/kj/ti/dsplib_c64Px_3_4_0_0
+ENV DSPLIB_C674X_ROOT=/home/kj/ti/dsplib_c674x_3_4_0_0
+ENV MATHLIB_C674X_ROOT=/home/kj/ti/mathlib_c674x_3_1_2_1
+ENV PATH=/home/kj/ti/ti-cgt-arm_16.9.6.LTS/bin:/home/kj/ti/ti-cgt-c6000_8.3.3/bin:/home/kj/ti/xdctools_3_50_08_24_core:/opt/ti-mmwave-build-tools/scripts:/usr/local/bin:/usr/bin:/bin
+
+RUN chmod +x /opt/ti-mmwave-build-tools/scripts/*.sh \
+    && ln -s /opt/ti-mmwave-build-tools/scripts/create-mmwave-app.sh /usr/local/bin/create-mmwave-app \
+    && ln -s /opt/ti-mmwave-build-tools/scripts/check-ti-linux.sh /usr/local/bin/check-ti-linux \
+    && check-ti-linux
+
+WORKDIR /work
+
+CMD ["/bin/bash"]

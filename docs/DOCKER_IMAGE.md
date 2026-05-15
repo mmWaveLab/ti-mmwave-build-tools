@@ -4,6 +4,9 @@ The Docker image is the stable SDK host shell. It contains Linux build
 dependencies, CMake, Ninja, and helper entry points, but it does not contain TI
 SDKs or compilers.
 
+For day-to-day private development, use an SDK-full private image instead. That
+image contains the TI SDK and is not meant for public redistribution.
+
 ## Image Contract
 
 Default image:
@@ -37,6 +40,28 @@ make doctor
 make project-docker PROJECT=examples/name
 make validate-devices
 ```
+
+Build the private SDK-full image on a machine that already has TI SDK installed:
+
+```bash
+make sdk-image HOST_TI_ROOT=/home/kj/ti SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02-local
+make sdk-image-smoke SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02-local
+```
+
+Push it to a private registry after `docker login`:
+
+```bash
+docker tag meowkj/ti-mmwave-sdk:03.06.02-local meowkj/ti-mmwave-sdk:03.06.02
+docker push meowkj/ti-mmwave-sdk:03.06.02
+```
+
+Do not push SDK-full images to a public repository unless your TI license
+explicitly permits redistribution.
+
+The SDK-full image keeps TI tools at `/home/kj/ti` inside the container. This is
+intentional: TI make/configuro fragments can embed the install path, so the
+container standardizes that path even when the host is macOS, Windows, or a
+different Linux distribution.
 
 Open a shell in the image:
 

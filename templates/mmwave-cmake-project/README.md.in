@@ -1,38 +1,69 @@
 # @PROJECT_NAME@
 
-Generated TI mmWave CMake/Ninja firmware project.
+Generated TI mmWave CMake/Ninja firmware project forked from a TI SDK demo.
 
-This project references the TI SDK demo at:
+This project contains a local copy of the TI SDK demo:
+
+```text
+app/
+```
+
+Original SDK demo path:
 
 ```text
 @SDK_DEMO_REL@
 ```
 
-The TI SDK, compilers, and generated firmware are not vendored here.
+Device template:
 
-## Native Build
-
-```bash
-cmake -S . -B build -G Ninja -DTI_ROOT=/home/kj/ti
-cmake --build build --target firmware
+```text
+@SDK_DEVICE_TYPE@ / @SDK_DEVICE@
 ```
 
-## Docker Build From Tool Repository
+Docker image:
 
-From the `ti-mmwave-build-tools` repository:
+```text
+@SDK_IMAGE@
+```
+
+## Build
 
 ```bash
-make project-docker PROJECT=@PROJECT_PATH@
+make build
+```
+
+Open a container shell:
+
+```bash
+make shell
+```
+
+Clean generated output:
+
+```bash
+make clean
 ```
 
 Output binary:
 
 ```text
-build/@PROJECT_NAME@_sdk_demo/@OUTPUT_BIN@
+build/app/@OUTPUT_BIN@
 ```
 
-## Next Customization Points
+## Source Layout
 
-- Keep this project as a reference-demo wrapper while validating the board.
-- Add local source overlays only after the reference demo is reproducible.
-- Keep generated build output under `build/`; do not commit TI SDK source.
+```text
+app/
+  makefile
+  mss/      # present when the forked demo has MSS sources
+  dss/      # present when the forked demo has DSS sources
+```
+
+The build uses the forked demo's original TI makefile. If a demo only has MSS,
+only MSS is built; if it has MSS+DSS, the SDK makefile drives both cores and
+metaimage generation.
+
+## License Note
+
+This project contains source copied from a TI SDK installation. Keep it private
+unless your TI license permits redistribution.

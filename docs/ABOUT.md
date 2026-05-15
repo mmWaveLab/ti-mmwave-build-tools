@@ -5,8 +5,8 @@ public project description.
 
 ## Short Description
 
-Reproducible Docker, CMake/Ninja project templates, validation, and UniFlash
-helpers for TI mmWave SDK 03.06 MSS+DSS firmware builds.
+Reproducible private Docker SDK images, CMake/Ninja fork templates, validation,
+and UniFlash helpers for TI mmWave SDK 03.06 firmware builds.
 
 ## Website
 
@@ -40,14 +40,16 @@ This repository provides a repeatable Linux environment for building and
 validating TI mmWave SDK 03.06 demo firmware without redistributing TI-owned
 SDKs or compilers. It focuses on first-generation TI mmWave SDK MSS+DSS demo
 flows, including Docker dependency isolation, CMake+Ninja build entry points,
-project scaffolding, device-matrix validation, Docker-vs-native benchmarks, and
-guarded host-side UniFlash command generation.
+private SDK-full image creation, CMake+Ninja fork project scaffolding,
+device-matrix validation, Docker-vs-native benchmarks, and guarded host-side
+UniFlash command generation.
 
 ## Chinese Summary
 
 面向 TI mmWave SDK 03.06 的可复现 Linux 构建与验证环境：使用 Docker 隔离依赖，
-提供 CMake+Ninja 工程模板、1 代毫米波 demo 矩阵验证、原生与 Docker 构建对比，
-以及需要显式串口和确认参数的 UniFlash/DSLite 刷写封装。
+提供私有 SDK-full Docker 镜像、CMake+Ninja fork 工程模板、1 代毫米波 demo
+矩阵验证、原生与 Docker 构建对比，以及需要显式串口和确认参数的
+UniFlash/DSLite 刷写封装。
 
 ## Boundary
 

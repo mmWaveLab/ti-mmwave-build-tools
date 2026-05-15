@@ -28,6 +28,27 @@ jobs:
       - name: Container entrypoint smoke
         run: docker run --rm ti-mmwave-build-tools:ci bash -lc 'command -v cmake && command -v ninja && command -v check-ti-linux'
 
+  sdk-full-image-smoke:
+    if: github.event_name != 'pull_request' && vars.SDK_FULL_IMAGE != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: Login to Docker Hub
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
+            printf '%s\n' "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
+          else
+            echo "No Docker Hub credentials configured; relying on runner Docker auth."
+          fi
+      - name: Pull private SDK-full image
+        run: docker pull "${{ vars.SDK_FULL_IMAGE }}"
+      - name: Generate and build forked 6843 project
+        run: SDK_FULL_IMAGE="${{ vars.SDK_FULL_IMAGE }}" make sdk-image-smoke
+
   self-hosted-device-validation:
     if: github.event_name == 'workflow_dispatch'
     runs-on: [self-hosted, ti-mmwave]

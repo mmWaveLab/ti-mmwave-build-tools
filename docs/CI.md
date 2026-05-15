@@ -1,6 +1,6 @@
 # CI
 
-GitHub Actions has three tiers.
+GitHub Actions has four tiers.
 
 ## Public Smoke
 
@@ -24,6 +24,31 @@ contains the expected command-line tools.
 Public jobs run on every push and pull request. They use workflow concurrency
 per branch so a newer push cancels older in-progress runs, and each public job
 has a timeout to avoid hanging on a transient Docker or runner issue.
+
+## Private SDK-full Image Smoke
+
+The private-image tier runs on `ubuntu-latest` only when repository variable
+`SDK_FULL_IMAGE` is configured. It pulls the private SDK-full Docker image,
+forks demo projects from the SDK inside the image, and builds them with
+CMake+Ninja:
+
+```bash
+make sdk-image-smoke SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02
+```
+
+Configure GitHub with:
+
+```text
+Repository variable:
+  SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02
+
+Repository secrets:
+  DOCKERHUB_USERNAME
+  DOCKERHUB_TOKEN
+```
+
+The private-image job is skipped for `pull_request` events so forked PRs do not
+receive private Docker credentials.
 
 ## Self-Hosted Device Validation
 

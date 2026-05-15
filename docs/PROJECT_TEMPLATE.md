@@ -1,7 +1,8 @@
 # mmWave CMake Project Template
 
-This repository can create small CMake/Ninja firmware projects that wrap an
-official TI mmWave SDK demo without copying TI source into git.
+This repository can create CMake/Ninja firmware projects by forking an official
+TI mmWave SDK demo from an SDK-full Docker image. The generated project is a
+normal source tree that developers can edit directly.
 
 ## Create A Project
 
@@ -23,6 +24,11 @@ examples/people-count-6843/
   CMakeLists.txt
   Makefile
   README.md
+  .gitignore
+  app/
+    makefile
+    mss/
+    dss/
   src/README.md
 ```
 
@@ -38,29 +44,23 @@ Supported template devices:
 
 ## Build A Project
 
-Docker:
+Build with the SDK-full Docker image:
 
 ```bash
-make docker-build
-make project-docker PROJECT=examples/people-count-6843
-```
-
-Native Ubuntu:
-
-```bash
-make project-native PROJECT=examples/people-count-6843
+cd examples/people-count-6843
+make build
 ```
 
 ## Design Rules
 
-- The generated project references `MMWAVE_SDK_PACKAGES/ti/demo/...`.
-- The build copies SDK demo files into the CMake build tree before invoking the
-  official SDK makefile.
-- TI SDK source, tools, and generated binaries stay out of git.
-- Keep reference-demo builds green before adding source overlays.
+- The generated project copies a TI SDK demo into `app/`.
+- The build copies `app/` into the CMake build tree before invoking the
+  original TI SDK makefile.
+- The SDK-full Docker image provides TI SDK, compilers, CMake, Ninja, and
+  helper scripts.
+- Generated build outputs stay under `build/`.
 
 ## When To Use This Template
 
-Use it for board bring-up, regression projects, and CI examples such as IWR1843
-or IWR6843. For deep source-level integration, keep using the reusable CMake API
-under `cmake/` and graduate only the parts that need direct CMake control.
+Use it for board bring-up, regression projects, and real firmware development
+starting from a known-good TI demo such as IWR1843 or IWR6843 out-of-box.

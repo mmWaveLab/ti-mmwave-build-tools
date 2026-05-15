@@ -52,12 +52,14 @@ test -f "$repo_dir/config/devices.tsv"
 test -f "$repo_dir/examples/official-sdk-demos/README.md"
 test -f "$repo_dir/examples/official-sdk-demos/devices-ci.tsv"
 test -f "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
+test -f "$repo_dir/templates/mmwave-cmake-project/gitignore.in"
+test -f "$repo_dir/docker/Dockerfile.sdk-full"
 
-printf 'Project template generation\n'
-rm -rf "$repo_dir/build/template-smoke-project"
-"$repo_dir/scripts/new-project.sh" template-smoke --device xwr18xx --out build/template-smoke-project
-test -f "$repo_dir/build/template-smoke-project/CMakeLists.txt"
-grep -q 'ti/demo/xwr18xx/mmw' "$repo_dir/build/template-smoke-project/CMakeLists.txt"
+printf 'Project template static checks\n'
+grep -q 'cmake --build' "$repo_dir/templates/mmwave-cmake-project/Makefile.in"
+grep -q 'copy_directory.*APP_SOURCE_DIR' "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
+grep -q 'create-mmwave-app' "$repo_dir/docker/Dockerfile.sdk-full"
+"$repo_dir/scripts/create-mmwave-app.sh" --help >/dev/null
 
 printf 'Official demo manifest\n'
 "$repo_dir/scripts/check-official-demo-manifest.sh"

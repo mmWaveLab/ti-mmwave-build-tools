@@ -1,14 +1,21 @@
 IMAGE ?= ti-mmwave-build-tools:linux-smoke
+SDK_FULL_IMAGE ?= meowkj/ti-mmwave-sdk:03.06.02-local
 TI_ROOT ?= /home/kj/ti
 HOST_TI_ROOT ?= $(TI_ROOT)
 
-.PHONY: docker-build docker-shell github-actions-smoke official-demo-manifest project-new project-docker project-native doctor test ci docker-cmake native-cmake benchmark validate-devices flash-list flash-doctor flash-dry-run flash package clean
+.PHONY: docker-build docker-shell sdk-image sdk-image-smoke github-actions-smoke official-demo-manifest project-new project-docker project-native doctor test ci docker-cmake native-cmake benchmark validate-devices flash-list flash-doctor flash-dry-run flash package clean
 
 docker-build:
 	docker build -t $(IMAGE) .
 
 docker-shell:
 	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/docker-shell.sh
+
+sdk-image:
+	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/build-sdk-image.sh
+
+sdk-image-smoke:
+	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) scripts/sdk-image-smoke.sh
 
 github-actions-smoke:
 	scripts/github-actions-smoke.sh
@@ -17,7 +24,7 @@ official-demo-manifest:
 	scripts/check-official-demo-manifest.sh
 
 project-new:
-	scripts/new-project.sh $(PROJECT) --device $(or $(DEVICE),xwr68xx) $(if $(OUT),--out $(OUT),) $(if $(FORCE),--force,)
+	SDK_IMAGE=$(SDK_FULL_IMAGE) scripts/new-project.sh $(PROJECT) --device $(or $(DEVICE),xwr68xx) --image $(SDK_FULL_IMAGE) $(if $(OUT),--out $(OUT),) $(if $(FORCE),--force,)
 
 project-docker:
 	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) PROJECT=$(PROJECT) scripts/cmake-build-project.sh

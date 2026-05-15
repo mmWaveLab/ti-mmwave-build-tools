@@ -15,7 +15,7 @@ by TI. Bring your own TI installation and mount it into the build environment.
 
 - Build TI mmWave SDK 03.06 demo firmware on Linux.
 - Build `xwr68xx/mmw` MSS+DSS through CMake and Ninja.
-- Create new mmWave CMake/Ninja firmware projects from a template.
+- Create forked mmWave CMake/Ninja firmware projects from TI SDK demos.
 - Validate first-generation SDK demo families in Docker.
 - Track official TI SDK demo references without vendoring TI source files.
 - Compare Docker and native Ubuntu build time and output hashes.
@@ -64,11 +64,14 @@ Build the CMake+Ninja MSS+DSS example:
 make docker-cmake
 ```
 
-Create and build a new CMake project:
+Create and build a new forked CMake project from the SDK-full image:
 
 ```bash
-make project-new PROJECT=people-count-6843 DEVICE=xwr68xx
-make project-docker PROJECT=examples/people-count-6843
+docker run --rm -it -v "$PWD":/work -w /work \
+  meowkj/ti-mmwave-sdk:03.06.02-local \
+  create-mmwave-app people-count-6843 --device xwr68xx
+cd people-count-6843
+make build
 ```
 
 Check UniFlash readiness:
@@ -133,6 +136,12 @@ Latest project-template validation report:
 reports/project-template-validation-20260515T130010Z.md
 ```
 
+Latest SDK-full private-image validation report:
+
+```text
+reports/sdk-full-image-validation-20260515T140042Z.md
+```
+
 Validation here means the Docker SDK environment can compile the TI mmWave SDK
 03.06 demo and produce `.bin` artifacts. It does not mean each binary was
 flashed to hardware, and it does not imply other TI device generations are
@@ -154,6 +163,8 @@ Key files:
   CI builds.
 - `templates/mmwave-cmake-project`: project scaffold for new CMake/Ninja
   firmware projects.
+- `docker/Dockerfile.sdk-full`: private SDK-full image recipe for local or
+  private-registry use.
 
 The Docker validation flow in this README exercises the SDK reference demo
 makefiles. Downstream firmware projects can still use the reusable CMake API
@@ -220,7 +231,8 @@ make test
 make benchmark
 make validate-devices
 make project-new PROJECT=name DEVICE=xwr68xx
-make project-docker PROJECT=examples/name
+make sdk-image
+make sdk-image-smoke
 make flash-list
 make flash-doctor
 make package

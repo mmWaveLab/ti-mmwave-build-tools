@@ -1,15 +1,37 @@
-IMAGE ?= ti-mmwave-build-tools:linux-smoke
-TI_ROOT ?= /home/kj/ti
-HOST_TI_ROOT ?= $(TI_ROOT)
+IMAGE ?= @SDK_IMAGE@
 BUILD_DIR ?= build
 
-.PHONY: configure build clean
+.PHONY: pull configure build shell clean
+
+pull:
+	docker pull $(IMAGE)
 
 configure:
-	cmake -S . -B $(BUILD_DIR) -G Ninja -DTI_ROOT=$(TI_ROOT)
+	docker run --rm \
+	  --user "$$(id -u):$$(id -g)" \
+	  -e HOME=/tmp \
+	  -v "$$(pwd)":/work/app \
+	  -w /work/app \
+	  $(IMAGE) \
+	  cmake -S . -B $(BUILD_DIR) -G Ninja -DTI_ROOT=/home/kj/ti
 
 build: configure
-	cmake --build $(BUILD_DIR) --target firmware
+	docker run --rm \
+	  --user "$$(id -u):$$(id -g)" \
+	  -e HOME=/tmp \
+	  -v "$$(pwd)":/work/app \
+	  -w /work/app \
+	  $(IMAGE) \
+	  cmake --build $(BUILD_DIR) --target firmware
+
+shell:
+	docker run --rm -it \
+	  --user "$$(id -u):$$(id -g)" \
+	  -e HOME=/tmp \
+	  -v "$$(pwd)":/work/app \
+	  -w /work/app \
+	  $(IMAGE) \
+	  bash
 
 clean:
 	rm -rf $(BUILD_DIR)
