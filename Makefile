@@ -3,7 +3,7 @@ SDK_FULL_IMAGE ?= meowkj/ti-mmwave-sdk:03.06.02-local
 TI_ROOT ?= /opt/ti
 HOST_TI_ROOT ?= $(TI_ROOT)
 
-.PHONY: docker-build docker-shell sdk-image sdk-image-smoke sdk-profile-validate github-actions-smoke official-demo-manifest project-new project-docker project-native doctor test ci docker-cmake native-cmake benchmark validate-devices flash-list flash-doctor flash-dry-run flash package clean
+.PHONY: docker-build docker-shell sdk-image sdk-image-smoke sdk-profile-validate github-actions-smoke project-new project-docker project-native doctor test ci docker-cmake native-cmake benchmark flash-list flash-doctor flash-dry-run flash package clean
 
 docker-build:
 	docker build -t $(IMAGE) .
@@ -18,13 +18,10 @@ sdk-image-smoke:
 	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) scripts/sdk-image-smoke.sh
 
 sdk-profile-validate:
-	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) PROFILE_VALIDATION_JOBS=$(or $(PROFILE_VALIDATION_JOBS),2) DEMO_PROFILES="$(DEMO_PROFILES)" scripts/validate-demo-profiles.sh
+	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) PROFILE_VALIDATION_JOBS=$(or $(PROFILE_VALIDATION_JOBS),all) DEMO_PROFILES="$(DEMO_PROFILES)" scripts/validate-demo-profiles.sh
 
 github-actions-smoke:
 	scripts/github-actions-smoke.sh
-
-official-demo-manifest:
-	scripts/check-official-demo-manifest.sh
 
 project-new:
 	SDK_IMAGE=$(SDK_FULL_IMAGE) scripts/new-project.sh $(PROJECT) $(if $(PROFILE),--profile $(PROFILE),--device $(or $(DEVICE),xwr68xx)) --image $(SDK_FULL_IMAGE) $(if $(OUT),--out $(OUT),) $(if $(FORCE),--force,)
@@ -52,9 +49,6 @@ native-cmake:
 
 benchmark:
 	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/benchmark.sh
-
-validate-devices:
-	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/validate-devices.sh
 
 flash-list:
 	scripts/flash-list.sh

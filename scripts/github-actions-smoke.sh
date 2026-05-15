@@ -48,11 +48,8 @@ test -f "$repo_dir/docs/UNIFLASH.md"
 test -f "$repo_dir/docs/PROJECT_TEMPLATE.md"
 test -f "$repo_dir/docs/DOCKER_IMAGE.md"
 test -f "$repo_dir/docs/PROJECT_MANAGEMENT.md"
-test -f "$repo_dir/config/devices.tsv"
 test -f "$repo_dir/config/demo-profiles.tsv"
 test -f "$repo_dir/scripts/validate-demo-profiles.sh"
-test -f "$repo_dir/examples/official-sdk-demos/README.md"
-test -f "$repo_dir/examples/official-sdk-demos/devices-ci.tsv"
 test -f "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
 test -f "$repo_dir/templates/mmwave-cmake-project/gitignore.in"
 test -f "$repo_dir/docker/Dockerfile.sdk-full"
@@ -72,12 +69,7 @@ from pathlib import Path
 
 path = Path(sys.argv[1])
 required = {
-    "iwr1642boost-oob",
     "iwr1843boost-oob",
-    "iwr1843aop-oob",
-    "xwr64xx-oob",
-    "xwr64xx-aop-oob",
-    "xwr64xx-compression",
     "iwr6843isk-oob",
 }
 ids = set()
@@ -95,9 +87,9 @@ with path.open(encoding="utf-8", newline="") as f:
         ids.add(profile)
         if not sdk_demo.startswith("ti/demo/") or not sdk_demo.endswith("/mmw"):
             errors.append(f"line {line_no}: unexpected SDK demo path {sdk_demo}")
-        if sdk_device_type not in {"xwr16xx", "xwr18xx", "xwr68xx"}:
+        if sdk_device_type not in {"xwr18xx", "xwr68xx"}:
             errors.append(f"line {line_no}: unexpected SDK device type {sdk_device_type}")
-        if sdk_device not in {"iwr16xx", "iwr18xx", "iwr68xx"}:
+        if sdk_device not in {"iwr18xx", "iwr68xx"}:
             errors.append(f"line {line_no}: unexpected SDK device {sdk_device}")
         if not output_bin.endswith(".bin"):
             errors.append(f"line {line_no}: output is not a bin file {output_bin}")
@@ -114,8 +106,5 @@ if errors:
     raise SystemExit("\n".join(errors))
 print(f"demo profiles ok: {len(ids)}")
 PY
-
-printf 'Official demo manifest\n'
-"$repo_dir/scripts/check-official-demo-manifest.sh"
 
 printf 'PASS: GitHub Actions smoke test succeeded.\n'

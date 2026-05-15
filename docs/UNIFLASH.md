@@ -51,7 +51,7 @@ Generate the command without flashing:
 ```bash
 make flash-dry-run \
   PORT=/dev/ttyACM0 \
-  BIN=artifacts/device-validation/xwr68xx/xwr68xx_mmw_demo.bin \
+  BIN=build/sdk-image-smoke/smoke-iwr6843isk-oob/build/app/xwr68xx_mmw_demo.bin \
   DSLITE=/path/to/uniflash/dslite.sh \
   CCXML=/path/to/mmwave.ccxml \
   UFSETTINGS=/path/to/generated.ufsettings
@@ -62,7 +62,7 @@ Flash only after the dry-run command looks right:
 ```bash
 make flash \
   PORT=/dev/ttyACM0 \
-  BIN=artifacts/device-validation/xwr68xx/xwr68xx_mmw_demo.bin \
+  BIN=build/sdk-image-smoke/smoke-iwr6843isk-oob/build/app/xwr68xx_mmw_demo.bin \
   DSLITE=/path/to/uniflash/dslite.sh \
   CCXML=/path/to/mmwave.ccxml \
   UFSETTINGS=/path/to/generated.ufsettings \

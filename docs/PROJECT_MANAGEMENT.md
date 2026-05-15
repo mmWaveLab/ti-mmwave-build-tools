@@ -14,8 +14,7 @@ collection. Changes should keep three promises true:
 | Docker image | Host dependency shell with CMake, Ninja, and helpers | Build and entrypoint smoke | Full SDK build |
 | SDK-full image | Private image with TI SDK and toolchains | Optional private pull/build | Full SDK build |
 | Project template | Generate forked mmWave CMake projects | Static template smoke | Generated project firmware build |
-| Official demo manifest | Track reasonable TI SDK demo build targets | Syntax and policy check | Path and makefile existence check |
-| Device validation | Build all configured first-generation SDK demos | Not possible without TI SDK | Full validation and artifact upload |
+| Starter demo profiles | Track supported project-generation OOB demos | Syntax and policy check | Direct-vs-fork SHA validation |
 | UniFlash wrapper | Guarded host-side flash command generation | Script smoke | Hardware flashing when serial is attached |
 
 ## Release Gates
@@ -27,8 +26,8 @@ make github-actions-smoke
 make docker-build
 make sdk-image SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02-local HOST_TI_ROOT=/opt/ti
 make sdk-image-smoke SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02-local
+make sdk-profile-validate SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02-local
 make doctor
-make validate-devices
 ```
 
 For changes that touch flashing:
@@ -56,8 +55,8 @@ make flash-dry-run PORT=/dev/ttyUSB0 BIN=artifacts/xwr68xx_mmw_demo.docker.bin
 | Public smoke | push, pull request | GitHub-hosted Ubuntu | Active |
 | Docker image smoke | push, pull request | GitHub-hosted Ubuntu | Active |
 | Private SDK image smoke | push, workflow dispatch | GitHub-hosted Ubuntu with Docker secrets | Active |
-| Device validation | manual dispatch | self-hosted `ti-mmwave` | Active design |
-| Full firmware gate | main push or nightly | self-hosted `ti-mmwave` | Next |
+| Starter profile SHA validation | push, workflow dispatch | GitHub-hosted with private SDK image | Active |
+| Full firmware gate | main push or nightly | self-hosted `ti-mmwave` | Optional |
 | Flash hardware gate | manual dispatch only | lab bench host | Future |
 
 The next operational step is to register the Ubuntu lab PC as a GitHub
@@ -68,14 +67,13 @@ self-hosted
 ti-mmwave
 ```
 
-After that, device validation can move from manual dispatch to a scheduled or
+After that, hardware flashing can move from manual dispatch to a scheduled or
 branch-gated workflow.
 
 ## Maintenance Rhythm
 
-- When adding a device family, update `config/devices.tsv`,
-  `examples/official-sdk-demos/devices-ci.tsv`, `docs/DEVICE_SUPPORT.md`, and
-  README support tables together.
+- When adding a starter demo, update `config/demo-profiles.tsv`,
+  `docs/PROJECT_TEMPLATE.md`, and README starter tables together.
 - When changing Docker behavior, update `docs/DOCKER_IMAGE.md` and run
   `make docker-build`; for SDK-full changes also run `make sdk-image-smoke`.
 - When changing project scaffolding, update `templates/mmwave-cmake-project`,

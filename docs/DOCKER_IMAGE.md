@@ -38,7 +38,7 @@ makefiles and XDC/configuro outputs that embed absolute paths.
 make docker-build
 make doctor
 make project-docker PROJECT=examples/name
-make validate-devices
+make sdk-profile-validate
 ```
 
 Build the private SDK-full image on a machine that already has TI SDK installed:

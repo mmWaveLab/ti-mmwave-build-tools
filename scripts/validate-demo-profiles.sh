@@ -10,14 +10,26 @@ report_dir="${REPORT_DIR:-$repo_dir/reports}"
 timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
 report="$report_dir/demo-profile-validation-$timestamp.md"
 profiles_filter="${DEMO_PROFILES:-}"
-jobs="${PROFILE_VALIDATION_JOBS:-2}"
+jobs="${PROFILE_VALIDATION_JOBS:-all}"
+jobs_label="$jobs"
 
 mkdir -p "$work_dir" "$artifact_root" "$report_dir"
 
-if [[ ! "$jobs" =~ ^[0-9]+$ || "$jobs" -lt 1 ]]; then
-  printf 'PROFILE_VALIDATION_JOBS must be a positive integer, got: %s\n' "$jobs" >&2
-  exit 2
-fi
+case "$jobs" in
+  all)
+    jobs=9999
+    ;;
+  auto)
+    jobs="$(getconf _NPROCESSORS_ONLN 2>/dev/null || printf '1')"
+    jobs_label="auto:$jobs"
+    ;;
+  *)
+    if [[ ! "$jobs" =~ ^[0-9]+$ || "$jobs" -lt 1 ]]; then
+      printf 'PROFILE_VALIDATION_JOBS must be all, auto, or a positive integer, got: %s\n' "$jobs" >&2
+      exit 2
+    fi
+    ;;
+esac
 
 docker run --rm \
   -v "$work_dir":/work \
@@ -30,7 +42,7 @@ printf '# Demo Profile SHA-256 Validation\n\n' >"$report"
 printf '%s\n' "- Timestamp UTC: \`$timestamp\`" >>"$report"
 printf '%s\n' "- SDK-full image: \`$image\`" >>"$report"
 printf '%s\n' "- Profile manifest: \`$profiles_file\`" >>"$report"
-printf '%s\n' "- Parallel profile jobs: \`$jobs\`" >>"$report"
+printf '%s\n' "- Parallel profile jobs: \`$jobs_label\`" >>"$report"
 printf '%s\n\n' "- Work directory: \`$work_dir\`" >>"$report"
 printf '| Profile | Direct SDK SHA-256 | Fork CMake SHA-256 | Result | Output |\n' >>"$report"
 printf '|---|---|---|---:|---|\n' >>"$report"

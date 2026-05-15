@@ -1,6 +1,6 @@
 # CI
 
-GitHub Actions has four tiers.
+GitHub Actions has three tiers.
 
 ## Public Smoke
 
@@ -16,7 +16,7 @@ It performs:
 - workflow YAML structure checks
 - root CMake configure without a TI SDK
 - public documentation and config path checks
-- official TI SDK demo manifest checks without vendoring TI files
+- starter demo profile manifest checks without vendoring TI files
 
 The public workflow also builds the Docker image and verifies that the container
 contains the expected command-line tools.
@@ -30,10 +30,11 @@ has a timeout to avoid hanging on a transient Docker or runner issue.
 The private-image tier runs on `ubuntu-latest` only when repository variable
 `SDK_FULL_IMAGE` is configured. It pulls the private SDK-full Docker image,
 forks demo projects from the SDK inside the image, and builds them with
-CMake+Ninja:
+CMake+Ninja, then compares direct SDK output with generated fork output by
+SHA-256:
 
 ```bash
-make sdk-image-smoke SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02
+make sdk-profile-validate SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02
 ```
 
 Configure GitHub with:
@@ -49,34 +50,6 @@ Repository secrets:
 
 The private-image job is skipped for `pull_request` events so forked PRs do not
 receive private Docker credentials.
-
-## Self-Hosted Device Validation
-
-The device-validation tier runs only on a self-hosted runner with TI SDK access:
-
-```bash
-make docker-build
-make official-demo-manifest
-make validate-devices
-```
-
-It builds every configured device row in `config/devices.tsv` and uploads:
-
-- `reports/device-validation-*.md`
-- `reports/device-validation-*.log`
-- `artifacts/device-validation/**/*.bin`
-
-The demo source mapping is documented in
-`examples/official-sdk-demos/devices-ci.tsv`. That file points to TI SDK demo
-folders on the runner; it does not vendor TI-owned source code.
-
-Current configured device rows:
-
-- `xwr16xx`
-- `xwr18xx`
-- `xwr64xx`
-- `xwr64xx_compression`
-- `xwr68xx`
 
 ## Self-Hosted Full SDK CI
 
@@ -116,8 +89,7 @@ The self-hosted jobs are guarded behind `workflow_dispatch` and the
 `self-hosted, ti-mmwave` runner labels because public GitHub-hosted runners
 cannot legally or practically contain the TI SDK/toolchain.
 
-If a permanently available licensed self-hosted runner is attached to the
-repository, `self-hosted-device-validation` can be moved from manual dispatch to
-push-based gating. Until then, push-based CI validates the official demo matrix
-syntax and Docker environment, while lab/self-hosted runs perform the real
-firmware builds.
+Until a permanently available licensed self-hosted runner is attached, public
+CI validates repository structure and Docker tooling, while the private
+SDK-full image job validates real starter firmware forks when credentials are
+available.

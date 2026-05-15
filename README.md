@@ -5,7 +5,7 @@ Reproducible Linux build, validation, and flashing helpers for TI mmWave SDK
 
 This repository packages the host glue around an existing TI SDK installation:
 Docker for dependency isolation, CMake+Ninja entry points for firmware builds,
-device-matrix validation, native-vs-Docker benchmarks, and guarded UniFlash
+starter-project validation, native-vs-Docker benchmarks, and guarded UniFlash
 command generation.
 
 It does not redistribute TI SDKs, compilers, UniFlash, or device firmware owned
@@ -16,9 +16,8 @@ by TI. Bring your own TI installation and mount it into the build environment.
 - Build TI mmWave SDK 03.06 demo firmware on Linux.
 - Build `xwr68xx/mmw` MSS+DSS through CMake and Ninja.
 - Create forked mmWave CMake/Ninja firmware projects from TI SDK demos.
-- Validate first-generation SDK demo families in Docker.
-- Compare direct TI OOB demo builds with generated fork projects by SHA-256.
-- Track official TI SDK demo references without vendoring TI source files.
+- Validate starter OOB demo forks in Docker.
+- Compare direct TI OOB demo builds with generated starter projects by SHA-256.
 - Compare Docker and native Ubuntu build time and output hashes.
 - Generate safe UniFlash/DSLite commands with an explicit serial port.
 - Keep generated build output under `build/`, `artifacts/`, and `reports/`.
@@ -29,9 +28,8 @@ by TI. Bring your own TI installation and mount it into the build environment.
 |---|---:|---|
 | Docker SDK environment | Validated | `make doctor`, `make test`, `make ci` |
 | CMake+Ninja MSS+DSS build | Validated | Docker/native SHA-256 match |
-| First-generation device matrix | Validated | `reports/device-validation-20260515T123503Z.md` |
-| Demo fork SHA comparison | Validated | `make sdk-profile-validate` |
-| UniFlash integration layer | Guarded test passed | `reports/uniflash-integration-20260515T090526Z.md` |
+| Starter demo fork SHA comparison | Validated | `make sdk-profile-validate` |
+| UniFlash integration layer | Guarded test available | `make flash-doctor`, `make flash-dry-run` |
 | Real hardware flash | Pending | Requires TI UniFlash/DSLite and a board in download mode |
 
 ## Quick Start
@@ -55,9 +53,8 @@ Build and test:
 ```bash
 make docker-build
 make doctor
-make official-demo-manifest
 make test
-make validate-devices
+make sdk-profile-validate
 ```
 
 Build the CMake+Ninja MSS+DSS example:
@@ -98,78 +95,22 @@ generated make fragments embed absolute SDK and toolchain paths.
 The host path can still be different. Set `HOST_TI_ROOT` to the real local TI
 installation, and the scripts mount it read-only into the container.
 
-## Support Matrix
+## Starter Profiles
 
-Support levels:
+The generator intentionally exposes only starter OOB projects, not every SDK
+coverage target:
 
-- `Validated`: built in this Docker environment and produced firmware artifacts.
-- `SDK-listed`: listed by TI SDK makefiles, but not represented by a demo folder
-  validated by this repository yet.
-- `Different SDK flow`: not covered by this mmWave SDK 03.06.02.00-LTS
-  container, but support may exist through another TI SDK/package.
+| Profile | SDK demo | Cores | Firmware artifact |
+|---|---|---:|---|
+| `iwr6843isk-oob` | `ti/demo/xwr68xx/mmw` | MSS+DSS | `xwr68xx_mmw_demo.bin` |
+| `iwr1843boost-oob` | `ti/demo/xwr18xx/mmw` | MSS+DSS | `xwr18xx_mmw_demo.bin` |
 
-| Device family / demo | SDK device used | Support level | Validation | Firmware artifacts |
-|---|---|---:|---|---|
-| `xWR16xx` / `IWR1642` / `AWR1642` | `iwr16xx` | Validated | `make validate-devices`, `62.17s` | `xwr16xx_mmw_demo.bin` |
-| `xWR18xx` / `IWR1843` / `AWR1843` | `iwr18xx` | Validated | `make validate-devices`, `77.92s` | `xwr18xx_mmw_demo.bin`, `xwr18xx_mmw_aop_demo.bin` |
-| `xWR64xx` | `iwr68xx` | Validated | `make validate-devices`, `66.81s` | `xwr64xx_mmw_demo.bin`, `xwr64xxAOP_mmw_demo.bin` |
-| `xWR64xx compression` | `iwr68xx` | Validated | `make validate-devices`, `33.26s` | `xwr64xx_compression_mmw_demo.bin` |
-| `xWR68xx` / `IWR6843ISK` / `AWR6843` | `iwr68xx` | Validated | `make validate-devices`, `65.02s` | `xwr68xx_mmw_demo.bin` |
-| `xWR14xx` / `IWR1443` / `AWR1443` | `iwr14xx` / `awr14xx` | SDK-listed | TI SDK common makefiles list the device family; no `ti/demo/xwr14xx/mmw` demo folder was validated here. | Not produced |
-| `AWR2x44P`, `AWR2544`, `AWR294x` | N/A | Different SDK flow | Use TI MMWAVE-MCUPLUS-SDK, not this mmWave SDK 03.06 flow. | Not produced here |
-| `AWR1243`, `AWR2243` RF transceiver/MMIC devices | N/A | Different SDK flow | Use TI MMWAVE-DFP / mmWaveLink-style flow, not this MSS/DSS demo build. | Not produced here |
-| `xWRLx432`, `AWRL6432`, newer low-power L-SDK devices | N/A | Different SDK flow | Use the matching low-power / newer TI SDK flow. | Not produced here |
+IWR6843AOP is not aliased to IWR6843ISK. Add it only when the Radar Toolbox OOB
+source package is included in the private SDK-full image.
 
-Latest device-validation report:
-
-```text
-reports/device-validation-20260515T123503Z.md
-```
-
-Latest UniFlash integration report:
-
-```text
-reports/uniflash-integration-20260515T090526Z.md
-```
-
-Latest GitHub Actions smoke report:
-
-```text
-reports/github-actions-smoke-20260515T0920Z.md
-```
-
-Latest project-template validation report:
-
-```text
-reports/project-template-validation-20260515T130010Z.md
-```
-
-Latest SDK-full private-image validation report:
-
-```text
-reports/sdk-full-image-validation-20260515T140042Z.md
-```
-
-Latest generated demo-profile smoke report:
-
-```text
-reports/demo-profile-smoke-20260515T160000Z.md
-```
-
-Latest direct-vs-fork demo profile SHA report:
-
-```text
-reports/demo-profile-validation-20260515T153535Z.md
-```
-
-Validation here means the Docker SDK environment can compile the TI mmWave SDK
-03.06 demo and produce `.bin` artifacts. It does not mean each binary was
-flashed to hardware, and it does not imply other TI device generations are
-unsupported in their own SDKs.
-
-IWR6843AOP is handled as a separate AOP device/package profile, not as a synonym
-for IWR6843ISK. It should be added to the demo profile manifest only when the
-corresponding TI source package is present in the SDK-full image.
+Validation reports are generated under `reports/` when the relevant commands
+run. The repository keeps only source, docs, templates, and lightweight
+manifests under version control.
 
 ## Reusable CMake API
 
@@ -183,11 +124,9 @@ Key files:
 - `cmake/RunConfiguro.cmake`: XDC configuro wrapper.
 - `cmake/RunMetaImage.cmake`: ImageCreator wrapper.
 - `cmake/TiMmwaveSdkPaths.cmake`: Linux path discovery used by this Docker lab.
-- `examples/official-sdk-demos/devices-ci.tsv`: official TI SDK demo matrix for
-  CI builds.
 - `templates/mmwave-cmake-project`: project scaffold for new CMake/Ninja
   firmware projects.
-- `config/demo-profiles.tsv`: common TI SDK demo fork profiles used by
+- `config/demo-profiles.tsv`: starter TI OOB demo fork profiles used by
   `create-mmwave-app --profile`.
 - `docker/Dockerfile.sdk-full`: private SDK-full image recipe for local or
   private-registry use.
@@ -255,7 +194,6 @@ make doctor
 make github-actions-smoke
 make test
 make benchmark
-make validate-devices
 make project-new PROJECT=name PROFILE=iwr6843isk-oob
 make sdk-image
 make sdk-image-smoke
@@ -284,7 +222,6 @@ automatically. The SDK mount is read-only, so builds do not write into
 - Project template guide: `docs/PROJECT_TEMPLATE.md`
 - Docker image guide: `docs/DOCKER_IMAGE.md`
 - Project management: `docs/PROJECT_MANAGEMENT.md`
-- Device support: `docs/DEVICE_SUPPORT.md`
 - UniFlash guide: `docs/UNIFLASH.md`
 - GitHub About text: `docs/ABOUT.md`
 
@@ -322,7 +259,7 @@ Dry-run command generation:
 ```bash
 make flash-dry-run \
   PORT=/dev/ttyACM0 \
-  BIN=artifacts/device-validation/xwr68xx/xwr68xx_mmw_demo.bin \
+  BIN=build/sdk-image-smoke/smoke-iwr6843isk-oob/build/app/xwr68xx_mmw_demo.bin \
   DSLITE=/path/to/uniflash/dslite.sh \
   CCXML=/path/to/mmwave.ccxml \
   UFSETTINGS=/path/to/generated.ufsettings
@@ -333,7 +270,7 @@ Actual flashing requires an explicit confirmation flag:
 ```bash
 make flash \
   PORT=/dev/ttyACM0 \
-  BIN=artifacts/device-validation/xwr68xx/xwr68xx_mmw_demo.bin \
+  BIN=build/sdk-image-smoke/smoke-iwr6843isk-oob/build/app/xwr68xx_mmw_demo.bin \
   DSLITE=/path/to/uniflash/dslite.sh \
   CCXML=/path/to/mmwave.ccxml \
   UFSETTINGS=/path/to/generated.ufsettings \

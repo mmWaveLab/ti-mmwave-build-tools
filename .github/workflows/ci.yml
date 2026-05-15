@@ -49,33 +49,6 @@ jobs:
       - name: Compare direct SDK and forked CMake demo profiles
         run: SDK_FULL_IMAGE="${{ vars.SDK_FULL_IMAGE }}" make sdk-profile-validate
 
-  self-hosted-device-validation:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: [self-hosted, ti-mmwave]
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v5
-      - name: Build Docker image
-        run: make docker-build
-      - name: Check official demo manifest
-        run: make official-demo-manifest
-      - name: Validate all configured devices
-        run: make validate-devices
-      - name: Upload device validation reports
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: device-validation-reports
-          path: |
-            reports/device-validation-*.md
-            reports/device-validation-*.log
-      - name: Upload firmware artifacts
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: device-validation-firmware
-          path: artifacts/device-validation/**/*.bin
-
   self-hosted-full:
     if: github.event_name == 'workflow_dispatch'
     runs-on: [self-hosted, ti-mmwave]

@@ -43,85 +43,22 @@
       "requiredFor": "scripts/unix/generateMetaImage.sh calling out2rprc.exe"
     }
   },
-  "testedDemo": {
-    "device": "iwr68xx",
-    "deviceType": "xwr68xx",
-    "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr68xx/mmw",
-    "output": "xwr68xx_mmw_demo.bin",
-    "sha256": "4d37093668aa1106fdde282cc6e3eb22b6b823e6d73b93dbff908f8e1fc9d0b6"
-  },
-  "validatedDeviceDemos": {
-    "report": "reports/device-validation-20260515T084731Z.md",
-    "artifacts": "artifacts/device-validation",
-    "results": [
-      {
-        "id": "xwr16xx",
-        "sdkDevice": "iwr16xx",
-        "status": "PASS",
-        "seconds": 61.49,
-        "outputs": [
-          {
-            "file": "xwr16xx_mmw_demo.bin",
-            "sha256": "5977d13ed0e9e48622f1cd9df307a6e831d6a59090c795072171ccf3569b558b"
-          }
-        ]
-      },
-      {
-        "id": "xwr18xx",
-        "sdkDevice": "iwr18xx",
-        "status": "PASS",
-        "seconds": 76.71,
-        "outputs": [
-          {
-            "file": "xwr18xx_mmw_aop_demo.bin",
-            "sha256": "0de1fc782afdfd0bc070bcf1406bb567579e694e9cfced3964035a3cc1652fe6"
-          },
-          {
-            "file": "xwr18xx_mmw_demo.bin",
-            "sha256": "2609674aed3bab4338ab62bcc50ff19f72201f8ebf5e0612e3ade40cdee6789b"
-          }
-        ]
-      },
-      {
-        "id": "xwr64xx",
-        "sdkDevice": "iwr68xx",
-        "status": "PASS",
-        "seconds": 66.64,
-        "outputs": [
-          {
-            "file": "xwr64xxAOP_mmw_demo.bin",
-            "sha256": "1081f4f81d03c7982709ad775d34b6ec1299c97c09bfbc5dcb218d33c3d1c685"
-          },
-          {
-            "file": "xwr64xx_mmw_demo.bin",
-            "sha256": "c67c90c8a9d2abb129505fae1a24c5cbd0335fd3ff675abd8ffba679fc55b15d"
-          }
-        ]
-      },
-      {
-        "id": "xwr64xx_compression",
-        "sdkDevice": "iwr68xx",
-        "status": "PASS",
-        "seconds": 32.76,
-        "outputs": [
-          {
-            "file": "xwr64xx_compression_mmw_demo.bin",
-            "sha256": "e16fce9c1518186128ea339ad5a8924eb5f2c1366a224f0058a9b48d04c8e565"
-          }
-        ]
-      },
-      {
-        "id": "xwr68xx",
-        "sdkDevice": "iwr68xx",
-        "status": "PASS",
-        "seconds": 64.39,
-        "outputs": [
-          {
-            "file": "xwr68xx_mmw_demo.bin",
-            "sha256": "4d37093668aa1106fdde282cc6e3eb22b6b823e6d73b93dbff908f8e1fc9d0b6"
-          }
-        ]
-      }
-    ]
-  }
+  "starterProfiles": [
+    {
+      "profile": "iwr1843boost-oob",
+      "device": "iwr18xx",
+      "deviceType": "xwr18xx",
+      "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr18xx/mmw",
+      "output": "xwr18xx_mmw_demo.bin",
+      "cores": "MSS+DSS"
+    },
+    {
+      "profile": "iwr6843isk-oob",
+      "device": "iwr68xx",
+      "deviceType": "xwr68xx",
+      "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr68xx/mmw",
+      "output": "xwr68xx_mmw_demo.bin",
+      "cores": "MSS+DSS"
+    }
+  ]
 }

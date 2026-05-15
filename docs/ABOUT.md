@@ -20,9 +20,7 @@ mmwave
 mmwave-sdk
 iwr6843
 iwr1843
-iwr1642
 awr1843
-awr1642
 embedded
 firmware
 docker
@@ -36,20 +34,17 @@ radar
 
 ## Long About
 
-This repository provides a repeatable Linux environment for building and
-validating TI mmWave SDK 03.06 demo firmware without redistributing TI-owned
-SDKs or compilers. It focuses on first-generation TI mmWave SDK MSS+DSS demo
-flows, including Docker dependency isolation, CMake+Ninja build entry points,
-private SDK-full image creation, CMake+Ninja fork project scaffolding,
-device-matrix validation, Docker-vs-native benchmarks, and guarded host-side
-UniFlash command generation.
+This repository provides a repeatable Linux environment for building starter TI
+mmWave OOB firmware projects without redistributing TI-owned SDKs or compilers.
+It focuses on Docker dependency isolation, private SDK-full image creation,
+CMake+Ninja fork project scaffolding, direct-vs-fork SHA validation, and guarded
+host-side UniFlash command generation.
 
 ## Chinese Summary
 
-面向 TI mmWave SDK 03.06 的可复现 Linux 构建与验证环境：使用 Docker 隔离依赖，
-提供私有 SDK-full Docker 镜像、CMake+Ninja fork 工程模板、1 代毫米波 demo
-矩阵验证、原生与 Docker 构建对比，以及需要显式串口和确认参数的
-UniFlash/DSLite 刷写封装。
+面向 TI mmWave OOB 工程的可复现 Linux 构建与验证环境：使用 Docker 隔离依赖，
+提供私有 SDK-full Docker 镜像、CMake+Ninja fork 工程模板、direct-vs-fork
+SHA 验证，以及需要显式串口和确认参数的 UniFlash/DSLite 刷写封装。
 
 ## Boundary
 

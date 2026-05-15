@@ -149,9 +149,10 @@ function(ti_mmwave_add_mss_image)
 
     get_filename_component(_out_dir "${ARG_OUTPUT}" DIRECTORY)
     ti_mmwave_add_rtsc(_rtsc_stamp mss "${ARG_CONFIG}" "${_out_dir}")
-    set(MMWAVE_APP_RESOURCE_FILE "<ti/demo/xwr64xx/mmw/mmw_res.h>" CACHE STRING "APP_RESOURCE_FILE macro value")
+    set(MMWAVE_APP_RESOURCE_FILE "<ti/demo/xwr68xx/mmw/mmw_res.h>" CACHE STRING "APP_RESOURCE_FILE macro value")
+    set(MMWAVE_BOARD_DEFINE "ISK" CACHE STRING "Board define passed to TI compiler")
     if(NOT DEFINED MMWAVE_EXTRA_DEFINES)
-        set(MMWAVE_EXTRA_DEFINES XWR68XX_AOP_ANTENNA_PATTERN USE_2D_AOA_DPU AOP)
+        set(MMWAVE_EXTRA_DEFINES)
     endif()
     set(_flags
         -mv7R4 --code_state=16 --float_support=VFPv3D16 --abi=eabi -me

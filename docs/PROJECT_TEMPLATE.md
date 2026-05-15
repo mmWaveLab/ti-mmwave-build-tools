@@ -42,12 +42,7 @@ Common fork profiles:
 
 | Profile | SDK demo | SDK device/type | Default output |
 |---|---|---|---|
-| `iwr1642boost-oob` | `ti/demo/xwr16xx/mmw` | `iwr16xx` / `xwr16xx` | `xwr16xx_mmw_demo.bin` |
 | `iwr1843boost-oob` | `ti/demo/xwr18xx/mmw` | `iwr18xx` / `xwr18xx` | `xwr18xx_mmw_demo.bin` |
-| `iwr1843aop-oob` | `ti/demo/xwr18xx/mmw` | `iwr18xx` / `xwr18xx` | `xwr18xx_mmw_aop_demo.bin` |
-| `xwr64xx-oob` | `ti/demo/xwr64xx/mmw` | `iwr68xx` / `xwr68xx` | `xwr64xx_mmw_demo.bin` |
-| `xwr64xx-aop-oob` | `ti/demo/xwr64xx/mmw` | `iwr68xx` / `xwr68xx` | `xwr64xxAOP_mmw_demo.bin` |
-| `xwr64xx-compression` | `ti/demo/xwr64xx_compression/mmw` | `iwr68xx` / `xwr68xx` | `xwr64xx_compression_mmw_demo.bin` |
 | `iwr6843isk-oob` | `ti/demo/xwr68xx/mmw` | `iwr68xx` / `xwr68xx` | `xwr68xx_mmw_demo.bin` |
 
 Legacy `DEVICE=xwr68xx` still works, but `PROFILE=...` is preferred because it
@@ -79,13 +74,13 @@ make sdk-profile-validate
 Use a subset while iterating:
 
 ```bash
-DEMO_PROFILES="iwr6843isk-oob iwr1843aop-oob" make sdk-profile-validate
+DEMO_PROFILES="iwr6843isk-oob iwr1843boost-oob" make sdk-profile-validate
 ```
 
-Use more profile-level parallelism on a stronger machine:
+Use explicit profile-level parallelism on a stronger machine:
 
 ```bash
-PROFILE_VALIDATION_JOBS=4 make sdk-profile-validate
+PROFILE_VALIDATION_JOBS=all make sdk-profile-validate
 ```
 
 The script parallelizes independent profiles, not the internal TI makefile for
@@ -109,9 +104,9 @@ Use it for board bring-up, regression projects, and real firmware development
 starting from a known-good TI demo such as IWR1843 or IWR6843 out-of-box.
 
 The SDK 03.06 `ti/demo/xwr68xx/mmw` folder is represented as
-`iwr6843isk-oob`. IWR6843AOP should be tracked as a separate profile once its
-source package is added from the appropriate TI package; do not treat it as the
-same fork target as IWR6843ISK.
+`iwr6843isk-oob`. IWR6843AOP should be tracked as a separate profile only after
+the Radar Toolbox OOB source package is added to the SDK-full image; do not
+treat it as the same fork target as IWR6843ISK.
 
 ## Profile Granularity
 
@@ -123,13 +118,12 @@ alone. Add a new profile when the SDK has at least one of these differences:
 - a different expected firmware binary
 - a different OOB configuration set that maps to a distinct SDK output
 
-For xWR64xx in SDK 03.06:
+For the current starter set:
 
-| Profile | SDK source | SDK build type | Difference |
-|---|---|---|---|
-| `xwr64xx-oob` | `ti/demo/xwr64xx/mmw` | `iwr68xx` / `xwr68xx` | Standard OOB MSS-only firmware, `xwr64xx_mmw_demo.bin` |
-| `xwr64xx-aop-oob` | `ti/demo/xwr64xx/mmw` | `iwr68xx` / `xwr68xx` with AOP build option | Same demo tree, AOP build path/output, `xwr64xxAOP_mmw_demo.bin` |
-| `xwr64xx-compression` | `ti/demo/xwr64xx_compression/mmw` | `iwr68xx` / `xwr68xx` | Separate compression demo tree and DPC path, `xwr64xx_compression_mmw_demo.bin` |
+| Profile | Cores | Source layout |
+|---|---|---|
+| `iwr6843isk-oob` | MSS+DSS | `app/mss/` and `app/dss/` |
+| `iwr1843boost-oob` | MSS+DSS | `app/mss/` and `app/dss/` |
 
 If two board/device names only differ in the profile `.cfg` used at runtime and
 the SDK build output is byte-identical, keep them as one build profile and

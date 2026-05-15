@@ -25,12 +25,13 @@ the SDK-full Docker image. The generated project builds with CMake+Ninja inside
 the same SDK-full Docker image.
 
 Common --profile values:
-  iwr1642boost-oob, iwr1843boost-oob, iwr1843aop-oob,
-  xwr64xx-oob, xwr64xx-aop-oob, xwr64xx-compression,
-  iwr6843isk-oob
+  iwr6843isk-oob, iwr1843boost-oob
+
+IWR6843AOP needs a Radar Toolbox OOB source package in the SDK-full image before
+it can be generated here. It is intentionally not aliased to the ISK build.
 
 Legacy --device values are still accepted:
-  xwr16xx, xwr18xx, xwr64xx, xwr64xx_compression, xwr68xx
+  xwr18xx, xwr68xx
 USAGE
 }
 
@@ -68,10 +69,7 @@ load_profile() {
 
 profile_from_device() {
   case "$1" in
-    xwr16xx) printf '%s\n' "iwr1642boost-oob" ;;
     xwr18xx) printf '%s\n' "iwr1843boost-oob" ;;
-    xwr64xx) printf '%s\n' "xwr64xx-oob" ;;
-    xwr64xx_compression) printf '%s\n' "xwr64xx-compression" ;;
     xwr68xx) printf '%s\n' "iwr6843isk-oob" ;;
     *)
       printf 'Unsupported legacy device template: %s\n' "$1" >&2

@@ -5,12 +5,11 @@ Stable commands:
 ```bash
 make doctor
 make github-actions-smoke
-make official-demo-manifest
 make test
 make docker-cmake
 make native-cmake
 make benchmark
-make validate-devices
+make sdk-profile-validate
 make flash-list
 make flash-doctor
 make package
