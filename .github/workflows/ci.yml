@@ -9,15 +9,12 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   public-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Public smoke test without TI SDK
         run: make github-actions-smoke
 
@@ -25,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build Docker image
         run: docker build -t ti-mmwave-build-tools:ci .
       - name: Container entrypoint smoke
@@ -36,7 +33,7 @@ jobs:
     runs-on: [self-hosted, ti-mmwave]
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build Docker image
         run: make docker-build
       - name: Check official demo manifest
@@ -63,6 +60,6 @@ jobs:
     runs-on: [self-hosted, ti-mmwave]
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Full SDK CI
         run: CI_FULL_BUILD=1 scripts/ci.sh
