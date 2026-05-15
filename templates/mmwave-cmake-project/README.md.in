@@ -97,8 +97,10 @@ tools/
 ```
 
 The build uses the forked demo's original TI makefile and the profile-selected
-target. An `mss-only` profile normally produces the R4F `*.xer4f`; an `mss-dss`
-profile normally produces the flashable metaimage `.bin`.
+target. Both `mss-only` and `mss-dss` profiles expose a flashable metaimage
+`.bin` as the primary artifact. For 18xx/68xx MSS-only profiles, the wrapper
+builds the R4F image first and then calls TI's `generateMetaImage.sh` with
+radarss and `NULL` DSS input.
 
 ## License Note
 

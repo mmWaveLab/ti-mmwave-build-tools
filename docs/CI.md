@@ -25,6 +25,21 @@ Public jobs run on every push and pull request. They use workflow concurrency
 per branch so a newer push cancels older in-progress runs, and each public job
 has a timeout to avoid hanging on a transient Docker or runner issue.
 
+## Robustness Loop
+
+The local robustness loop repeats the public validation surface and then scores
+the result by area:
+
+```bash
+ROBUSTNESS_ROUNDS=100 ROBUSTNESS_MIN_SCORE=90 ROBUSTNESS_MIN_AREA_GRADE=9 make robustness-loop
+```
+
+The loop currently scores repeat reliability, starter profile contract,
+portability, Docker consistency, CI readiness, and maintainability. A run only
+passes when the total score reaches the configured floor and every area reaches
+the area floor. The score parser reads the loop summary plus every per-round
+log, and the default formal threshold requires at least 10 scored rounds.
+
 ## Private SDK-full Image Smoke
 
 The private-image tier runs on `ubuntu-latest` only when repository variable
@@ -76,11 +91,10 @@ CI_FULL_BUILD=1 scripts/ci.sh
 Full mode runs `scripts/benchmark.sh`, which builds both Docker and native
 MSS+DSS firmware and verifies identical SHA-256 output.
 
-Private SDK profile validation uses `scripts/validate-demo-profiles.sh`. MSS+DSS
-profiles compare direct SDK and generated CMake fork `.bin` SHA-256 values.
-MSS-only profiles compare build success because TI `*.xer4f` ELF files embed
-path-sensitive debug data. Cataloged Toolbox projectspec profiles are listed but
-skipped until the projectspec importer is implemented.
+Private SDK profile validation uses `scripts/validate-demo-profiles.sh`.
+MSS-only and MSS+DSS profiles compare direct SDK and generated CMake fork
+flashable `.bin` SHA-256 values. Cataloged Toolbox projectspec profiles are
+listed but skipped until the projectspec importer is implemented.
 
 Full SDK runner requirements:
 

@@ -44,7 +44,7 @@ printf '%s\n' "- SDK-full image: \`$image\`" >>"$report"
 printf '%s\n' "- Profile manifest: \`$profiles_file\`" >>"$report"
 printf '%s\n' "- Parallel profile jobs: \`$jobs_label\`" >>"$report"
 printf '%s\n\n' "- Work directory: \`$work_dir\`" >>"$report"
-printf '%s\n\n' "- Result rule: \`MSS+DSS\` flash images require matching SHA-256; \`MSS\` ELF outputs are path-sensitive and require direct/fork build success." >>"$report"
+printf '%s\n\n' "- Result rule: SDK-backed starter profiles expose flashable \`.bin\` images and require matching direct/fork SHA-256." >>"$report"
 printf '| Profile | Direct SDK SHA-256 | Fork CMake SHA-256 | Result | Output |\n' >>"$report"
 printf '|---|---|---|---:|---|\n' >>"$report"
 
@@ -107,6 +107,22 @@ build_direct() {
         MMWAVE_SDK_TOOLS_INSTALL_PATH=/opt/ti \
         MMWAVE_SDK_INSTALL_PATH=/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages \
         "${extra_args[@]}"
+      if [[ ! -f "$output_bin" && "$output_bin" == *.bin ]]; then
+        case "$device_template" in
+          xwr18xx)
+            shmem_alloc="0x00000008"
+            radarss="/opt/ti/mmwave_sdk_03_06_02_00-LTS/firmware/radarss/xwr18xx_radarss_rprc.bin"
+            ;;
+          *)
+            shmem_alloc="0x00000006"
+            radarss="/opt/ti/mmwave_sdk_03_06_02_00-LTS/firmware/radarss/xwr6xxx_radarss_rprc.bin"
+            ;;
+        esac
+        mss_out="${output_bin%.bin}_mss.xer4f"
+        test -f "$mss_out"
+        MMWAVE_SDK_INSTALL_PATH=/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages \
+          /opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/scripts/unix/generateMetaImage.sh "$output_bin" "$shmem_alloc" "$mss_out" "$radarss" NULL
+      fi
       test -f "$output_bin"
       sha256sum "$output_bin" > "/work/direct-$profile.sha256"
     ' _ "$profile" "$source_rel" "$sdk_device" "$device_template" "$output_bin" "$build_target" "$clean_target" "$make_vars"
@@ -193,8 +209,6 @@ validate_one_profile() {
 
   if (( direct_rc == 0 && fork_rc == 0 )) && [[ "$direct_sha" == "$fork_sha" ]]; then
     result="PASS"
-  elif (( direct_rc == 0 && fork_rc == 0 )) && [[ "$cores" == "MSS" ]]; then
-    result="PASS-BUILD"
   else
     result="FAIL"
   fi
@@ -253,7 +267,7 @@ for profile in "${profiles[@]}"; do
   IFS=$'\t' read -r profile_result direct_sha fork_sha result output_bin < "$result_file"
   printf '| `%s` | `%s` | `%s` | %s | `%s` |\n' \
     "$profile_result" "$direct_sha" "$fork_sha" "$result" "$output_bin" >>"$report"
-  if [[ "$result" != "PASS" && "$result" != "PASS-BUILD" && "$result" != "SKIP" ]]; then
+  if [[ "$result" != "PASS" && "$result" != "SKIP" ]]; then
     overall=1
     cat "$work_dir/failure-$profile.md" >>"$report"
   fi

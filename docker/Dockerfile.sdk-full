@@ -46,9 +46,8 @@ ENV MATHLIB_C674X_ROOT=/opt/ti/mathlib_c674x_3_1_2_1
 ENV PATH=/opt/ti/ti-cgt-arm_16.9.6.LTS/bin:/opt/ti/ti-cgt-c6000_8.3.3/bin:/opt/ti/xdctools_3_50_08_24_core:/opt/ti-mmwave-build-tools/scripts:/usr/local/bin:/usr/bin:/bin
 
 RUN chmod +x /opt/ti-mmwave-build-tools/scripts/*.sh \
-    && legacy_ti_root="$(printf '/home/%s/ti' 'k''j')" \
-    && sed -i "s#${legacy_ti_root}#/opt/ti#g" /opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/scripts/unix/setenv.sh \
-    && sed -i "s#${legacy_ti_root}#/opt/ti#g" /opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/scripts/unix/setenv.mak \
+    && sed -i -E 's#/home/[^/]+/ti#/opt/ti#g' /opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/scripts/unix/setenv.sh \
+    && sed -i -E 's#/home/[^/]+/ti#/opt/ti#g' /opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/scripts/unix/setenv.mak \
     && ln -s /opt/ti-mmwave-build-tools/scripts/create-mmwave-app.sh /usr/local/bin/create-mmwave-app \
     && ln -s /opt/ti-mmwave-build-tools/scripts/check-ti-linux.sh /usr/local/bin/check-ti-linux \
     && check-ti-linux

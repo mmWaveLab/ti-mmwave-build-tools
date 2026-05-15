@@ -93,6 +93,8 @@ def main() -> None:
         manifest_configs = tuple(row["config_profiles"].split(","))
         if manifest_configs != installed.configs:
             errors.append(f"{profile}: config profiles manifest={manifest_configs!r} installer={installed.configs!r}")
+        if not row["output_artifact"].endswith(".bin"):
+            errors.append(f"{profile}: starter output must be a flashable .bin")
 
     if errors:
         raise SystemExit("\n".join(errors))

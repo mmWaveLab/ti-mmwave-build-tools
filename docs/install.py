@@ -36,11 +36,11 @@ class Profile:
 
 
 PROFILES = {
-    "xwr1843boost-mss-only": Profile("xwr1843boost-mss-only", "xwr1843boost", "mss-only", "sdk-make", "ti/demo/xwr18xx/mmw", "xwr18xx", "iwr18xx", "xwr18xx_mmw_demo_mss.xer4f", "MSS", "mssDemo", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR1843BOOST MSS-only OOB"),
+    "xwr1843boost-mss-only": Profile("xwr1843boost-mss-only", "xwr1843boost", "mss-only", "sdk-make", "ti/demo/xwr18xx/mmw", "xwr18xx", "iwr18xx", "xwr18xx_mmw_demo.bin", "MSS", "mssDemo", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR1843BOOST MSS-only OOB"),
     "xwr1843boost-mss-dss": Profile("xwr1843boost-mss-dss", "xwr1843boost", "mss-dss", "sdk-make", "ti/demo/xwr18xx/mmw", "xwr18xx", "iwr18xx", "xwr18xx_mmw_demo.bin", "MSS+DSS", "mmwDemo", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR1843BOOST MSS+DSS OOB"),
-    "xwr6843isk-mss-only": Profile("xwr6843isk-mss-only", "xwr6843isk", "mss-only", "sdk-make", "ti/demo/xwr68xx/mmw", "xwr68xx", "iwr68xx", "xwr68xx_mmw_demo_mss.xer4f", "MSS", "mssDemo", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR6843ISK MSS-only OOB"),
+    "xwr6843isk-mss-only": Profile("xwr6843isk-mss-only", "xwr6843isk", "mss-only", "sdk-make", "ti/demo/xwr68xx/mmw", "xwr68xx", "iwr68xx", "xwr68xx_mmw_demo.bin", "MSS", "mssDemo", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR6843ISK MSS-only OOB"),
     "xwr6843isk-mss-dss": Profile("xwr6843isk-mss-dss", "xwr6843isk", "mss-dss", "sdk-make", "ti/demo/xwr68xx/mmw", "xwr68xx", "iwr68xx", "xwr68xx_mmw_demo.bin", "MSS+DSS", "all", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR6843ISK MSS+DSS OOB"),
-    "xwr6843aop-mss-only": Profile("xwr6843aop-mss-only", "xwr6843aop", "mss-only", "sdk-make", "ti/demo/xwr64xx/mmw", "xwr68xx", "iwr68xx", "xwr64xxAOP_mmw_demo_mss.xer4f", "MSS", "all", "clean", ("profile_3d_aop.cfg",), "validated", "xWR6843AOP MSS-only OOB"),
+    "xwr6843aop-mss-only": Profile("xwr6843aop-mss-only", "xwr6843aop", "mss-only", "sdk-make", "ti/demo/xwr64xx/mmw", "xwr68xx", "iwr68xx", "xwr64xxAOP_mmw_demo.bin", "MSS", "all", "clean", ("profile_3d_aop.cfg",), "validated", "xWR6843AOP MSS-only OOB"),
     "xwr6843aop-mss-dss": Profile("xwr6843aop-mss-dss", "xwr6843aop", "mss-dss", "toolbox-projectspec", "source/ti/examples/Industrial_and_Personal_Electronics/People_Tracking/3D_People_Tracking", "xwr68xx", "iwr68xx", "prebuilt_binaries/3D_people_track_6843_demo.bin", "MSS+DSS", "src/6843/3D_people_track_6843_mss.projectspec,src/6843/3D_people_track_6843_dss.projectspec", "-", ("chirp_configs/AOP_6m_default.cfg", "chirp_configs/AOP_9m_default.cfg"), "cataloged", "xWR6843AOP MSS+DSS Toolbox application"),
 }
 
@@ -101,6 +101,36 @@ set(MMWAVE_CLEAN_TARGET "{profile.clean_target}" CACHE STRING "TI make clean tar
 set(APP_SOURCE_DIR "${{CMAKE_CURRENT_LIST_DIR}}/app")
 set(APP_BUILD_DIR "${{CMAKE_BINARY_DIR}}/app")
 set(OUTPUT_ARTIFACT "${{APP_BUILD_DIR}}/{profile.artifact}")
+set(MSS_METAIMAGE_HELPER "${{CMAKE_BINARY_DIR}}/mss-metaimage-if-needed.sh")
+
+file(WRITE "${{MSS_METAIMAGE_HELPER}}" [=[
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -f "$OUTPUT_BIN" || "$OUTPUT_BIN" != *.bin ]]; then
+  test -f "$OUTPUT_BIN"
+  exit 0
+fi
+
+case "$MMWAVE_SDK_DEVICE_TYPE" in
+  xwr18xx)
+    shmem_alloc="0x00000008"
+    radarss="$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/firmware/radarss/xwr18xx_radarss_rprc.bin"
+    ;;
+  *)
+    shmem_alloc="0x00000006"
+    radarss="$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/firmware/radarss/xwr6xxx_radarss_rprc.bin"
+    ;;
+esac
+
+mss_out="${{OUTPUT_BIN%.bin}}_mss.xer4f"
+test -f "$mss_out"
+test -f "$radarss"
+MMWAVE_SDK_INSTALL_PATH="$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages" \
+  "$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages/scripts/unix/generateMetaImage.sh" \
+  "$OUTPUT_BIN" "$shmem_alloc" "$mss_out" "$radarss" NULL
+test -f "$OUTPUT_BIN"
+]=])
 
 foreach(required_path
     "${{APP_SOURCE_DIR}}/makefile"
@@ -130,6 +160,12 @@ add_custom_command(
     "MMWAVE_SDK_INSTALL_PATH=${{MMWAVE_SDK_PACKAGES}}"
     "${{CMAKE_COMMAND}}" -E chdir "${{APP_BUILD_DIR}}"
     make -f makefile "${{MMWAVE_BUILD_TARGET}}"
+  COMMAND "${{CMAKE_COMMAND}}" -E env
+    "OUTPUT_BIN=${{OUTPUT_ARTIFACT}}"
+    "TI_ROOT=${{TI_ROOT}}"
+    "MMWAVE_SDK_DEVICE_TYPE=${{MMWAVE_SDK_DEVICE_TYPE}}"
+    "MMWAVE_SDK_INSTALL_PATH=${{MMWAVE_SDK_PACKAGES}}"
+    /bin/bash "${{MSS_METAIMAGE_HELPER}}"
   WORKING_DIRECTORY "${{CMAKE_BINARY_DIR}}"
   VERBATIM
   COMMENT "Building {profile.name}"
@@ -192,11 +228,19 @@ if [[ "$(uname -s)" != MINGW* && "$(uname -s)" != MSYS* && "$(uname -s)" != CYGW
   docker_args+=(--user "$(id -u):$(id -g)")
 fi
 
+clean_env=(env -i
+  HOME=/tmp/mmwave-home
+  USER=mmwave
+  LOGNAME=mmwave
+  PATH=/opt/ti/ti-cgt-arm_16.9.6.LTS/bin:/opt/ti/ti-cgt-c6000_8.3.3/bin:/opt/ti/xdctools_3_50_08_24_core:/opt/ti-mmwave-build-tools/scripts:/usr/local/bin:/usr/bin:/bin
+  TI_ROOT=/opt/ti
+  TI_MMWAVE_TOOLS_ROOT=/opt/ti-mmwave-build-tools)
+
 if [[ "$shell_mode" -eq 1 ]]; then
-  exec docker run -it "${{docker_args[@]}}" "$image" env -i HOME=/tmp/mmwave-home PATH="$PATH" bash --noprofile --norc
+  exec docker run -it "${{docker_args[@]}}" "$image" "${{clean_env[@]}}" bash --noprofile --norc
 fi
 
-exec docker run "${{docker_args[@]}}" "$image" "$@"
+exec docker run "${{docker_args[@]}}" "$image" "${{clean_env[@]}}" "$@"
 """
 
 

@@ -8,11 +8,11 @@ by `install.py`, `create-mmwave-app`, CI, and generated project metadata.
 
 | Board | Core mode | Profile | Source | Output |
 |---|---|---|---|---|
-| xWR1843BOOST | MSS only | `xwr1843boost-mss-only` | SDK `ti/demo/xwr18xx/mmw` | `xwr18xx_mmw_demo_mss.xer4f` |
+| xWR1843BOOST | MSS only | `xwr1843boost-mss-only` | SDK `ti/demo/xwr18xx/mmw` | `xwr18xx_mmw_demo.bin` |
 | xWR1843BOOST | MSS+DSS | `xwr1843boost-mss-dss` | SDK `ti/demo/xwr18xx/mmw` | `xwr18xx_mmw_demo.bin` |
-| xWR6843ISK | MSS only | `xwr6843isk-mss-only` | SDK `ti/demo/xwr68xx/mmw` | `xwr68xx_mmw_demo_mss.xer4f` |
+| xWR6843ISK | MSS only | `xwr6843isk-mss-only` | SDK `ti/demo/xwr68xx/mmw` | `xwr68xx_mmw_demo.bin` |
 | xWR6843ISK | MSS+DSS | `xwr6843isk-mss-dss` | SDK `ti/demo/xwr68xx/mmw` | `xwr68xx_mmw_demo.bin` |
-| xWR6843AOP | MSS only | `xwr6843aop-mss-only` | SDK `ti/demo/xwr64xx/mmw` | `xwr64xxAOP_mmw_demo_mss.xer4f` |
+| xWR6843AOP | MSS only | `xwr6843aop-mss-only` | SDK `ti/demo/xwr64xx/mmw` | `xwr64xxAOP_mmw_demo.bin` |
 | xWR6843AOP | MSS+DSS | `xwr6843aop-mss-dss` | Radar Toolbox projectspec pair | `3D_people_track_6843_demo.bin` |
 
 `xwr6843aop-mss-dss` is part of the public matrix but remains `cataloged`
@@ -84,9 +84,7 @@ characters with underscores.
 CI checks the six-profile matrix at the manifest level. Private SDK validation
 builds the SDK-backed profiles in Docker:
 
-- MSS+DSS profiles must produce byte-identical direct and generated `.bin`
-  outputs.
-- MSS-only profiles must build successfully in both paths; their `*.xer4f`
-  outputs are path-sensitive ELF files, so SHA equality is not required.
+- MSS-only and MSS+DSS profiles must produce byte-identical direct and
+  generated `.bin` outputs when the TI SDK makefile path is available.
 - Cataloged Toolbox projectspec profiles are listed but skipped until the
   importer exists.

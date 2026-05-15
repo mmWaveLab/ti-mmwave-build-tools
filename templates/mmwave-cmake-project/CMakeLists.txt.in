@@ -17,6 +17,36 @@ set(MMWAVE_EXTRA_MAKE_ARGS "@MAKE_EXTRA_ARGS@" CACHE STRING "Extra TI make argum
 set(APP_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/app")
 set(APP_BUILD_DIR "${CMAKE_BINARY_DIR}/app")
 set(OUTPUT_BIN "${APP_BUILD_DIR}/@OUTPUT_BIN@")
+set(MSS_METAIMAGE_HELPER "${CMAKE_BINARY_DIR}/mss-metaimage-if-needed.sh")
+
+file(WRITE "${MSS_METAIMAGE_HELPER}" [=[
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -f "$OUTPUT_BIN" || "$OUTPUT_BIN" != *.bin ]]; then
+  test -f "$OUTPUT_BIN"
+  exit 0
+fi
+
+case "$MMWAVE_SDK_DEVICE_TYPE" in
+  xwr18xx)
+    shmem_alloc="0x00000008"
+    radarss="$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/firmware/radarss/xwr18xx_radarss_rprc.bin"
+    ;;
+  *)
+    shmem_alloc="0x00000006"
+    radarss="$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/firmware/radarss/xwr6xxx_radarss_rprc.bin"
+    ;;
+esac
+
+mss_out="${OUTPUT_BIN%.bin}_mss.xer4f"
+test -f "$mss_out"
+test -f "$radarss"
+MMWAVE_SDK_INSTALL_PATH="$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages" \
+  "$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages/scripts/unix/generateMetaImage.sh" \
+  "$OUTPUT_BIN" "$shmem_alloc" "$mss_out" "$radarss" NULL
+test -f "$OUTPUT_BIN"
+]=])
 
 foreach(required_path
     "${APP_SOURCE_DIR}/makefile"
@@ -46,6 +76,12 @@ add_custom_command(
     "MMWAVE_SDK_INSTALL_PATH=${MMWAVE_SDK_PACKAGES}"
     "${CMAKE_COMMAND}" -E chdir "${APP_BUILD_DIR}"
     make -f makefile "${MMWAVE_BUILD_TARGET}" ${MMWAVE_EXTRA_MAKE_ARGS}
+  COMMAND "${CMAKE_COMMAND}" -E env
+    "OUTPUT_BIN=${OUTPUT_BIN}"
+    "TI_ROOT=${TI_ROOT}"
+    "MMWAVE_SDK_DEVICE_TYPE=${MMWAVE_SDK_DEVICE_TYPE}"
+    "MMWAVE_SDK_INSTALL_PATH=${MMWAVE_SDK_PACKAGES}"
+    /bin/bash "${MSS_METAIMAGE_HELPER}"
   WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
   VERBATIM
   COMMENT "Building forked @SDK_DEVICE_TYPE@ firmware"
