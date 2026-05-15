@@ -25,21 +25,6 @@ Public jobs run on every push and pull request. They use workflow concurrency
 per branch so a newer push cancels older in-progress runs, and each public job
 has a timeout to avoid hanging on a transient Docker or runner issue.
 
-## Robustness Loop
-
-The local robustness loop repeats the public validation surface and then scores
-the result by area:
-
-```bash
-ROBUSTNESS_ROUNDS=100 ROBUSTNESS_MIN_SCORE=90 ROBUSTNESS_MIN_AREA_GRADE=9 make robustness-loop
-```
-
-The loop currently scores repeat reliability, starter profile contract,
-portability, Docker consistency, CI readiness, and maintainability. A run only
-passes when the total score reaches the configured floor and every area reaches
-the area floor. The score parser reads the loop summary plus every per-round
-log, and the default formal threshold requires at least 10 scored rounds.
-
 ## Every-Push SDK SHA-256 Gate
 
 The private-image tier runs on every `push` and `workflow_dispatch` event. It

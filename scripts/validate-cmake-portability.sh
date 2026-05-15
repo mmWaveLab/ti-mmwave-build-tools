@@ -20,7 +20,6 @@ test -f "$repo_dir/templates/mmwave-cmake-project/Makefile.in"
 find "$repo_dir/scripts" "$repo_dir/templates" "$repo_dir/config" \
   -type f \
   ! -name validate-cmake-portability.sh \
-  ! -name robustness-score.py \
   -print0 |
   xargs -0 grep -InE '/home/[^/]+|/Users/[^/]+|source[[:space:]].*(bashrc|zshrc|profile)|[[:space:]]\.[[:space:]].*(bashrc|zshrc|profile)' \
   >/tmp/mmwave-portability-leaks.txt && {

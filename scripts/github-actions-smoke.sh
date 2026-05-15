@@ -56,8 +56,6 @@ test -f "$repo_dir/config/toolbox-application-profiles.tsv"
 test -f "$repo_dir/scripts/validate-demo-profiles.sh"
 test -f "$repo_dir/scripts/mmwave-run.sh"
 test -f "$repo_dir/scripts/validate-cmake-portability.sh"
-test -x "$repo_dir/scripts/robustness-loop.sh"
-test -x "$repo_dir/scripts/robustness-score.py"
 test -f "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
 test -f "$repo_dir/templates/mmwave-cmake-project/gitignore.in"
 test -f "$repo_dir/docker/Dockerfile.sdk-full"
@@ -74,31 +72,6 @@ grep -q 'actions/upload-artifact@v4' "$repo_dir/.github/workflows/ci.yml"
 python3 "$repo_dir/docs/install.py" --list-profiles >/dev/null
 python3 "$repo_dir/docs/install.py" --name smoke-project --profile xwr6843isk-mss-dss --dry-run --pull never >/dev/null
 python3 "$repo_dir/scripts/validate-starter-demos.py" >/dev/null
-
-robustness_fixture="$repo_dir/build/github-actions-smoke/robustness-fixture"
-mkdir -p "$robustness_fixture"
-cat >"$robustness_fixture/summary.md" <<EOF
-# Robustness Loop
-
-| Round | Result | Log |
-|---:|---:|---|
-| 001 | PASS | \`build/github-actions-smoke/robustness-fixture/round-001.log\` |
-EOF
-cat >"$robustness_fixture/round-001.log" <<'EOF'
-round=001
-
-$ python3 scripts/validate-starter-demos.py
-$ python3 -m py_compile docs/install.py scripts/validate-starter-demos.py scripts/robustness-score.py
-$ make github-actions-smoke
-$ make cmake-portability
-$ git diff --check
-EOF
-python3 "$repo_dir/scripts/robustness-score.py" \
-  --run-dir "$robustness_fixture" \
-  --min-rounds 1 \
-  --min-score 90 \
-  --min-area-grade 9 \
-  --output "$repo_dir/build/github-actions-smoke/robustness-score.md" >/dev/null
 
 printf 'Demo profile manifest\n'
 python3 - "$repo_dir/config/demo-profiles.tsv" <<'PY'

@@ -229,8 +229,6 @@ cmake --build perf/cmake-xwr68xx-native --target firmware
 ```bash
 make doctor
 make github-actions-smoke
-make robustness-loop
-make robustness-score
 make test
 make benchmark
 make project-new PROJECT=name PROFILE=xwr6843isk-mss-dss
@@ -242,13 +240,6 @@ make flash-doctor
 make package
 make clean
 ```
-
-`make robustness-loop` defaults to 100 repeated rounds and requires both a
-total score of at least `90/100` and every scored area to be at least `9/10`.
-Override with `ROBUSTNESS_ROUNDS`, `ROBUSTNESS_MIN_SCORE`, or
-`ROBUSTNESS_MIN_AREA_GRADE` when doing local stress experiments. The formal
-gate also parses the loop report and per-round logs; by default at least 10
-scored rounds are required before repeat reliability can reach 9/10.
 
 Generated files are kept under:
 

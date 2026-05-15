@@ -2,11 +2,8 @@ IMAGE ?= ti-mmwave-build-tools:linux-smoke
 SDK_FULL_IMAGE ?= meowpas/ti-mmwave-sdk:03.06.02
 TI_ROOT ?= /opt/ti
 HOST_TI_ROOT ?= $(TI_ROOT)
-ROBUSTNESS_MIN_SCORE ?= 90
-ROBUSTNESS_MIN_AREA_GRADE ?= 9
-ROBUSTNESS_MIN_ROUNDS ?= 10
 
-.PHONY: docker-build docker-shell sdk-image sdk-image-smoke sdk-profile-validate cmake-portability github-actions-smoke robustness-score robustness-loop project-new project-docker project-native doctor test ci docker-cmake native-cmake benchmark flash-list flash-doctor flash-dry-run flash package clean
+.PHONY: docker-build docker-shell sdk-image sdk-image-smoke sdk-profile-validate cmake-portability github-actions-smoke project-new project-docker project-native doctor test ci docker-cmake native-cmake benchmark flash-list flash-doctor flash-dry-run flash package clean
 
 docker-build:
 	docker build -t $(IMAGE) .
@@ -28,17 +25,6 @@ cmake-portability:
 
 github-actions-smoke:
 	scripts/github-actions-smoke.sh
-
-robustness-score:
-	@run_dir="$${ROBUSTNESS_RUN_DIR:-$$(find reports -maxdepth 1 -type d -name 'robustness-*' -print 2>/dev/null | sort -r | head -1)}"; \
-	if [ -z "$$run_dir" ]; then \
-		echo "No robustness evidence found. Run make robustness-loop first or set ROBUSTNESS_RUN_DIR."; \
-		exit 2; \
-	fi; \
-	scripts/robustness-score.py --run-dir "$$run_dir" --min-rounds $(ROBUSTNESS_MIN_ROUNDS) --min-score $(ROBUSTNESS_MIN_SCORE) --min-area-grade $(ROBUSTNESS_MIN_AREA_GRADE)
-
-robustness-loop:
-	ROBUSTNESS_MIN_SCORE=$(ROBUSTNESS_MIN_SCORE) ROBUSTNESS_MIN_AREA_GRADE=$(ROBUSTNESS_MIN_AREA_GRADE) ROBUSTNESS_MIN_ROUNDS=$(ROBUSTNESS_MIN_ROUNDS) scripts/robustness-loop.sh
 
 project-new:
 	SDK_IMAGE=$(SDK_FULL_IMAGE) scripts/new-project.sh $(PROJECT) $(if $(PROFILE),--profile $(PROFILE),--device $(or $(DEVICE),xwr68xx)) --image $(SDK_FULL_IMAGE) $(if $(OUT),--out $(OUT),) $(if $(FORCE),--force,)
