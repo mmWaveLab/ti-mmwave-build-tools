@@ -12,16 +12,16 @@ make validate-devices
 Latest report:
 
 ```text
-reports/device-validation-20260515T104422Z.md
+reports/device-validation-20260515T123503Z.md
 ```
 
 | Device ID | SDK Device | Status | Seconds | Output |
 |---|---|---:|---:|---|
-| `xwr16xx` | `iwr16xx` | PASS | `61.18` | `xwr16xx_mmw_demo.bin` |
-| `xwr18xx` | `iwr18xx` | PASS | `75.71` | `xwr18xx_mmw_demo.bin`, `xwr18xx_mmw_aop_demo.bin` |
-| `xwr64xx` | `iwr68xx` | PASS | `66.46` | `xwr64xx_mmw_demo.bin`, `xwr64xxAOP_mmw_demo.bin` |
-| `xwr64xx_compression` | `iwr68xx` | PASS | `32.26` | `xwr64xx_compression_mmw_demo.bin` |
-| `xwr68xx` | `iwr68xx` | PASS | `64.10` | `xwr68xx_mmw_demo.bin` |
+| `xwr16xx` | `iwr16xx` | PASS | `62.17` | `xwr16xx_mmw_demo.bin` |
+| `xwr18xx` | `iwr18xx` | PASS | `77.92` | `xwr18xx_mmw_demo.bin`, `xwr18xx_mmw_aop_demo.bin` |
+| `xwr64xx` | `iwr68xx` | PASS | `66.81` | `xwr64xx_mmw_demo.bin`, `xwr64xxAOP_mmw_demo.bin` |
+| `xwr64xx_compression` | `iwr68xx` | PASS | `33.26` | `xwr64xx_compression_mmw_demo.bin` |
+| `xwr68xx` | `iwr68xx` | PASS | `65.02` | `xwr68xx_mmw_demo.bin` |
 
 Notes:
 

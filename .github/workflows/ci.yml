@@ -5,9 +5,14 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   public-smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - name: Public smoke test without TI SDK
@@ -15,6 +20,7 @@ jobs:
 
   docker-image:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Build Docker image
@@ -30,6 +36,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Build Docker image
         run: make docker-build
+      - name: Check official demo manifest
+        run: make official-demo-manifest
       - name: Validate all configured devices
         run: make validate-devices
       - name: Upload device validation reports

@@ -16,6 +16,7 @@ by TI. Bring your own TI installation and mount it into the build environment.
 - Build TI mmWave SDK 03.06 demo firmware on Linux.
 - Build `xwr68xx/mmw` MSS+DSS through CMake and Ninja.
 - Validate first-generation SDK demo families in Docker.
+- Track official TI SDK demo references without vendoring TI source files.
 - Compare Docker and native Ubuntu build time and output hashes.
 - Generate safe UniFlash/DSLite commands with an explicit serial port.
 - Keep generated build output under `build/`, `artifacts/`, and `reports/`.
@@ -26,7 +27,7 @@ by TI. Bring your own TI installation and mount it into the build environment.
 |---|---:|---|
 | Docker SDK environment | Validated | `make doctor`, `make test`, `make ci` |
 | CMake+Ninja MSS+DSS build | Validated | Docker/native SHA-256 match |
-| First-generation device matrix | Validated | `reports/device-validation-20260515T104422Z.md` |
+| First-generation device matrix | Validated | `reports/device-validation-20260515T123503Z.md` |
 | UniFlash integration layer | Guarded test passed | `reports/uniflash-integration-20260515T090526Z.md` |
 | Real hardware flash | Pending | Requires TI UniFlash/DSLite and a board in download mode |
 
@@ -51,6 +52,7 @@ Build and test:
 ```bash
 make docker-build
 make doctor
+make official-demo-manifest
 make test
 make validate-devices
 ```
@@ -89,11 +91,11 @@ Support levels:
 
 | Device family / demo | SDK device used | Support level | Validation | Firmware artifacts |
 |---|---|---:|---|---|
-| `xWR16xx` / `IWR1642` / `AWR1642` | `iwr16xx` | Validated | `make validate-devices`, `61.18s` | `xwr16xx_mmw_demo.bin` |
-| `xWR18xx` / `IWR1843` / `AWR1843` | `iwr18xx` | Validated | `make validate-devices`, `75.71s` | `xwr18xx_mmw_demo.bin`, `xwr18xx_mmw_aop_demo.bin` |
-| `xWR64xx` | `iwr68xx` | Validated | `make validate-devices`, `66.46s` | `xwr64xx_mmw_demo.bin`, `xwr64xxAOP_mmw_demo.bin` |
-| `xWR64xx compression` | `iwr68xx` | Validated | `make validate-devices`, `32.26s` | `xwr64xx_compression_mmw_demo.bin` |
-| `xWR68xx` / `IWR6843` / `IWR6843AOP` / `AWR6843` | `iwr68xx` | Validated | `make validate-devices`, `64.10s` | `xwr68xx_mmw_demo.bin` |
+| `xWR16xx` / `IWR1642` / `AWR1642` | `iwr16xx` | Validated | `make validate-devices`, `62.17s` | `xwr16xx_mmw_demo.bin` |
+| `xWR18xx` / `IWR1843` / `AWR1843` | `iwr18xx` | Validated | `make validate-devices`, `77.92s` | `xwr18xx_mmw_demo.bin`, `xwr18xx_mmw_aop_demo.bin` |
+| `xWR64xx` | `iwr68xx` | Validated | `make validate-devices`, `66.81s` | `xwr64xx_mmw_demo.bin`, `xwr64xxAOP_mmw_demo.bin` |
+| `xWR64xx compression` | `iwr68xx` | Validated | `make validate-devices`, `33.26s` | `xwr64xx_compression_mmw_demo.bin` |
+| `xWR68xx` / `IWR6843` / `IWR6843AOP` / `AWR6843` | `iwr68xx` | Validated | `make validate-devices`, `65.02s` | `xwr68xx_mmw_demo.bin` |
 | `xWR14xx` / `IWR1443` / `AWR1443` | `iwr14xx` / `awr14xx` | SDK-listed | TI SDK common makefiles list the device family; no `ti/demo/xwr14xx/mmw` demo folder was validated here. | Not produced |
 | `AWR2x44P`, `AWR2544`, `AWR294x` | N/A | Different SDK flow | Use TI MMWAVE-MCUPLUS-SDK, not this mmWave SDK 03.06 flow. | Not produced here |
 | `AWR1243`, `AWR2243` RF transceiver/MMIC devices | N/A | Different SDK flow | Use TI MMWAVE-DFP / mmWaveLink-style flow, not this MSS/DSS demo build. | Not produced here |
@@ -102,7 +104,7 @@ Support levels:
 Latest device-validation report:
 
 ```text
-reports/device-validation-20260515T104422Z.md
+reports/device-validation-20260515T123503Z.md
 ```
 
 Latest UniFlash integration report:
@@ -134,6 +136,8 @@ Key files:
 - `cmake/RunConfiguro.cmake`: XDC configuro wrapper.
 - `cmake/RunMetaImage.cmake`: ImageCreator wrapper.
 - `cmake/TiMmwaveSdkPaths.cmake`: Linux path discovery used by this Docker lab.
+- `examples/official-sdk-demos/devices-ci.tsv`: official TI SDK demo matrix for
+  CI builds.
 
 The Docker validation flow in this README exercises the SDK reference demo
 makefiles. Downstream firmware projects can still use the reusable CMake API

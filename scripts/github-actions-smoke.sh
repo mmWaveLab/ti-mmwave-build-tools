@@ -46,5 +46,10 @@ test -f "$repo_dir/docs/ABOUT.md"
 test -f "$repo_dir/docs/CI.md"
 test -f "$repo_dir/docs/UNIFLASH.md"
 test -f "$repo_dir/config/devices.tsv"
+test -f "$repo_dir/examples/official-sdk-demos/README.md"
+test -f "$repo_dir/examples/official-sdk-demos/devices-ci.tsv"
+
+printf 'Official demo manifest\n'
+"$repo_dir/scripts/check-official-demo-manifest.sh"
 
 printf 'PASS: GitHub Actions smoke test succeeded.\n'

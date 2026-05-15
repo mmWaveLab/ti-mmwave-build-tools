@@ -2,13 +2,16 @@ IMAGE ?= ti-mmwave-build-tools:linux-smoke
 TI_ROOT ?= /home/kj/ti
 HOST_TI_ROOT ?= $(TI_ROOT)
 
-.PHONY: docker-build github-actions-smoke doctor test ci docker-cmake native-cmake benchmark validate-devices flash-list flash-doctor flash-dry-run flash package clean
+.PHONY: docker-build github-actions-smoke official-demo-manifest doctor test ci docker-cmake native-cmake benchmark validate-devices flash-list flash-doctor flash-dry-run flash package clean
 
 docker-build:
 	docker build -t $(IMAGE) .
 
 github-actions-smoke:
 	scripts/github-actions-smoke.sh
+
+official-demo-manifest:
+	scripts/check-official-demo-manifest.sh
 
 doctor:
 	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/doctor.sh
