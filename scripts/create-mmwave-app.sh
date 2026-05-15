@@ -13,22 +13,21 @@ template_dir="$repo_dir/templates/mmwave-cmake-project"
 usage() {
   cat <<'USAGE'
 Usage:
-  create-mmwave-app NAME [--profile iwr6843isk-oob] [--dir DIR] [--image IMAGE] [--force]
+  create-mmwave-app NAME [--profile xwr6843isk-mss-dss] [--dir DIR] [--image IMAGE] [--force]
   create-mmwave-app --list-profiles
 
 Examples:
-  create-mmwave-app people-count-6843 --profile iwr6843isk-oob
-  create-mmwave-app vital-signs-1843 --profile iwr1843boost-oob --dir /work/vital-signs-1843
+  create-mmwave-app people-count-6843 --profile xwr6843isk-mss-dss
+  create-mmwave-app vital-signs-1843 --profile xwr1843boost-mss-only --dir /work/vital-signs-1843
 
 This creates a clean standalone project by forking a TI mmWave SDK demo from
 the SDK-full Docker image. The generated project builds with CMake+Ninja inside
 the same SDK-full Docker image.
 
 Common --profile values:
-  iwr6843isk-oob, iwr1843boost-oob
-
-IWR6843AOP needs a Radar Toolbox OOB source package in the SDK-full image before
-it can be generated here. It is intentionally not aliased to the ISK build.
+  xwr6843isk-mss-only, xwr6843isk-mss-dss
+  xwr6843aop-mss-only, xwr6843aop-mss-dss
+  xwr1843boost-mss-only, xwr1843boost-mss-dss
 
 Legacy --device values are still accepted:
   xwr18xx, xwr68xx
@@ -39,25 +38,33 @@ profiles_file="$repo_dir/config/demo-profiles.tsv"
 
 list_profiles() {
   printf 'Available TI mmWave demo profiles:\n\n'
-  while IFS=$'\t' read -r profile sdk_device_type sdk_demo sdk_device output_bin cores config_profiles summary; do
+  while IFS=$'\t' read -r profile board core_mode source_kind source_rel sdk_device_type sdk_device output_bin cores build_target clean_target make_vars config_profiles status summary; do
     [[ -z "${profile:-}" || "$profile" == \#* ]] && continue
-    printf '  %-22s %-10s %-7s %s\n' "$profile" "$sdk_device_type" "$cores" "$summary"
-    printf '  %-22s output=%s profiles=%s\n' "" "$output_bin" "$config_profiles"
+    printf '  %-26s %-12s %-8s %-17s %s\n' "$profile" "$board" "$core_mode" "$status" "$summary"
+    printf '  %-26s source=%s output=%s configs=%s\n' "" "$source_kind" "$output_bin" "$config_profiles"
   done < "$profiles_file"
 }
 
 load_profile() {
   local requested="$1"
-  while IFS=$'\t' read -r profile_row sdk_device_type_row sdk_demo_row sdk_device_row output_bin_row cores_row config_profiles_row summary_row; do
+  while IFS=$'\t' read -r profile_row board_row core_mode_row source_kind_row source_rel_row sdk_device_type_row sdk_device_row output_bin_row cores_row build_target_row clean_target_row make_vars_row config_profiles_row status_row summary_row; do
     [[ -z "${profile_row:-}" || "$profile_row" == \#* ]] && continue
     if [[ "$profile_row" == "$requested" ]]; then
       profile="$profile_row"
+      board="$board_row"
+      core_mode="$core_mode_row"
+      source_kind="$source_kind_row"
       device="$sdk_device_type_row"
-      sdk_demo_rel="$sdk_demo_row"
+      sdk_demo_rel="$source_rel_row"
       sdk_device="$sdk_device_row"
       output_bin="$output_bin_row"
       core_hint="$cores_row"
+      build_target="$build_target_row"
+      clean_target="$clean_target_row"
+      make_extra_args="$make_vars_row"
+      [[ "$make_extra_args" == "-" ]] && make_extra_args=""
       profile_configs="$config_profiles_row"
+      profile_status="$status_row"
       profile_summary="$summary_row"
       return 0
     fi
@@ -69,8 +76,8 @@ load_profile() {
 
 profile_from_device() {
   case "$1" in
-    xwr18xx) printf '%s\n' "iwr1843boost-oob" ;;
-    xwr68xx) printf '%s\n' "iwr6843isk-oob" ;;
+    xwr18xx) printf '%s\n' "xwr1843boost-mss-dss" ;;
+    xwr68xx) printf '%s\n' "xwr6843isk-mss-dss" ;;
     *)
       printf 'Unsupported legacy device template: %s\n' "$1" >&2
       usage >&2
@@ -155,6 +162,13 @@ if [[ -z "$profile" ]]; then
 fi
 load_profile "$profile"
 
+if [[ "$source_kind" != "sdk-make" ]]; then
+  printf 'Profile is cataloged but not yet generatable by this SDK makefile template: %s\n' "$profile" >&2
+  printf 'Source kind: %s\n' "$source_kind" >&2
+  printf 'This profile needs the Toolbox projectspec importer before create-mmwave-app can fork it.\n' >&2
+  exit 2
+fi
+
 sdk_demo_dir="$ti_root/mmwave_sdk_03_06_02_00-LTS/packages/$sdk_demo_rel"
 
 if [[ -z "$out_dir" ]]; then
@@ -196,6 +210,9 @@ render() {
     -e "s|@PROFILE_SUMMARY@|$profile_summary|g" \
     -e "s|@PROFILE_CONFIGS@|$profile_configs|g" \
     -e "s|@CORE_HINT@|$core_hint|g" \
+    -e "s|@BUILD_TARGET@|$build_target|g" \
+    -e "s|@CLEAN_TARGET@|$clean_target|g" \
+    -e "s|@MAKE_EXTRA_ARGS@|$make_extra_args|g" \
     -e "s|@SDK_DEVICE@|$sdk_device|g" \
     -e "s|@SDK_DEVICE_TYPE@|$device|g" \
     -e "s|@SDK_DEMO_REL@|$sdk_demo_rel|g" \
@@ -220,6 +237,8 @@ fi
 cat <<EOF
 Created TI mmWave fork project: $abs_out
 Profile: $profile
+Board: $board
+Mode: $core_mode
 Device template: $device ($sdk_device)
 Forked SDK demo: $sdk_demo_rel
 Cores: MSS=$mss DSS=$dss (profile: $core_hint)

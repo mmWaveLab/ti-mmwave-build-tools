@@ -7,7 +7,7 @@ source "$repo_dir/scripts/flash-common.sh"
 
 if [[ "${CONFIRM_FLASH:-}" != "YES" ]]; then
   printf 'ERROR: refusing to flash without CONFIRM_FLASH=YES.\n' >&2
-  printf 'Example: make flash PORT=/dev/ttyACM0 BIN=build/sdk-image-smoke/smoke-iwr6843isk-oob/build/app/xwr68xx_mmw_demo.bin CONFIRM_FLASH=YES\n' >&2
+  printf 'Example: make flash PORT=/dev/ttyACM0 BIN=build/sdk-image-smoke/smoke-xwr6843isk-mss-dss/build/app/xwr68xx_mmw_demo.bin CONFIRM_FLASH=YES\n' >&2
   exit 2
 fi
 

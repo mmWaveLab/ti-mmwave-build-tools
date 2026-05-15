@@ -72,39 +72,60 @@ from pathlib import Path
 
 path = Path(sys.argv[1])
 required = {
-    "iwr1843boost-oob",
-    "iwr6843isk-oob",
+    "xwr1843boost-mss-only",
+    "xwr1843boost-mss-dss",
+    "xwr6843isk-mss-only",
+    "xwr6843isk-mss-dss",
+    "xwr6843aop-mss-only",
+    "xwr6843aop-mss-dss",
 }
+required_boards = {"xwr1843boost", "xwr6843isk", "xwr6843aop"}
+required_modes = {"mss-only", "mss-dss"}
 ids = set()
+matrix = set()
 errors = []
 with path.open(encoding="utf-8", newline="") as f:
     for line_no, row in enumerate(csv.reader(f, delimiter="\t"), 1):
         if not row or row[0].startswith("#"):
             continue
-        if len(row) != 8:
-            errors.append(f"line {line_no}: expected 8 columns, got {len(row)}")
+        if len(row) != 15:
+            errors.append(f"line {line_no}: expected 15 columns, got {len(row)}")
             continue
-        profile, sdk_device_type, sdk_demo, sdk_device, output_bin, cores, configs, summary = row
+        profile, board, core_mode, source_kind, source_rel, sdk_device_type, sdk_device, output_artifact, cores, build_target, clean_target, make_vars, configs, status, summary = row
         if profile in ids:
             errors.append(f"line {line_no}: duplicate profile {profile}")
         ids.add(profile)
-        if not sdk_demo.startswith("ti/demo/") or not sdk_demo.endswith("/mmw"):
-            errors.append(f"line {line_no}: unexpected SDK demo path {sdk_demo}")
+        matrix.add((board, core_mode))
+        if board not in required_boards:
+            errors.append(f"line {line_no}: unexpected board {board}")
+        if core_mode not in required_modes:
+            errors.append(f"line {line_no}: unexpected core mode {core_mode}")
+        if source_kind not in {"sdk-make", "toolbox-projectspec"}:
+            errors.append(f"line {line_no}: unexpected source kind {source_kind}")
+        if source_kind == "sdk-make" and not source_rel.startswith("ti/demo/"):
+            errors.append(f"line {line_no}: unexpected SDK demo path {source_rel}")
         if sdk_device_type not in {"xwr18xx", "xwr68xx"}:
             errors.append(f"line {line_no}: unexpected SDK device type {sdk_device_type}")
         if sdk_device not in {"iwr18xx", "iwr68xx"}:
             errors.append(f"line {line_no}: unexpected SDK device {sdk_device}")
-        if not output_bin.endswith(".bin"):
-            errors.append(f"line {line_no}: output is not a bin file {output_bin}")
         if cores not in {"MSS", "MSS+DSS"}:
             errors.append(f"line {line_no}: unexpected core set {cores}")
+        if core_mode == "mss-only" and cores != "MSS":
+            errors.append(f"line {line_no}: mss-only row must use MSS cores")
+        if core_mode == "mss-dss" and cores != "MSS+DSS":
+            errors.append(f"line {line_no}: mss-dss row must use MSS+DSS cores")
+        if status not in {"validated", "cataloged"}:
+            errors.append(f"line {line_no}: unexpected status {status}")
         if not configs:
             errors.append(f"line {line_no}: missing profile config list")
-        if not summary:
+        if not all((output_artifact, build_target, clean_target, make_vars, summary)):
             errors.append(f"line {line_no}: missing summary")
 missing = sorted(required - ids)
 if missing:
     errors.append(f"missing required profiles: {', '.join(missing)}")
+missing_matrix = sorted((board, mode) for board in required_boards for mode in required_modes if (board, mode) not in matrix)
+if missing_matrix:
+    errors.append(f"missing board/mode cells: {missing_matrix}")
 if errors:
     raise SystemExit("\n".join(errors))
 print(f"demo profiles ok: {len(ids)}")

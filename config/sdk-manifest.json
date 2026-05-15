@@ -45,20 +45,68 @@
   },
   "starterProfiles": [
     {
-      "profile": "iwr1843boost-oob",
+      "profile": "xwr1843boost-mss-only",
+      "board": "xwr1843boost",
+      "coreMode": "mss-only",
+      "device": "iwr18xx",
+      "deviceType": "xwr18xx",
+      "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr18xx/mmw",
+      "output": "xwr18xx_mmw_demo_mss.xer4f",
+      "cores": "MSS",
+      "buildTarget": "mssDemo"
+    },
+    {
+      "profile": "xwr1843boost-mss-dss",
+      "board": "xwr1843boost",
+      "coreMode": "mss-dss",
       "device": "iwr18xx",
       "deviceType": "xwr18xx",
       "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr18xx/mmw",
       "output": "xwr18xx_mmw_demo.bin",
-      "cores": "MSS+DSS"
+      "cores": "MSS+DSS",
+      "buildTarget": "mmwDemo"
     },
     {
-      "profile": "iwr6843isk-oob",
+      "profile": "xwr6843isk-mss-only",
+      "board": "xwr6843isk",
+      "coreMode": "mss-only",
+      "device": "iwr68xx",
+      "deviceType": "xwr68xx",
+      "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr68xx/mmw",
+      "output": "xwr68xx_mmw_demo_mss.xer4f",
+      "cores": "MSS",
+      "buildTarget": "mssDemo"
+    },
+    {
+      "profile": "xwr6843isk-mss-dss",
+      "board": "xwr6843isk",
+      "coreMode": "mss-dss",
       "device": "iwr68xx",
       "deviceType": "xwr68xx",
       "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr68xx/mmw",
       "output": "xwr68xx_mmw_demo.bin",
-      "cores": "MSS+DSS"
+      "cores": "MSS+DSS",
+      "buildTarget": "all"
+    },
+    {
+      "profile": "xwr6843aop-mss-only",
+      "board": "xwr6843aop",
+      "coreMode": "mss-only",
+      "device": "iwr68xx",
+      "deviceType": "xwr68xx",
+      "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr64xx/mmw",
+      "output": "xwr64xxAOP_mmw_demo_mss.xer4f",
+      "cores": "MSS",
+      "buildTarget": "all"
+    },
+    {
+      "profile": "xwr6843aop-mss-dss",
+      "board": "xwr6843aop",
+      "coreMode": "mss-dss",
+      "source": "Radar Toolbox 3D People Tracking projectspec pair",
+      "output": "prebuilt_binaries/3D_people_track_6843_demo.bin",
+      "cores": "MSS+DSS",
+      "status": "cataloged"
     }
   ]
 }

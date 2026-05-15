@@ -38,6 +38,12 @@ Expected cores:
 @CORE_HINT@
 ```
 
+TI make target:
+
+```text
+@BUILD_TARGET@
+```
+
 Common profile configs:
 
 ```text
@@ -90,9 +96,9 @@ tools/
   mmwave-run
 ```
 
-The build uses the forked demo's original TI makefile. If a demo only has MSS,
-only MSS is built; if it has MSS+DSS, the SDK makefile drives both cores and
-metaimage generation.
+The build uses the forked demo's original TI makefile and the profile-selected
+target. An `mss-only` profile normally produces the R4F `*.xer4f`; an `mss-dss`
+profile normally produces the flashable metaimage `.bin`.
 
 ## License Note
 

@@ -19,7 +19,7 @@ test -f "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
 test -f "$repo_dir/templates/mmwave-cmake-project/Makefile.in"
 find "$repo_dir/scripts" "$repo_dir/templates" "$repo_dir/config" \
   -type f ! -name validate-cmake-portability.sh -print0 |
-  xargs -0 grep -InE '/home/[^/]+|/Users/[^/]+|source .*(bashrc|zshrc|profile)|\. (.*bashrc|.*zshrc|.*profile)' \
+  xargs -0 grep -InE '/home/[^/]+|/Users/[^/]+|source[[:space:]].*(bashrc|zshrc|profile)|[[:space:]]\.[[:space:]].*(bashrc|zshrc|profile)' \
   >/tmp/mmwave-portability-leaks.txt && {
   cat /tmp/mmwave-portability-leaks.txt >&2
   exit 1
@@ -29,8 +29,11 @@ printf 'Demo profile manifest shape\n'
 awk -F '\t' '
   BEGIN { ok=1 }
   /^#/ || NF == 0 { next }
-  NF != 8 { printf "bad field count: %s\n", $0 > "/dev/stderr"; ok=0; next }
-  $6 !~ /^(MSS|DSS|MSS[+]DSS)$/ { printf "bad cores: %s\n", $0 > "/dev/stderr"; ok=0 }
+  NF != 15 { printf "bad field count: %s\n", $0 > "/dev/stderr"; ok=0; next }
+  $3 !~ /^(mss-only|mss-dss)$/ { printf "bad core mode: %s\n", $0 > "/dev/stderr"; ok=0 }
+  $4 !~ /^(sdk-make|toolbox-projectspec)$/ { printf "bad source kind: %s\n", $0 > "/dev/stderr"; ok=0 }
+  $9 !~ /^(MSS|MSS[+]DSS)$/ { printf "bad cores: %s\n", $0 > "/dev/stderr"; ok=0 }
+  $14 !~ /^(validated|cataloged)$/ { printf "bad status: %s\n", $0 > "/dev/stderr"; ok=0 }
   END { exit ok ? 0 : 1 }
 ' "$repo_dir/config/demo-profiles.tsv"
 

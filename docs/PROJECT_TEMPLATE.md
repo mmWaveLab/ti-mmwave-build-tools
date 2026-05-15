@@ -7,14 +7,14 @@ normal source tree that developers can edit directly.
 ## Create A Project
 
 ```bash
-make project-new PROJECT=people-count-6843 PROFILE=iwr6843isk-oob
+make project-new PROJECT=people-count-6843 PROFILE=xwr6843isk-mss-dss
 ```
 
 Use a custom output directory or overwrite a generated scaffold:
 
 ```bash
-make project-new PROJECT=vital-signs-1843 PROFILE=iwr1843boost-oob OUT=examples/vital-signs-1843
-make project-new PROJECT=vital-signs-1843 PROFILE=iwr1843boost-oob OUT=examples/vital-signs-1843 FORCE=1
+make project-new PROJECT=vital-signs-1843 PROFILE=xwr1843boost-mss-dss OUT=examples/vital-signs-1843
+make project-new PROJECT=vital-signs-1843 PROFILE=xwr1843boost-mss-dss OUT=examples/vital-signs-1843 FORCE=1
 ```
 
 This creates:
@@ -45,15 +45,19 @@ generated tree is writable by normal development commands:
 docker run --rm -v "$PWD":/work -w /work \
   --user "$(id -u):$(id -g)" \
   meowkj/ti-mmwave-sdk:03.06.02-local \
-  create-mmwave-app people-count-6843 --profile iwr6843isk-oob
+  create-mmwave-app people-count-6843 --profile xwr6843isk-mss-dss
 ```
 
 Common fork profiles:
 
 | Profile | SDK demo | SDK device/type | Default output |
 |---|---|---|---|
-| `iwr1843boost-oob` | `ti/demo/xwr18xx/mmw` | `iwr18xx` / `xwr18xx` | `xwr18xx_mmw_demo.bin` |
-| `iwr6843isk-oob` | `ti/demo/xwr68xx/mmw` | `iwr68xx` / `xwr68xx` | `xwr68xx_mmw_demo.bin` |
+| `xwr1843boost-mss-only` | `ti/demo/xwr18xx/mmw` | `iwr18xx` / `xwr18xx` | `xwr18xx_mmw_demo_mss.xer4f` |
+| `xwr1843boost-mss-dss` | `ti/demo/xwr18xx/mmw` | `iwr18xx` / `xwr18xx` | `xwr18xx_mmw_demo.bin` |
+| `xwr6843isk-mss-only` | `ti/demo/xwr68xx/mmw` | `iwr68xx` / `xwr68xx` | `xwr68xx_mmw_demo_mss.xer4f` |
+| `xwr6843isk-mss-dss` | `ti/demo/xwr68xx/mmw` | `iwr68xx` / `xwr68xx` | `xwr68xx_mmw_demo.bin` |
+| `xwr6843aop-mss-only` | `ti/demo/xwr64xx/mmw` | `iwr68xx` / `xwr68xx` | `xwr64xxAOP_mmw_demo_mss.xer4f` |
+| `xwr6843aop-mss-dss` | Radar Toolbox projectspec | `iwr68xx` / `xwr68xx` | `3D_people_track_6843_demo.bin` |
 
 Legacy `DEVICE=xwr68xx` still works, but `PROFILE=...` is preferred because it
 captures the expected board/demo variant and output artifact.
@@ -84,7 +88,7 @@ make sdk-profile-validate
 Use a subset while iterating:
 
 ```bash
-DEMO_PROFILES="iwr6843isk-oob iwr1843boost-oob" make sdk-profile-validate
+DEMO_PROFILES="xwr6843isk-mss-dss xwr1843boost-mss-dss" make sdk-profile-validate
 ```
 
 Use explicit profile-level parallelism on a stronger machine:
@@ -124,11 +128,10 @@ tools/mmwave-run --image meowkj/ti-mmwave-sdk:03.06.02-local -- \
 Use it for board bring-up, regression projects, and real firmware development
 starting from a known-good TI demo such as IWR1843 or IWR6843 out-of-box.
 
-The SDK 03.06 `ti/demo/xwr68xx/mmw` folder is represented as
-`iwr6843isk-oob`. IWR6843AOP should be tracked as separate Toolbox profiles;
-do not treat it as the same fork target as IWR6843ISK. The Toolbox OOB
-`xwr6843AOP` entry is a single-projectspec target, while several 6843AOP
-application demos use 6843 MSS+DSS projects plus AOP configs.
+The SDK 03.06 `ti/demo/xwr68xx/mmw` folder is represented by the
+`xwr6843isk-*` profiles. IWR6843AOP is tracked separately: `xwr6843aop-mss-only`
+uses the SDK `xwr64xx/mmw` AOP OOB source, while `xwr6843aop-mss-dss` is a
+Toolbox projectspec application profile.
 
 ## Profile Granularity
 
@@ -144,8 +147,12 @@ For the current starter set:
 
 | Profile | Cores | Source layout |
 |---|---|---|
-| `iwr6843isk-oob` | MSS+DSS | `app/mss/` and `app/dss/` |
-| `iwr1843boost-oob` | MSS+DSS | `app/mss/` and `app/dss/` |
+| `xwr1843boost-mss-only` | MSS | `app/mss/` |
+| `xwr1843boost-mss-dss` | MSS+DSS | `app/mss/` and `app/dss/` |
+| `xwr6843isk-mss-only` | MSS | `app/mss/` |
+| `xwr6843isk-mss-dss` | MSS+DSS | `app/mss/` and `app/dss/` |
+| `xwr6843aop-mss-only` | MSS | SDK `xwr64xx/mmw` AOP OOB |
+| `xwr6843aop-mss-dss` | MSS+DSS | Toolbox projectspec pair, importer pending |
 
 If two board/device names only differ in the profile `.cfg` used at runtime and
 the SDK build output is byte-identical, keep them as one build profile and

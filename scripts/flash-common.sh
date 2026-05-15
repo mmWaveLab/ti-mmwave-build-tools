@@ -40,8 +40,8 @@ flash_resolve_default_bin() {
     printf '%s\n' "$repo_dir/artifacts/xwr68xx_mmw_demo.docker.bin"
     return 0
   fi
-  if [[ -f "$repo_dir/build/sdk-image-smoke/smoke-iwr6843isk-oob/build/app/xwr68xx_mmw_demo.bin" ]]; then
-    printf '%s\n' "$repo_dir/build/sdk-image-smoke/smoke-iwr6843isk-oob/build/app/xwr68xx_mmw_demo.bin"
+  if [[ -f "$repo_dir/build/sdk-image-smoke/smoke-xwr6843isk-mss-dss/build/app/xwr68xx_mmw_demo.bin" ]]; then
+    printf '%s\n' "$repo_dir/build/sdk-image-smoke/smoke-xwr6843isk-mss-dss/build/app/xwr68xx_mmw_demo.bin"
     return 0
   fi
   return 1
@@ -50,7 +50,7 @@ flash_resolve_default_bin() {
 flash_require_port() {
   if [[ -z "${PORT:-}" ]]; then
     printf 'ERROR: PORT is required.\n' >&2
-    printf 'Example: make flash-dry-run PORT=/dev/ttyACM0 BIN=build/sdk-image-smoke/smoke-iwr6843isk-oob/build/app/xwr68xx_mmw_demo.bin\n' >&2
+    printf 'Example: make flash-dry-run PORT=/dev/ttyACM0 BIN=build/sdk-image-smoke/smoke-xwr6843isk-mss-dss/build/app/xwr68xx_mmw_demo.bin\n' >&2
     return 2
   fi
   if [[ ! -e "$PORT" ]]; then

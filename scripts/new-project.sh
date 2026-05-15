@@ -6,7 +6,7 @@ repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 usage() {
   cat <<'USAGE'
 Usage:
-  scripts/new-project.sh NAME [--profile iwr6843isk-oob] [--out DIR] [--image IMAGE] [--force]
+  scripts/new-project.sh NAME [--profile xwr6843isk-mss-dss] [--out DIR] [--image IMAGE] [--force]
 
 This compatibility wrapper creates a fork-mode project under this repository.
 For standalone projects, prefer scripts/create-mmwave-app.sh.

@@ -3,14 +3,18 @@ set -euo pipefail
 
 image="${SDK_FULL_IMAGE:-meowkj/ti-mmwave-sdk:03.06.02-local}"
 work_dir="${SDK_SMOKE_WORK:-$(pwd)/build/sdk-image-smoke}"
-profiles="${SDK_SMOKE_PROFILES:-iwr6843isk-oob iwr1843boost-oob}"
+profiles="${SDK_SMOKE_PROFILES:-xwr6843isk-mss-dss xwr1843boost-mss-dss xwr6843aop-mss-only}"
 profiles_file="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/config/demo-profiles.tsv"
 
 profile_output_bin() {
   local requested="$1"
-  while IFS=$'\t' read -r profile _device _demo _sdk_device output_bin _cores _configs _summary; do
+  while IFS=$'\t' read -r profile _board _mode source_kind _source _device _sdk_device output_bin _cores _target _clean _vars _configs status _summary; do
     [[ -z "${profile:-}" || "$profile" == \#* ]] && continue
     if [[ "$profile" == "$requested" ]]; then
+      if [[ "$source_kind" != "sdk-make" || "$status" != "validated" ]]; then
+        printf 'Smoke profile is not SDK-make validated: %s\n' "$requested" >&2
+        return 3
+      fi
       printf '%s\n' "$output_bin"
       return 0
     fi

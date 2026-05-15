@@ -6,7 +6,7 @@
 
 项目结构分为几层。`scripts/` 放所有命令入口，包括 Docker 构建、项目生成、SDK profile 验证、UniFlash dry-run、清理和测试脚本。`templates/mmwave-cmake-project/` 是新工程模板。`cmake/` 保存可复用的 CMake helper，用来发现 TI SDK 路径、封装 configuro 和 metaimage 等步骤。`config/demo-profiles.tsv` 是当前已验证、可以直接生成工程的 SDK demo profile；`config/toolbox-oob-profiles.tsv` 是 TI Radar Toolbox OOB demo 的轻量目录；`config/toolbox-application-profiles.tsv` 是应用级 demo 目录，例如 6843AOP People Tracking、Area Scanner 和 Automated Doors。两个 Toolbox manifest 都只记录路径、芯片族、核心结构、预编译产物和适用层级，不提交任何 TI 源码或二进制。
 
-当前已经验证可生成的 profile 是 `iwr1843boost-oob` 和 `iwr6843isk-oob`，两者都是 MSS+DSS 双核 OOB 工程。它们通过 direct-vs-fork SHA-256 测试：先直接构建 TI SDK 原始 demo，再构建由模板生成的 CMake/Ninja fork 工程，最后比较固件 `.bin` 的 SHA。这个测试不是唯一测试，但它能强力证明 CMake/Ninja 移植层没有改变最终固件输出。
+初版 starter 目标固定为三块板卡乘以两种核心形态：`xwr1843boost-mss-only`、`xwr1843boost-mss-dss`、`xwr6843isk-mss-only`、`xwr6843isk-mss-dss`、`xwr6843aop-mss-only`、`xwr6843aop-mss-dss`。其中 SDK makefile 可直接生成的 profile 会进入 direct-vs-fork SHA-256 测试：先直接构建 TI SDK 原始 demo，再构建由模板生成的 CMake/Ninja fork 工程，最后比较输出物的 SHA。MSS-only profile 比较 R4F `*.xer4f`，MSS+DSS profile 比较 flash 用 `.bin`。`xwr6843aop-mss-dss` 先按 Toolbox projectspec 记录，等 projectspec importer 完成后进入同样的构建验证。
 
 Toolbox 方向已经做了完整扫描，但还没有直接开放生成。Radar Toolbox 的 OOB 目录里不仅有 1843 和 6843，也有 xWR1443、xWR1642、xWR6443、IWR6843AOP、IWR6843ISK、IWR6843ODS，以及 AWR2544、AWR294x、AWR2x44、xWRL1432、xWRL6432 等新 SDK 家族。仓库会全面记录这些入口，但按适配难度分层：SDK3 类 OOB 是下一阶段最适合做初次工程生成的目标；L-SDK 和 MCU+ SDK 类 OOB 先记录，等有对应适配器后再进入生成流程。
 

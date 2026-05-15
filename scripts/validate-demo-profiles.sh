@@ -44,6 +44,7 @@ printf '%s\n' "- SDK-full image: \`$image\`" >>"$report"
 printf '%s\n' "- Profile manifest: \`$profiles_file\`" >>"$report"
 printf '%s\n' "- Parallel profile jobs: \`$jobs_label\`" >>"$report"
 printf '%s\n\n' "- Work directory: \`$work_dir\`" >>"$report"
+printf '%s\n\n' "- Result rule: \`MSS+DSS\` flash images require matching SHA-256; \`MSS\` ELF outputs are path-sensitive and require direct/fork build success." >>"$report"
 printf '| Profile | Direct SDK SHA-256 | Fork CMake SHA-256 | Result | Output |\n' >>"$report"
 printf '|---|---|---|---:|---|\n' >>"$report"
 
@@ -59,10 +60,13 @@ profile_enabled() {
 
 build_direct() {
   local profile="$1"
-  local sdk_demo="$2"
+  local source_rel="$2"
   local sdk_device="$3"
   local device_template="$4"
   local output_bin="$5"
+  local build_target="$6"
+  local clean_target="$7"
+  local make_vars="$8"
 
   docker run --rm \
     --user "$(id -u):$(id -g)" \
@@ -73,30 +77,39 @@ build_direct() {
     bash -lc '
       set -euo pipefail
       profile="$1"
-      sdk_demo="$2"
+      source_rel="$2"
       sdk_device="$3"
       device_template="$4"
       output_bin="$5"
-      src="/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/$sdk_demo"
+      build_target="$6"
+      clean_target="$7"
+      make_vars="$8"
+      src="/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/$source_rel"
       dst="/work/direct-$profile"
+      extra_args=()
+      if [[ "$make_vars" != "-" && -n "$make_vars" ]]; then
+        extra_args+=("$make_vars")
+      fi
       rm -rf "$dst"
       cp -a "$src" "$dst"
       cd "$dst"
-      make -f makefile clean \
+      make -f makefile "$clean_target" \
         CCS_MAKEFILE_BASED_BUILD=1 \
         MMWAVE_SDK_DEVICE="$sdk_device" \
         MMWAVE_SDK_DEVICE_TYPE="$device_template" \
         MMWAVE_SDK_TOOLS_INSTALL_PATH=/opt/ti \
-        MMWAVE_SDK_INSTALL_PATH=/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages
-      make -f makefile all \
+        MMWAVE_SDK_INSTALL_PATH=/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages \
+        "${extra_args[@]}"
+      make -f makefile "$build_target" \
         CCS_MAKEFILE_BASED_BUILD=1 \
         MMWAVE_SDK_DEVICE="$sdk_device" \
         MMWAVE_SDK_DEVICE_TYPE="$device_template" \
         MMWAVE_SDK_TOOLS_INSTALL_PATH=/opt/ti \
-        MMWAVE_SDK_INSTALL_PATH=/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages
+        MMWAVE_SDK_INSTALL_PATH=/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages \
+        "${extra_args[@]}"
       test -f "$output_bin"
       sha256sum "$output_bin" > "/work/direct-$profile.sha256"
-    ' _ "$profile" "$sdk_demo" "$sdk_device" "$device_template" "$output_bin"
+    ' _ "$profile" "$source_rel" "$sdk_device" "$device_template" "$output_bin" "$build_target" "$clean_target" "$make_vars"
 }
 
 build_fork() {
@@ -106,21 +119,23 @@ build_fork() {
   docker run --rm \
     --user "$(id -u):$(id -g)" \
     -e HOME=/tmp \
+    -v "$repo_dir":/repo:ro \
     -v "$work_dir":/work \
     -w /work \
     "$image" \
-    create-mmwave-app "fork-$profile" --profile "$profile" --image "$image"
+    /repo/scripts/create-mmwave-app.sh "fork-$profile" --profile "$profile" --image "$image"
 
   docker run --rm \
     --user "$(id -u):$(id -g)" \
     -e HOME=/tmp \
+    -v "$repo_dir":/repo:ro \
     -v "$work_dir/fork-$profile":/work/app \
     -w /work/app \
     "$image" \
     bash -lc '
       set -euo pipefail
       output_bin="$1"
-      cmake -S . -B build -G Ninja -DTI_ROOT=/opt/ti
+      cmake -S . -B build -G Ninja -DTI_MMWAVE_TOOLS_ROOT=/repo -DTI_ROOT=/opt/ti
       cmake --build build --target firmware
       test -f "build/app/$output_bin"
       sha256sum "build/app/$output_bin" > "/work/app/fork.sha256"
@@ -129,10 +144,18 @@ build_fork() {
 
 validate_one_profile() {
   local profile="$1"
-  local sdk_device_type="$2"
-  local sdk_demo="$3"
-  local sdk_device="$4"
-  local output_bin="$5"
+  local board="$2"
+  local core_mode="$3"
+  local source_kind="$4"
+  local source_rel="$5"
+  local sdk_device_type="$6"
+  local sdk_device="$7"
+  local output_bin="$8"
+  local build_target="$9"
+  local clean_target="${10}"
+  local make_vars="${11}"
+  local status="${12}"
+  local cores="${13}"
   local artifact_dir="$artifact_root/$profile"
   local direct_log="$report_dir/demo-profile-direct-$profile-$timestamp.log"
   local fork_log="$report_dir/demo-profile-fork-$profile-$timestamp.log"
@@ -147,7 +170,12 @@ validate_one_profile() {
   rm -rf "$artifact_dir"
   mkdir -p "$artifact_dir"
 
-  build_direct "$profile" "$sdk_demo" "$sdk_device" "$sdk_device_type" "$output_bin" >"$direct_log" 2>&1 || direct_rc=$?
+  if [[ "$source_kind" != "sdk-make" || "$status" != "validated" ]]; then
+    printf '%s\t%s\t%s\t%s\t%s\n' "$profile" "SKIPPED" "SKIPPED" "SKIP" "$output_bin" >"$result_file"
+    return 0
+  fi
+
+  build_direct "$profile" "$source_rel" "$sdk_device" "$sdk_device_type" "$output_bin" "$build_target" "$clean_target" "$make_vars" >"$direct_log" 2>&1 || direct_rc=$?
   if (( direct_rc == 0 )); then
     cp "$work_dir/direct-$profile/$output_bin" "$artifact_dir/direct-$output_bin"
     direct_sha="$(awk '{print $1}' "$work_dir/direct-$profile.sha256")"
@@ -165,6 +193,8 @@ validate_one_profile() {
 
   if (( direct_rc == 0 && fork_rc == 0 )) && [[ "$direct_sha" == "$fork_sha" ]]; then
     result="PASS"
+  elif (( direct_rc == 0 && fork_rc == 0 )) && [[ "$cores" == "MSS" ]]; then
+    result="PASS-BUILD"
   else
     result="FAIL"
   fi
@@ -198,13 +228,13 @@ wait_for_slot() {
   done
 }
 
-while IFS=$'\t' read -r profile sdk_device_type sdk_demo sdk_device output_bin cores config_profiles summary; do
+while IFS=$'\t' read -r profile board core_mode source_kind source_rel sdk_device_type sdk_device output_bin cores build_target clean_target make_vars config_profiles status summary; do
   [[ -z "${profile:-}" || "$profile" == \#* ]] && continue
   profile_enabled "$profile" || continue
 
   wait_for_slot
   profiles+=("$profile")
-  validate_one_profile "$profile" "$sdk_device_type" "$sdk_demo" "$sdk_device" "$output_bin" &
+  validate_one_profile "$profile" "$board" "$core_mode" "$source_kind" "$source_rel" "$sdk_device_type" "$sdk_device" "$output_bin" "$build_target" "$clean_target" "$make_vars" "$status" "$cores" &
   pids+=("$!")
   running=$((running + 1))
 done < "$profiles_file"
@@ -223,7 +253,7 @@ for profile in "${profiles[@]}"; do
   IFS=$'\t' read -r profile_result direct_sha fork_sha result output_bin < "$result_file"
   printf '| `%s` | `%s` | `%s` | %s | `%s` |\n' \
     "$profile_result" "$direct_sha" "$fork_sha" "$result" "$output_bin" >>"$report"
-  if [[ "$result" != "PASS" ]]; then
+  if [[ "$result" != "PASS" && "$result" != "PASS-BUILD" && "$result" != "SKIP" ]]; then
     overall=1
     cat "$work_dir/failure-$profile.md" >>"$report"
   fi

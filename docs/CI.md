@@ -76,6 +76,12 @@ CI_FULL_BUILD=1 scripts/ci.sh
 Full mode runs `scripts/benchmark.sh`, which builds both Docker and native
 MSS+DSS firmware and verifies identical SHA-256 output.
 
+Private SDK profile validation uses `scripts/validate-demo-profiles.sh`. MSS+DSS
+profiles compare direct SDK and generated CMake fork `.bin` SHA-256 values.
+MSS-only profiles compare build success because TI `*.xer4f` ELF files embed
+path-sensitive debug data. Cataloged Toolbox projectspec profiles are listed but
+skipped until the projectspec importer is implemented.
+
 Full SDK runner requirements:
 
 - Docker
