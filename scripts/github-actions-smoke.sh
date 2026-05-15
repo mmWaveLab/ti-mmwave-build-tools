@@ -50,6 +50,7 @@ test -f "$repo_dir/docs/DOCKER_IMAGE.md"
 test -f "$repo_dir/docs/PROJECT_MANAGEMENT.md"
 test -f "$repo_dir/config/devices.tsv"
 test -f "$repo_dir/config/demo-profiles.tsv"
+test -f "$repo_dir/scripts/validate-demo-profiles.sh"
 test -f "$repo_dir/examples/official-sdk-demos/README.md"
 test -f "$repo_dir/examples/official-sdk-demos/devices-ci.tsv"
 test -f "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
@@ -88,14 +89,14 @@ with path.open(encoding="utf-8", newline="") as f:
         if len(row) != 8:
             errors.append(f"line {line_no}: expected 8 columns, got {len(row)}")
             continue
-        profile, device_template, sdk_demo, sdk_device, output_bin, cores, configs, summary = row
+        profile, sdk_device_type, sdk_demo, sdk_device, output_bin, cores, configs, summary = row
         if profile in ids:
             errors.append(f"line {line_no}: duplicate profile {profile}")
         ids.add(profile)
         if not sdk_demo.startswith("ti/demo/") or not sdk_demo.endswith("/mmw"):
             errors.append(f"line {line_no}: unexpected SDK demo path {sdk_demo}")
-        if device_template not in {"xwr16xx", "xwr18xx", "xwr64xx", "xwr64xx_compression", "xwr68xx"}:
-            errors.append(f"line {line_no}: unexpected device template {device_template}")
+        if sdk_device_type not in {"xwr16xx", "xwr18xx", "xwr68xx"}:
+            errors.append(f"line {line_no}: unexpected SDK device type {sdk_device_type}")
         if sdk_device not in {"iwr16xx", "iwr18xx", "iwr68xx"}:
             errors.append(f"line {line_no}: unexpected SDK device {sdk_device}")
         if not output_bin.endswith(".bin"):

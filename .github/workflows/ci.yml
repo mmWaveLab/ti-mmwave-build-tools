@@ -46,8 +46,8 @@ jobs:
           fi
       - name: Pull private SDK-full image
         run: docker pull "${{ vars.SDK_FULL_IMAGE }}"
-      - name: Generate and build forked 6843 project
-        run: SDK_FULL_IMAGE="${{ vars.SDK_FULL_IMAGE }}" make sdk-image-smoke
+      - name: Compare direct SDK and forked CMake demo profiles
+        run: SDK_FULL_IMAGE="${{ vars.SDK_FULL_IMAGE }}" make sdk-profile-validate
 
   self-hosted-device-validation:
     if: github.event_name == 'workflow_dispatch'

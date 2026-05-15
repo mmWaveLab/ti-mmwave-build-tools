@@ -17,6 +17,7 @@ by TI. Bring your own TI installation and mount it into the build environment.
 - Build `xwr68xx/mmw` MSS+DSS through CMake and Ninja.
 - Create forked mmWave CMake/Ninja firmware projects from TI SDK demos.
 - Validate first-generation SDK demo families in Docker.
+- Compare direct TI OOB demo builds with generated fork projects by SHA-256.
 - Track official TI SDK demo references without vendoring TI source files.
 - Compare Docker and native Ubuntu build time and output hashes.
 - Generate safe UniFlash/DSLite commands with an explicit serial port.
@@ -29,6 +30,7 @@ by TI. Bring your own TI installation and mount it into the build environment.
 | Docker SDK environment | Validated | `make doctor`, `make test`, `make ci` |
 | CMake+Ninja MSS+DSS build | Validated | Docker/native SHA-256 match |
 | First-generation device matrix | Validated | `reports/device-validation-20260515T123503Z.md` |
+| Demo fork SHA comparison | Validated | `make sdk-profile-validate` |
 | UniFlash integration layer | Guarded test passed | `reports/uniflash-integration-20260515T090526Z.md` |
 | Real hardware flash | Pending | Requires TI UniFlash/DSLite and a board in download mode |
 
@@ -154,6 +156,12 @@ Latest generated demo-profile smoke report:
 reports/demo-profile-smoke-20260515T160000Z.md
 ```
 
+Latest direct-vs-fork demo profile SHA report:
+
+```text
+reports/demo-profile-validation-20260515T153535Z.md
+```
+
 Validation here means the Docker SDK environment can compile the TI mmWave SDK
 03.06 demo and produce `.bin` artifacts. It does not mean each binary was
 flashed to hardware, and it does not imply other TI device generations are
@@ -251,6 +259,7 @@ make validate-devices
 make project-new PROJECT=name PROFILE=iwr6843isk-oob
 make sdk-image
 make sdk-image-smoke
+make sdk-profile-validate
 make flash-list
 make flash-doctor
 make package

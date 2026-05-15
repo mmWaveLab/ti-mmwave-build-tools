@@ -38,20 +38,20 @@ profiles_file="$repo_dir/config/demo-profiles.tsv"
 
 list_profiles() {
   printf 'Available TI mmWave demo profiles:\n\n'
-  while IFS=$'\t' read -r profile device_template sdk_demo sdk_device output_bin cores config_profiles summary; do
+  while IFS=$'\t' read -r profile sdk_device_type sdk_demo sdk_device output_bin cores config_profiles summary; do
     [[ -z "${profile:-}" || "$profile" == \#* ]] && continue
-    printf '  %-22s %-10s %-7s %s\n' "$profile" "$device_template" "$cores" "$summary"
+    printf '  %-22s %-10s %-7s %s\n' "$profile" "$sdk_device_type" "$cores" "$summary"
     printf '  %-22s output=%s profiles=%s\n' "" "$output_bin" "$config_profiles"
   done < "$profiles_file"
 }
 
 load_profile() {
   local requested="$1"
-  while IFS=$'\t' read -r profile_row device_template_row sdk_demo_row sdk_device_row output_bin_row cores_row config_profiles_row summary_row; do
+  while IFS=$'\t' read -r profile_row sdk_device_type_row sdk_demo_row sdk_device_row output_bin_row cores_row config_profiles_row summary_row; do
     [[ -z "${profile_row:-}" || "$profile_row" == \#* ]] && continue
     if [[ "$profile_row" == "$requested" ]]; then
       profile="$profile_row"
-      device="$device_template_row"
+      device="$sdk_device_type_row"
       sdk_demo_rel="$sdk_demo_row"
       sdk_device="$sdk_device_row"
       output_bin="$output_bin_row"

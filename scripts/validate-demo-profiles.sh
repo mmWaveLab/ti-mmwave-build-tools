@@ -1,0 +1,221 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+profiles_file="${DEMO_PROFILES_FILE:-$repo_dir/config/demo-profiles.tsv}"
+image="${SDK_FULL_IMAGE:-meowkj/ti-mmwave-sdk:03.06.02-local}"
+work_dir="${PROFILE_VALIDATION_WORK:-$repo_dir/build/demo-profile-validation}"
+artifact_root="${ARTIFACT_DIR:-$repo_dir/artifacts}/demo-profile-validation"
+report_dir="${REPORT_DIR:-$repo_dir/reports}"
+timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+report="$report_dir/demo-profile-validation-$timestamp.md"
+profiles_filter="${DEMO_PROFILES:-}"
+jobs="${PROFILE_VALIDATION_JOBS:-2}"
+
+mkdir -p "$work_dir" "$artifact_root" "$report_dir"
+
+if [[ ! "$jobs" =~ ^[0-9]+$ || "$jobs" -lt 1 ]]; then
+  printf 'PROFILE_VALIDATION_JOBS must be a positive integer, got: %s\n' "$jobs" >&2
+  exit 2
+fi
+
+docker run --rm \
+  -v "$work_dir":/work \
+  "$image" \
+  bash -lc 'rm -rf /work/*'
+
+docker run --rm "$image" check-ti-linux
+
+printf '# Demo Profile SHA-256 Validation\n\n' >"$report"
+printf '%s\n' "- Timestamp UTC: \`$timestamp\`" >>"$report"
+printf '%s\n' "- SDK-full image: \`$image\`" >>"$report"
+printf '%s\n' "- Profile manifest: \`$profiles_file\`" >>"$report"
+printf '%s\n' "- Parallel profile jobs: \`$jobs\`" >>"$report"
+printf '%s\n\n' "- Work directory: \`$work_dir\`" >>"$report"
+printf '| Profile | Direct SDK SHA-256 | Fork CMake SHA-256 | Result | Output |\n' >>"$report"
+printf '|---|---|---|---:|---|\n' >>"$report"
+
+profile_enabled() {
+  local candidate="$1"
+  [[ -z "$profiles_filter" ]] && return 0
+  local selected
+  for selected in $profiles_filter; do
+    [[ "$selected" == "$candidate" ]] && return 0
+  done
+  return 1
+}
+
+build_direct() {
+  local profile="$1"
+  local sdk_demo="$2"
+  local sdk_device="$3"
+  local device_template="$4"
+  local output_bin="$5"
+
+  docker run --rm \
+    --user "$(id -u):$(id -g)" \
+    -e HOME=/tmp \
+    -v "$work_dir":/work \
+    -w /work \
+    "$image" \
+    bash -lc '
+      set -euo pipefail
+      profile="$1"
+      sdk_demo="$2"
+      sdk_device="$3"
+      device_template="$4"
+      output_bin="$5"
+      src="/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/$sdk_demo"
+      dst="/work/direct-$profile"
+      rm -rf "$dst"
+      cp -a "$src" "$dst"
+      cd "$dst"
+      make -f makefile clean \
+        CCS_MAKEFILE_BASED_BUILD=1 \
+        MMWAVE_SDK_DEVICE="$sdk_device" \
+        MMWAVE_SDK_DEVICE_TYPE="$device_template" \
+        MMWAVE_SDK_TOOLS_INSTALL_PATH=/opt/ti \
+        MMWAVE_SDK_INSTALL_PATH=/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages
+      make -f makefile all \
+        CCS_MAKEFILE_BASED_BUILD=1 \
+        MMWAVE_SDK_DEVICE="$sdk_device" \
+        MMWAVE_SDK_DEVICE_TYPE="$device_template" \
+        MMWAVE_SDK_TOOLS_INSTALL_PATH=/opt/ti \
+        MMWAVE_SDK_INSTALL_PATH=/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages
+      test -f "$output_bin"
+      sha256sum "$output_bin" > "/work/direct-$profile.sha256"
+    ' _ "$profile" "$sdk_demo" "$sdk_device" "$device_template" "$output_bin"
+}
+
+build_fork() {
+  local profile="$1"
+  local output_bin="$2"
+
+  docker run --rm \
+    --user "$(id -u):$(id -g)" \
+    -e HOME=/tmp \
+    -v "$work_dir":/work \
+    -w /work \
+    "$image" \
+    create-mmwave-app "fork-$profile" --profile "$profile" --image "$image"
+
+  docker run --rm \
+    --user "$(id -u):$(id -g)" \
+    -e HOME=/tmp \
+    -v "$work_dir/fork-$profile":/work/app \
+    -w /work/app \
+    "$image" \
+    bash -lc '
+      set -euo pipefail
+      output_bin="$1"
+      cmake -S . -B build -G Ninja -DTI_ROOT=/opt/ti
+      cmake --build build --target firmware
+      test -f "build/app/$output_bin"
+      sha256sum "build/app/$output_bin" > "/work/app/fork.sha256"
+    ' _ "$output_bin"
+}
+
+validate_one_profile() {
+  local profile="$1"
+  local sdk_device_type="$2"
+  local sdk_demo="$3"
+  local sdk_device="$4"
+  local output_bin="$5"
+  local artifact_dir="$artifact_root/$profile"
+  local direct_log="$report_dir/demo-profile-direct-$profile-$timestamp.log"
+  local fork_log="$report_dir/demo-profile-fork-$profile-$timestamp.log"
+  local result_file="$work_dir/result-$profile.tsv"
+  local failure_file="$work_dir/failure-$profile.md"
+  local direct_rc=0
+  local fork_rc=0
+  local direct_sha
+  local fork_sha
+  local result
+
+  rm -rf "$artifact_dir"
+  mkdir -p "$artifact_dir"
+
+  build_direct "$profile" "$sdk_demo" "$sdk_device" "$sdk_device_type" "$output_bin" >"$direct_log" 2>&1 || direct_rc=$?
+  if (( direct_rc == 0 )); then
+    cp "$work_dir/direct-$profile/$output_bin" "$artifact_dir/direct-$output_bin"
+    direct_sha="$(awk '{print $1}' "$work_dir/direct-$profile.sha256")"
+  else
+    direct_sha="FAILED"
+  fi
+
+  build_fork "$profile" "$output_bin" >"$fork_log" 2>&1 || fork_rc=$?
+  if (( fork_rc == 0 )); then
+    cp "$work_dir/fork-$profile/build/app/$output_bin" "$artifact_dir/fork-$output_bin"
+    fork_sha="$(awk '{print $1}' "$work_dir/fork-$profile/fork.sha256")"
+  else
+    fork_sha="FAILED"
+  fi
+
+  if (( direct_rc == 0 && fork_rc == 0 )) && [[ "$direct_sha" == "$fork_sha" ]]; then
+    result="PASS"
+  else
+    result="FAIL"
+  fi
+
+  printf '%s\t%s\t%s\t%s\t%s\n' "$profile" "$direct_sha" "$fork_sha" "$result" "$output_bin" >"$result_file"
+
+  if [[ "$result" != "PASS" ]]; then
+    {
+      printf '\n## Failure: `%s`\n\n' "$profile"
+      printf -- '- Direct log: `%s`\n' "$direct_log"
+      printf -- '- Fork log: `%s`\n' "$fork_log"
+    } >"$failure_file"
+  else
+    rm -f "$failure_file"
+  fi
+}
+
+overall=0
+running=0
+pids=()
+profiles=()
+
+wait_for_slot() {
+  local pid
+  local idx
+  while (( running >= jobs )); do
+    pid="${pids[0]}"
+    wait "$pid" || overall=1
+    pids=("${pids[@]:1}")
+    running=$((running - 1))
+  done
+}
+
+while IFS=$'\t' read -r profile sdk_device_type sdk_demo sdk_device output_bin cores config_profiles summary; do
+  [[ -z "${profile:-}" || "$profile" == \#* ]] && continue
+  profile_enabled "$profile" || continue
+
+  wait_for_slot
+  profiles+=("$profile")
+  validate_one_profile "$profile" "$sdk_device_type" "$sdk_demo" "$sdk_device" "$output_bin" &
+  pids+=("$!")
+  running=$((running + 1))
+done < "$profiles_file"
+
+for pid in "${pids[@]}"; do
+  wait "$pid" || overall=1
+done
+
+for profile in "${profiles[@]}"; do
+  result_file="$work_dir/result-$profile.tsv"
+  if [[ ! -f "$result_file" ]]; then
+    printf '| `%s` | `FAILED` | `FAILED` | FAIL | `missing result file` |\n' "$profile" >>"$report"
+    overall=1
+    continue
+  fi
+  IFS=$'\t' read -r profile_result direct_sha fork_sha result output_bin < "$result_file"
+  printf '| `%s` | `%s` | `%s` | %s | `%s` |\n' \
+    "$profile_result" "$direct_sha" "$fork_sha" "$result" "$output_bin" >>"$report"
+  if [[ "$result" != "PASS" ]]; then
+    overall=1
+    cat "$work_dir/failure-$profile.md" >>"$report"
+  fi
+done
+
+printf '\nReport: %s\n' "$report"
+exit "$overall"
