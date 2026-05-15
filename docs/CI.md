@@ -40,13 +40,19 @@ passes when the total score reaches the configured floor and every area reaches
 the area floor. The score parser reads the loop summary plus every per-round
 log, and the default formal threshold requires at least 10 scored rounds.
 
-## Private SDK-full Image Smoke
+## Every-Push SDK SHA-256 Gate
 
-The private-image tier runs on `ubuntu-latest` only when repository variable
-`SDK_FULL_IMAGE` is configured. It pulls the private SDK-full Docker image,
-forks demo projects from the SDK inside the image, and builds them with
-CMake+Ninja, then compares direct SDK output with generated fork output by
-SHA-256:
+The private-image tier runs on every `push` and `workflow_dispatch` event. It
+pulls the SDK-full Docker image, builds each validated SDK-backed starter
+profile twice, and compares the two flashable `.bin` SHA-256 values:
+
+- direct TI SDK makefile build
+- generated fork project built through CMake+Ninja
+
+The job is named `sdk-full-sha256`. It does not silently skip when credentials
+are missing; missing Docker Hub credentials fail the run so every commit has a
+visible SDK validation result. `pull_request` events are skipped because GitHub
+does not expose private Docker credentials to forked PRs.
 
 ```bash
 make sdk-profile-validate SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
@@ -55,16 +61,17 @@ make sdk-profile-validate SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
 Configure GitHub with:
 
 ```text
-Repository variable:
-  SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
-
 Repository secrets:
   DOCKERHUB_USERNAME
   DOCKERHUB_TOKEN
+
+Optional repository variable:
+  SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
 ```
 
-The private-image job is skipped for `pull_request` events so forked PRs do not
-receive private Docker credentials.
+If `SDK_FULL_IMAGE` is not set, the workflow defaults to
+`meowpas/ti-mmwave-sdk:03.06.02`. The job uploads the Markdown validation
+report and direct/fork logs as the `demo-profile-sha256-validation` artifact.
 
 ## Self-Hosted Full SDK CI
 

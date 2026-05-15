@@ -28,26 +28,46 @@ jobs:
       - name: Container entrypoint smoke
         run: docker run --rm ti-mmwave-build-tools:ci bash -lc 'command -v cmake && command -v ninja && command -v check-ti-linux'
 
-  sdk-full-image-smoke:
-    if: github.event_name != 'pull_request' && vars.SDK_FULL_IMAGE != ''
+  sdk-full-sha256:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
+    env:
+      SDK_FULL_IMAGE: ${{ vars.SDK_FULL_IMAGE || 'meowpas/ti-mmwave-sdk:03.06.02' }}
     steps:
       - uses: actions/checkout@v5
+      - name: Require private SDK image credentials
+        env:
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+        run: |
+          if [ -z "$SDK_FULL_IMAGE" ]; then
+            echo "::error::SDK_FULL_IMAGE is empty."
+            exit 1
+          fi
+          if [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; then
+            echo "::error::DOCKERHUB_USERNAME and DOCKERHUB_TOKEN secrets are required for every-push SDK SHA-256 validation."
+            exit 1
+          fi
       - name: Login to Docker Hub
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
-          if [ -n "$DOCKERHUB_USERNAME" ] && [ -n "$DOCKERHUB_TOKEN" ]; then
-            printf '%s\n' "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-          else
-            echo "No Docker Hub credentials configured; relying on runner Docker auth."
-          fi
+          printf '%s\n' "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
       - name: Pull private SDK-full image
-        run: docker pull "${{ vars.SDK_FULL_IMAGE }}"
-      - name: Compare direct SDK and forked CMake demo profiles
-        run: SDK_FULL_IMAGE="${{ vars.SDK_FULL_IMAGE }}" make sdk-profile-validate
+        run: docker pull "$SDK_FULL_IMAGE"
+      - name: Compare direct SDK and forked CMake demo profile SHA-256
+        run: PROFILE_VALIDATION_JOBS=all SDK_FULL_IMAGE="$SDK_FULL_IMAGE" make sdk-profile-validate
+      - name: Upload SHA-256 validation report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-profile-sha256-validation
+          path: |
+            reports/demo-profile-validation-*.md
+            reports/demo-profile-*.log
+          if-no-files-found: warn
 
   self-hosted-full:
     if: github.event_name == 'workflow_dispatch'

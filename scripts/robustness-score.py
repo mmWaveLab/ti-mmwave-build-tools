@@ -156,13 +156,14 @@ def ci_score(repo: Path) -> tuple[int, list[str]]:
         score += 4
         notes.append("public Docker image job builds and checks CMake/Ninja")
     if (
-        "sdk-full-image-smoke" in workflow
-        and "docker pull \"${{ vars.SDK_FULL_IMAGE }}\"" in workflow
-        and "make sdk-profile-validate" in workflow
+        "sdk-full-sha256" in workflow
+        and "docker pull \"$SDK_FULL_IMAGE\"" in workflow
+        and "PROFILE_VALIDATION_JOBS=all SDK_FULL_IMAGE=\"$SDK_FULL_IMAGE\" make sdk-profile-validate" in workflow
         and "github.event_name != 'pull_request'" in workflow
+        and "actions/upload-artifact@v4" in workflow
     ):
         score += 5
-        notes.append("private SDK-full image job pulls credentials-gated image and runs SHA validation")
+        notes.append("private SDK-full image job is mandatory on push and uploads SHA validation reports")
     if "self-hosted-full" in workflow and "workflow_dispatch" in workflow and "CI_FULL_BUILD=1 scripts/ci.sh" in workflow:
         score += 3
         notes.append("self-hosted full build job is manually gated")

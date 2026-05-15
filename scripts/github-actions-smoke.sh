@@ -66,6 +66,9 @@ printf 'Project template static checks\n'
 grep -q 'cmake --build' "$repo_dir/templates/mmwave-cmake-project/Makefile.in"
 grep -q 'copy_directory.*APP_SOURCE_DIR' "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
 grep -q 'create-mmwave-app' "$repo_dir/docker/Dockerfile.sdk-full"
+grep -q 'sdk-full-sha256' "$repo_dir/.github/workflows/ci.yml"
+grep -q 'PROFILE_VALIDATION_JOBS=all SDK_FULL_IMAGE="$SDK_FULL_IMAGE" make sdk-profile-validate' "$repo_dir/.github/workflows/ci.yml"
+grep -q 'actions/upload-artifact@v4' "$repo_dir/.github/workflows/ci.yml"
 "$repo_dir/scripts/create-mmwave-app.sh" --help >/dev/null
 "$repo_dir/scripts/create-mmwave-app.sh" --list-profiles >/dev/null
 python3 "$repo_dir/docs/install.py" --list-profiles >/dev/null

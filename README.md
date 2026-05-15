@@ -28,7 +28,7 @@ by TI. Bring your own TI installation and mount it into the build environment.
 |---|---:|---|
 | Docker SDK environment | Validated | `make doctor`, `make test`, `make ci` |
 | CMake+Ninja MSS+DSS build | Validated | Docker/native SHA-256 match |
-| Starter demo fork SHA comparison | Validated | `make sdk-profile-validate` |
+| Starter demo fork SHA comparison | Every-push gate | `sdk-full-sha256` GitHub Actions job |
 | UniFlash integration layer | Guarded test available | `make flash-doctor`, `make flash-dry-run` |
 | Real hardware flash | Pending | Requires TI UniFlash/DSLite and a board in download mode |
 
