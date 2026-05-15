@@ -157,6 +157,10 @@ Key files:
 - `config/demo-profiles.tsv`: starter TI OOB demo fork profiles used by
   `create-mmwave-app --profile`, including the 3 board by 2 core-mode starter
   matrix.
+- `docs/install.py`: no-clone GitHub Pages installer for creating standalone
+  projects.
+- `docs/STARTER_DEMOS.md`: normalized six-profile contract and generated
+  project layout.
 - `config/toolbox-oob-profiles.tsv`: lightweight TI Radar Toolbox OOB catalog.
 - `config/toolbox-application-profiles.tsv`: lightweight TI Radar Toolbox
   application demo catalog, including 6843AOP MSS+DSS candidates.
