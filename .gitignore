@@ -1,5 +1,13 @@
 build/
 out/
+perf/
+work/
+work-*/
+artifacts/
+reports/*
+!reports/*.md
+packages/
+*.log
 *.bin
 *.xer4f
 *.xe674
@@ -15,3 +23,4 @@ cmake_install.cmake
 compile_commands.json
 .vs/
 .vscode/
+config/machine.env

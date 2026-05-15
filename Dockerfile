@@ -1,0 +1,52 @@
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN dpkg --add-architecture i386 \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+        bash \
+        ca-certificates \
+        curl \
+        file \
+        git \
+        make \
+        mono-runtime \
+        ninja-build \
+        python3 \
+        python3-pip \
+        unzip \
+        libc6:i386 \
+        libgcc-s1:i386 \
+        libstdc++6:i386 \
+        zlib1g:i386 \
+        libncurses5 \
+        libtinfo5 \
+        libx11-6 \
+        libxext6 \
+        libxrender1 \
+        libxtst6 \
+    && python3 -m pip install --no-cache-dir "cmake>=3.29,<3.31" \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV TI_ROOT=/home/kj/ti
+ENV MMWAVE_SDK_ROOT=/home/kj/ti/mmwave_sdk_03_06_02_00-LTS
+ENV MMWAVE_SDK_PACKAGES=/home/kj/ti/mmwave_sdk_03_06_02_00-LTS/packages
+ENV R4F_CODEGEN_ROOT=/home/kj/ti/ti-cgt-arm_16.9.6.LTS
+ENV C674_CODEGEN_ROOT=/home/kj/ti/ti-cgt-c6000_8.3.3
+ENV XDC_ROOT=/home/kj/ti/xdctools_3_50_08_24_core
+ENV BIOS_ROOT=/home/kj/ti/bios_6_73_01_01
+ENV DSPLIB_C64PX_ROOT=/home/kj/ti/dsplib_c64Px_3_4_0_0
+ENV DSPLIB_C674X_ROOT=/home/kj/ti/dsplib_c674x_3_4_0_0
+ENV MATHLIB_C674X_ROOT=/home/kj/ti/mathlib_c674x_3_1_2_1
+ENV PATH=/home/kj/ti/ti-cgt-arm_16.9.6.LTS/bin:/home/kj/ti/ti-cgt-c6000_8.3.3/bin:/home/kj/ti/xdctools_3_50_08_24_core:/usr/local/bin:/usr/bin:/bin
+
+WORKDIR /work
+
+COPY scripts/check-ti-linux.sh /usr/local/bin/check-ti-linux
+COPY scripts/run-repo-smoke.sh /usr/local/bin/run-repo-smoke
+COPY scripts/ti-sdk-env.sh /usr/local/bin/ti-sdk-env
+
+RUN chmod +x /usr/local/bin/check-ti-linux /usr/local/bin/run-repo-smoke /usr/local/bin/ti-sdk-env
+
+CMD ["/bin/bash"]

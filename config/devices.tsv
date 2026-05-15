@@ -1,0 +1,6 @@
+# id	sdk_demo	device	label
+xwr16xx	ti/demo/xwr16xx/mmw	iwr16xx	xWR16xx mmw MSS+DSS demo
+xwr18xx	ti/demo/xwr18xx/mmw	iwr18xx	xWR18xx mmw MSS+DSS demo
+xwr64xx	ti/demo/xwr64xx/mmw	iwr68xx	xWR64xx mmw MSS-only demo, built through xWR68xx SDK device profile
+xwr64xx_compression	ti/demo/xwr64xx_compression/mmw	iwr68xx	xWR64xx compression mmw MSS-only demo, built through xWR68xx SDK device profile
+xwr68xx	ti/demo/xwr68xx/mmw	iwr68xx	xWR68xx mmw MSS+DSS demo

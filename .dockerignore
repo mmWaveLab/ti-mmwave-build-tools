@@ -1,0 +1,8 @@
+work
+work-*
+perf
+build
+artifacts
+reports
+packages
+*.log

@@ -1,0 +1,57 @@
+name: ti-mmwave-sdk-env
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  public-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Public smoke test without TI SDK
+        run: make github-actions-smoke
+
+  docker-image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t ti-mmwave-build-tools:ci .
+      - name: Container entrypoint smoke
+        run: docker run --rm ti-mmwave-build-tools:ci bash -lc 'command -v cmake && command -v ninja && command -v check-ti-linux'
+
+  self-hosted-device-validation:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: [self-hosted, ti-mmwave]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: make docker-build
+      - name: Validate all configured devices
+        run: make validate-devices
+      - name: Upload device validation reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: device-validation-reports
+          path: |
+            reports/device-validation-*.md
+            reports/device-validation-*.log
+      - name: Upload firmware artifacts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: device-validation-firmware
+          path: artifacts/device-validation/**/*.bin
+
+  self-hosted-full:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: [self-hosted, ti-mmwave]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Full SDK CI
+        run: CI_FULL_BUILD=1 scripts/ci.sh
