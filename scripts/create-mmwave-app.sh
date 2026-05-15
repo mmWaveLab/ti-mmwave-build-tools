@@ -13,20 +13,78 @@ template_dir="$repo_dir/templates/mmwave-cmake-project"
 usage() {
   cat <<'USAGE'
 Usage:
-  create-mmwave-app NAME [--device xwr68xx] [--dir DIR] [--image IMAGE] [--force]
+  create-mmwave-app NAME [--profile iwr6843isk-oob] [--dir DIR] [--image IMAGE] [--force]
+  create-mmwave-app --list-profiles
 
 Examples:
-  create-mmwave-app people-count-6843 --device xwr68xx
-  create-mmwave-app vital-signs-1843 --device xwr18xx --dir /work/vital-signs-1843
+  create-mmwave-app people-count-6843 --profile iwr6843isk-oob
+  create-mmwave-app vital-signs-1843 --profile iwr1843boost-oob --dir /work/vital-signs-1843
 
 This creates a clean standalone project by forking a TI mmWave SDK demo from
 the SDK-full Docker image. The generated project builds with CMake+Ninja inside
 the same SDK-full Docker image.
 
-Supported --device values:
+Common --profile values:
+  iwr1642boost-oob, iwr1843boost-oob, iwr1843aop-oob,
+  xwr64xx-oob, xwr64xx-aop-oob, xwr64xx-compression,
+  iwr6843isk-oob
+
+Legacy --device values are still accepted:
   xwr16xx, xwr18xx, xwr64xx, xwr64xx_compression, xwr68xx
 USAGE
 }
+
+profiles_file="$repo_dir/config/demo-profiles.tsv"
+
+list_profiles() {
+  printf 'Available TI mmWave demo profiles:\n\n'
+  while IFS=$'\t' read -r profile device_template sdk_demo sdk_device output_bin cores config_profiles summary; do
+    [[ -z "${profile:-}" || "$profile" == \#* ]] && continue
+    printf '  %-22s %-10s %-7s %s\n' "$profile" "$device_template" "$cores" "$summary"
+    printf '  %-22s output=%s profiles=%s\n' "" "$output_bin" "$config_profiles"
+  done < "$profiles_file"
+}
+
+load_profile() {
+  local requested="$1"
+  while IFS=$'\t' read -r profile_row device_template_row sdk_demo_row sdk_device_row output_bin_row cores_row config_profiles_row summary_row; do
+    [[ -z "${profile_row:-}" || "$profile_row" == \#* ]] && continue
+    if [[ "$profile_row" == "$requested" ]]; then
+      profile="$profile_row"
+      device="$device_template_row"
+      sdk_demo_rel="$sdk_demo_row"
+      sdk_device="$sdk_device_row"
+      output_bin="$output_bin_row"
+      core_hint="$cores_row"
+      profile_configs="$config_profiles_row"
+      profile_summary="$summary_row"
+      return 0
+    fi
+  done < "$profiles_file"
+  printf 'Unsupported demo profile: %s\n\n' "$requested" >&2
+  list_profiles >&2
+  return 2
+}
+
+profile_from_device() {
+  case "$1" in
+    xwr16xx) printf '%s\n' "iwr1642boost-oob" ;;
+    xwr18xx) printf '%s\n' "iwr1843boost-oob" ;;
+    xwr64xx) printf '%s\n' "xwr64xx-oob" ;;
+    xwr64xx_compression) printf '%s\n' "xwr64xx-compression" ;;
+    xwr68xx) printf '%s\n' "iwr6843isk-oob" ;;
+    *)
+      printf 'Unsupported legacy device template: %s\n' "$1" >&2
+      usage >&2
+      return 2
+      ;;
+  esac
+}
+
+if [[ "${1:-}" == "--list-profiles" ]]; then
+  list_profiles
+  exit 0
+fi
 
 if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   usage
@@ -40,7 +98,9 @@ fi
 
 name="$1"
 shift
-device="xwr68xx"
+profile=""
+legacy_device="xwr68xx"
+device_was_set=0
 out_dir=""
 force=0
 sdk_image="${SDK_IMAGE:-meowkj/ti-mmwave-sdk:03.06.02-local}"
@@ -48,8 +108,13 @@ ti_root="${TI_ROOT:-/opt/ti}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --profile)
+      profile="${2:-}"
+      shift 2
+      ;;
     --device)
-      device="${2:-}"
+      legacy_device="${2:-}"
+      device_was_set=1
       shift 2
       ;;
     --dir|--out)
@@ -76,41 +141,22 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+if [[ -n "$profile" && "$device_was_set" -eq 1 ]]; then
+  printf 'Use either --profile or legacy --device, not both.\n' >&2
+  exit 2
+fi
+
 if [[ ! "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
   printf 'Invalid project name: %s\n' "$name" >&2
   printf 'Use letters, numbers, dot, underscore, and hyphen only.\n' >&2
   exit 2
 fi
 
-case "$device" in
-  xwr16xx)
-    sdk_device="iwr16xx"
-    output_bin="xwr16xx_mmw_demo.bin"
-    ;;
-  xwr18xx)
-    sdk_device="iwr18xx"
-    output_bin="xwr18xx_mmw_demo.bin"
-    ;;
-  xwr64xx)
-    sdk_device="iwr68xx"
-    output_bin="xwr64xx_mmw_demo.bin"
-    ;;
-  xwr64xx_compression)
-    sdk_device="iwr68xx"
-    output_bin="xwr64xx_compression_mmw_demo.bin"
-    ;;
-  xwr68xx)
-    sdk_device="iwr68xx"
-    output_bin="xwr68xx_mmw_demo.bin"
-    ;;
-  *)
-    printf 'Unsupported device template: %s\n' "$device" >&2
-    usage >&2
-    exit 2
-    ;;
-esac
+if [[ -z "$profile" ]]; then
+  profile="$(profile_from_device "$legacy_device")"
+fi
+load_profile "$profile"
 
-sdk_demo_rel="ti/demo/$device/mmw"
 sdk_demo_dir="$ti_root/mmwave_sdk_03_06_02_00-LTS/packages/$sdk_demo_rel"
 
 if [[ -z "$out_dir" ]]; then
@@ -145,6 +191,10 @@ render() {
   local dst="$2"
   sed \
     -e "s|@PROJECT_NAME@|$name|g" \
+    -e "s|@PROFILE@|$profile|g" \
+    -e "s|@PROFILE_SUMMARY@|$profile_summary|g" \
+    -e "s|@PROFILE_CONFIGS@|$profile_configs|g" \
+    -e "s|@CORE_HINT@|$core_hint|g" \
     -e "s|@SDK_DEVICE@|$sdk_device|g" \
     -e "s|@SDK_DEVICE_TYPE@|$device|g" \
     -e "s|@SDK_DEMO_REL@|$sdk_demo_rel|g" \
@@ -162,12 +212,17 @@ mss="no"
 dss="no"
 [[ -d "$abs_out/app/mss" ]] && mss="yes"
 [[ -d "$abs_out/app/dss" ]] && dss="yes"
+if [[ "$core_hint" == "MSS" && "$mss" == "no" && -f "$abs_out/app/mmw.mak" ]]; then
+  mss="yes"
+fi
 
 cat <<EOF
 Created TI mmWave fork project: $abs_out
+Profile: $profile
 Device template: $device ($sdk_device)
 Forked SDK demo: $sdk_demo_rel
-Cores: MSS=$mss DSS=$dss
+Cores: MSS=$mss DSS=$dss (profile: $core_hint)
+Expected output: $output_bin
 Docker image: $sdk_image
 
 Next:

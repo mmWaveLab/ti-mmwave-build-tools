@@ -24,7 +24,7 @@ official-demo-manifest:
 	scripts/check-official-demo-manifest.sh
 
 project-new:
-	SDK_IMAGE=$(SDK_FULL_IMAGE) scripts/new-project.sh $(PROJECT) --device $(or $(DEVICE),xwr68xx) --image $(SDK_FULL_IMAGE) $(if $(OUT),--out $(OUT),) $(if $(FORCE),--force,)
+	SDK_IMAGE=$(SDK_FULL_IMAGE) scripts/new-project.sh $(PROJECT) $(if $(PROFILE),--profile $(PROFILE),--device $(or $(DEVICE),xwr68xx)) --image $(SDK_FULL_IMAGE) $(if $(OUT),--out $(OUT),) $(if $(FORCE),--force,)
 
 project-docker:
 	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) PROJECT=$(PROJECT) scripts/cmake-build-project.sh

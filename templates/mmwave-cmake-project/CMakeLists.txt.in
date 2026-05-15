@@ -10,6 +10,7 @@ include(TiMmwaveSdkPaths)
 
 set(MMWAVE_SDK_DEVICE "@SDK_DEVICE@" CACHE STRING "mmWave SDK device")
 set(MMWAVE_SDK_DEVICE_TYPE "@SDK_DEVICE_TYPE@" CACHE STRING "mmWave SDK device type")
+set(MMWAVE_DEMO_PROFILE "@PROFILE@" CACHE STRING "mmWave demo profile used to create this project")
 set(APP_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/app")
 set(APP_BUILD_DIR "${CMAKE_BINARY_DIR}/app")
 set(OUTPUT_BIN "${APP_BUILD_DIR}/@OUTPUT_BIN@")

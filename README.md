@@ -69,9 +69,15 @@ Create and build a new forked CMake project from the SDK-full image:
 ```bash
 docker run --rm -it -v "$PWD":/work -w /work \
   meowkj/ti-mmwave-sdk:03.06.02-local \
-  create-mmwave-app people-count-6843 --device xwr68xx
+  create-mmwave-app people-count-6843 --profile iwr6843isk-oob
 cd people-count-6843
 make build
+```
+
+List the common TI demo fork profiles:
+
+```bash
+docker run --rm meowkj/ti-mmwave-sdk:03.06.02-local create-mmwave-app --list-profiles
 ```
 
 Check UniFlash readiness:
@@ -106,7 +112,7 @@ Support levels:
 | `xWR18xx` / `IWR1843` / `AWR1843` | `iwr18xx` | Validated | `make validate-devices`, `77.92s` | `xwr18xx_mmw_demo.bin`, `xwr18xx_mmw_aop_demo.bin` |
 | `xWR64xx` | `iwr68xx` | Validated | `make validate-devices`, `66.81s` | `xwr64xx_mmw_demo.bin`, `xwr64xxAOP_mmw_demo.bin` |
 | `xWR64xx compression` | `iwr68xx` | Validated | `make validate-devices`, `33.26s` | `xwr64xx_compression_mmw_demo.bin` |
-| `xWR68xx` / `IWR6843` / `IWR6843AOP` / `AWR6843` | `iwr68xx` | Validated | `make validate-devices`, `65.02s` | `xwr68xx_mmw_demo.bin` |
+| `xWR68xx` / `IWR6843ISK` / `AWR6843` | `iwr68xx` | Validated | `make validate-devices`, `65.02s` | `xwr68xx_mmw_demo.bin` |
 | `xWR14xx` / `IWR1443` / `AWR1443` | `iwr14xx` / `awr14xx` | SDK-listed | TI SDK common makefiles list the device family; no `ti/demo/xwr14xx/mmw` demo folder was validated here. | Not produced |
 | `AWR2x44P`, `AWR2544`, `AWR294x` | N/A | Different SDK flow | Use TI MMWAVE-MCUPLUS-SDK, not this mmWave SDK 03.06 flow. | Not produced here |
 | `AWR1243`, `AWR2243` RF transceiver/MMIC devices | N/A | Different SDK flow | Use TI MMWAVE-DFP / mmWaveLink-style flow, not this MSS/DSS demo build. | Not produced here |
@@ -142,10 +148,20 @@ Latest SDK-full private-image validation report:
 reports/sdk-full-image-validation-20260515T140042Z.md
 ```
 
+Latest generated demo-profile smoke report:
+
+```text
+reports/demo-profile-smoke-20260515T160000Z.md
+```
+
 Validation here means the Docker SDK environment can compile the TI mmWave SDK
 03.06 demo and produce `.bin` artifacts. It does not mean each binary was
 flashed to hardware, and it does not imply other TI device generations are
 unsupported in their own SDKs.
+
+IWR6843AOP is handled as a separate AOP device/package profile, not as a synonym
+for IWR6843ISK. It should be added to the demo profile manifest only when the
+corresponding TI source package is present in the SDK-full image.
 
 ## Reusable CMake API
 
@@ -163,6 +179,8 @@ Key files:
   CI builds.
 - `templates/mmwave-cmake-project`: project scaffold for new CMake/Ninja
   firmware projects.
+- `config/demo-profiles.tsv`: common TI SDK demo fork profiles used by
+  `create-mmwave-app --profile`.
 - `docker/Dockerfile.sdk-full`: private SDK-full image recipe for local or
   private-registry use.
 
@@ -230,7 +248,7 @@ make github-actions-smoke
 make test
 make benchmark
 make validate-devices
-make project-new PROJECT=name DEVICE=xwr68xx
+make project-new PROJECT=name PROFILE=iwr6843isk-oob
 make sdk-image
 make sdk-image-smoke
 make flash-list

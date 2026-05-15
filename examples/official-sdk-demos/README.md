@@ -24,7 +24,7 @@ commit or on manual dispatch.
 | `xwr18xx` | IWR1843, AWR1843 | `ti/demo/xwr18xx/mmw` | `iwr18xx` | 1843 MSS+DSS reference demo |
 | `xwr64xx` | xWR64xx family | `ti/demo/xwr64xx/mmw` | `iwr68xx` | 64xx reference demo through 68xx SDK profile |
 | `xwr64xx_compression` | xWR64xx family | `ti/demo/xwr64xx_compression/mmw` | `iwr68xx` | 64xx compression demo |
-| `xwr68xx` | IWR6843, IWR6843AOP, AWR6843 | `ti/demo/xwr68xx/mmw` | `iwr68xx` | 6843 MSS+DSS reference demo |
+| `xwr68xx` | IWR6843ISK, AWR6843 | `ti/demo/xwr68xx/mmw` | `iwr68xx` | 6843 MSS+DSS reference demo |
 
 ## Commands
 
@@ -47,6 +47,10 @@ as `config/devices.tsv`:
 ```bash
 DEVICES_FILE=examples/official-sdk-demos/devices-ci.tsv make validate-devices
 ```
+
+IWR6843AOP is intentionally not folded into the `xwr68xx` row. It is a
+separate AOP device/package profile and should be added as its own source-backed
+demo entry when the corresponding TI package is available in the SDK-full image.
 
 ## Legal Boundary
 

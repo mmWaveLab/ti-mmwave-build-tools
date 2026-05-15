@@ -1,0 +1,8 @@
+# profile	device_template	sdk_demo	sdk_device	output_bin	cores	config_profiles	summary
+iwr1642boost-oob	xwr16xx	ti/demo/xwr16xx/mmw	iwr16xx	xwr16xx_mmw_demo.bin	MSS+DSS	profile_2d.cfg,profile_2d_bpm.cfg,profile_2d_srr.cfg	IWR1642/AWR1642 out-of-box mmWave SDK demo fork
+iwr1843boost-oob	xwr18xx	ti/demo/xwr18xx/mmw	iwr18xx	xwr18xx_mmw_demo.bin	MSS+DSS	profile_2d.cfg,profile_3d.cfg	IWR1843/AWR1843 out-of-box mmWave SDK demo fork
+iwr1843aop-oob	xwr18xx	ti/demo/xwr18xx/mmw	iwr18xx	xwr18xx_mmw_aop_demo.bin	MSS+DSS	profile_2d_aop.cfg,profile_3d_aop.cfg	IWR1843/AOP out-of-box mmWave SDK demo fork
+xwr64xx-oob	xwr64xx	ti/demo/xwr64xx/mmw	iwr68xx	xwr64xx_mmw_demo.bin	MSS	profile_2d.cfg,profile_3d.cfg	xWR64xx out-of-box mmWave SDK demo fork
+xwr64xx-aop-oob	xwr64xx	ti/demo/xwr64xx/mmw	iwr68xx	xwr64xxAOP_mmw_demo.bin	MSS	profile_3d_aop.cfg	xWR64xx AOP out-of-box mmWave SDK demo fork
+xwr64xx-compression	xwr64xx_compression	ti/demo/xwr64xx_compression/mmw	iwr68xx	xwr64xx_compression_mmw_demo.bin	MSS	profile_2d_interleaved_simple.cfg,profile_3d_interleaved.cfg	xWR64xx compression mmWave SDK demo fork
+iwr6843isk-oob	xwr68xx	ti/demo/xwr68xx/mmw	iwr68xx	xwr68xx_mmw_demo.bin	MSS+DSS	profile_2d.cfg,profile_3d.cfg	IWR6843ISK/AWR6843 out-of-box mmWave SDK demo fork

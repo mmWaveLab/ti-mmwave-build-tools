@@ -2,6 +2,18 @@
 
 Generated TI mmWave CMake/Ninja firmware project forked from a TI SDK demo.
 
+Profile:
+
+```text
+@PROFILE@
+```
+
+Summary:
+
+```text
+@PROFILE_SUMMARY@
+```
+
 This project contains a local copy of the TI SDK demo:
 
 ```text
@@ -18,6 +30,18 @@ Device template:
 
 ```text
 @SDK_DEVICE_TYPE@ / @SDK_DEVICE@
+```
+
+Expected cores:
+
+```text
+@CORE_HINT@
+```
+
+Common profile configs:
+
+```text
+@PROFILE_CONFIGS@
 ```
 
 Docker image:

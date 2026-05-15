@@ -3,4 +3,4 @@ xwr16xx	ti/demo/xwr16xx/mmw	iwr16xx	IWR1642,AWR1642	full	xWR16xx mmw MSS+DSS ref
 xwr18xx	ti/demo/xwr18xx/mmw	iwr18xx	IWR1843,AWR1843	full	IWR1843/AWR1843 mmw MSS+DSS reference demo
 xwr64xx	ti/demo/xwr64xx/mmw	iwr68xx	xWR64xx	full	xWR64xx reference demo, built through xWR68xx SDK device profile
 xwr64xx_compression	ti/demo/xwr64xx_compression/mmw	iwr68xx	xWR64xx	full	xWR64xx compression reference demo, built through xWR68xx SDK device profile
-xwr68xx	ti/demo/xwr68xx/mmw	iwr68xx	IWR6843,IWR6843AOP,AWR6843	full	IWR6843/AWR6843 mmw MSS+DSS reference demo
+xwr68xx	ti/demo/xwr68xx/mmw	iwr68xx	IWR6843ISK,AWR6843	full	IWR6843ISK/AWR6843 mmw MSS+DSS reference demo; IWR6843AOP is separate

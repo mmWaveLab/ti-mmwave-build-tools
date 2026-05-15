@@ -3,7 +3,21 @@ set -euo pipefail
 
 image="${SDK_FULL_IMAGE:-meowkj/ti-mmwave-sdk:03.06.02-local}"
 work_dir="${SDK_SMOKE_WORK:-$(pwd)/build/sdk-image-smoke}"
-devices="${SDK_SMOKE_DEVICES:-xwr68xx xwr18xx}"
+profiles="${SDK_SMOKE_PROFILES:-iwr6843isk-oob iwr1843boost-oob}"
+profiles_file="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/config/demo-profiles.tsv"
+
+profile_output_bin() {
+  local requested="$1"
+  while IFS=$'\t' read -r profile _device _demo _sdk_device output_bin _cores _configs _summary; do
+    [[ -z "${profile:-}" || "$profile" == \#* ]] && continue
+    if [[ "$profile" == "$requested" ]]; then
+      printf '%s\n' "$output_bin"
+      return 0
+    fi
+  done < "$profiles_file"
+  printf 'Unsupported smoke profile: %s\n' "$requested" >&2
+  return 2
+}
 
 mkdir -p "$work_dir"
 docker run --rm \
@@ -13,27 +27,17 @@ docker run --rm \
 
 docker run --rm "$image" check-ti-linux
 
-for device in $devices; do
-  case "$device" in
-    xwr16xx) output_bin="xwr16xx_mmw_demo.bin" ;;
-    xwr18xx) output_bin="xwr18xx_mmw_demo.bin" ;;
-    xwr64xx) output_bin="xwr64xx_mmw_demo.bin" ;;
-    xwr64xx_compression) output_bin="xwr64xx_compression_mmw_demo.bin" ;;
-    xwr68xx) output_bin="xwr68xx_mmw_demo.bin" ;;
-    *)
-      printf 'Unsupported smoke device: %s\n' "$device" >&2
-      exit 2
-      ;;
-  esac
+for profile in $profiles; do
+  output_bin="$(profile_output_bin "$profile")"
 
-  project="smoke-$device"
+  project="smoke-$profile"
   docker run --rm \
     --user "$(id -u):$(id -g)" \
     -e HOME=/tmp \
     -v "$work_dir":/work \
     -w /work \
     "$image" \
-    create-mmwave-app "$project" --device "$device" --image "$image"
+    create-mmwave-app "$project" --profile "$profile" --image "$image"
   docker run --rm \
     --user "$(id -u):$(id -g)" \
     -e HOME=/tmp \
