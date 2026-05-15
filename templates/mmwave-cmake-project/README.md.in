@@ -62,6 +62,11 @@ Open a container shell:
 make shell
 ```
 
+`make build` and `make shell` use `tools/mmwave-run`. The runner starts a
+disposable Docker container with a clean environment, `HOME=/tmp/mmwave-home`,
+and `bash --noprofile --norc` for interactive shells. It does not source or
+modify host `.bashrc`, `.zshrc`, profile files, or host TI installs.
+
 Clean generated output:
 
 ```bash
@@ -81,6 +86,8 @@ app/
   makefile
   mss/      # present when the forked demo has MSS sources
   dss/      # present when the forked demo has DSS sources
+tools/
+  mmwave-run
 ```
 
 The build uses the forked demo's original TI makefile. If a demo only has MSS,

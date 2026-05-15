@@ -46,10 +46,14 @@ test -f "$repo_dir/docs/ABOUT.md"
 test -f "$repo_dir/docs/CI.md"
 test -f "$repo_dir/docs/UNIFLASH.md"
 test -f "$repo_dir/docs/PROJECT_TEMPLATE.md"
+test -f "$repo_dir/docs/TOOLBOX_ANALYSIS.md"
 test -f "$repo_dir/docs/DOCKER_IMAGE.md"
 test -f "$repo_dir/docs/PROJECT_MANAGEMENT.md"
 test -f "$repo_dir/config/demo-profiles.tsv"
+test -f "$repo_dir/config/toolbox-oob-profiles.tsv"
 test -f "$repo_dir/scripts/validate-demo-profiles.sh"
+test -f "$repo_dir/scripts/mmwave-run.sh"
+test -f "$repo_dir/scripts/validate-cmake-portability.sh"
 test -f "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
 test -f "$repo_dir/templates/mmwave-cmake-project/gitignore.in"
 test -f "$repo_dir/docker/Dockerfile.sdk-full"
@@ -105,6 +109,39 @@ if missing:
 if errors:
     raise SystemExit("\n".join(errors))
 print(f"demo profiles ok: {len(ids)}")
+PY
+
+printf 'Toolbox profile manifest\n'
+python3 - "$repo_dir/config/toolbox-oob-profiles.tsv" <<'PY'
+import csv
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+errors = []
+ids = set()
+with path.open(encoding="utf-8", newline="") as f:
+    for line_no, row in enumerate(csv.reader(f, delimiter="\t"), 1):
+        if not row or row[0].startswith("#"):
+            continue
+        if len(row) != 9:
+            errors.append(f"line {line_no}: expected 9 columns, got {len(row)}")
+            continue
+        profile, toolbox, version, source_dir, cores, sdk_hint, prebuilt, status, summary = row
+        if profile in ids:
+            errors.append(f"line {line_no}: duplicate profile {profile}")
+        ids.add(profile)
+        if toolbox not in {"radar_toolbox", "mmwave_industrial_toolbox"}:
+            errors.append(f"line {line_no}: unexpected toolbox {toolbox}")
+        if cores not in {"MSS", "MSS+DSS"}:
+            errors.append(f"line {line_no}: unexpected core set {cores}")
+        if status not in {"analysis-only", "validated"}:
+            errors.append(f"line {line_no}: unexpected status {status}")
+        if not source_dir or not prebuilt or not summary:
+            errors.append(f"line {line_no}: missing required descriptive fields")
+if errors:
+    raise SystemExit("\n".join(errors))
+print(f"toolbox profiles ok: {len(ids)}")
 PY
 
 printf 'PASS: GitHub Actions smoke test succeeded.\n'

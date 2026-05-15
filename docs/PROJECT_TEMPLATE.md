@@ -38,6 +38,16 @@ List available fork profiles:
 docker run --rm meowkj/ti-mmwave-sdk:03.06.02-local create-mmwave-app --list-profiles
 ```
 
+When creating a project with raw Docker, pass the current host user so the
+generated tree is writable by normal development commands:
+
+```bash
+docker run --rm -v "$PWD":/work -w /work \
+  --user "$(id -u):$(id -g)" \
+  meowkj/ti-mmwave-sdk:03.06.02-local \
+  create-mmwave-app people-count-6843 --profile iwr6843isk-oob
+```
+
 Common fork profiles:
 
 | Profile | SDK demo | SDK device/type | Default output |
@@ -86,6 +96,17 @@ PROFILE_VALIDATION_JOBS=all make sdk-profile-validate
 The script parallelizes independent profiles, not the internal TI makefile for
 a single demo. TI's OOB makefiles use `.NOTPARALLEL`, so the safe acceleration
 point is the profile matrix.
+
+## Clean Command Execution
+
+Generated projects include `tools/mmwave-run`. It runs Docker commands with a
+clean environment and does not source or modify host shell profile files. This
+keeps TI SDK paths, CMake, Ninja, and build tools inside the container process.
+
+```bash
+tools/mmwave-run --image meowkj/ti-mmwave-sdk:03.06.02-local -- \
+  cmake -S . -B build -G Ninja -DTI_ROOT=/opt/ti
+```
 
 ## Design Rules
 

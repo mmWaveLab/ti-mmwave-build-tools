@@ -67,6 +67,7 @@ Create and build a new forked CMake project from the SDK-full image:
 
 ```bash
 docker run --rm -it -v "$PWD":/work -w /work \
+  --user "$(id -u):$(id -g)" \
   meowkj/ti-mmwave-sdk:03.06.02-local \
   create-mmwave-app people-count-6843 --profile iwr6843isk-oob
 cd people-count-6843
@@ -220,6 +221,8 @@ automatically. The SDK mount is read-only, so builds do not write into
 - CI guide: `docs/CI.md`
 - Maintenance guide: `docs/MAINTENANCE.md`
 - Project template guide: `docs/PROJECT_TEMPLATE.md`
+- Demo selection guide: `docs/DEMO_SELECTION.md`
+- Toolbox analysis: `docs/TOOLBOX_ANALYSIS.md`
 - Docker image guide: `docs/DOCKER_IMAGE.md`
 - Project management: `docs/PROJECT_MANAGEMENT.md`
 - UniFlash guide: `docs/UNIFLASH.md`

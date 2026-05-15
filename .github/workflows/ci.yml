@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Public smoke test without TI SDK
-        run: make github-actions-smoke
+        run: make github-actions-smoke cmake-portability
 
   docker-image:
     runs-on: ubuntu-latest

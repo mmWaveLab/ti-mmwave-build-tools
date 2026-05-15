@@ -1,0 +1,4 @@
+# profile	toolbox	version	source_dir	cores	sdk_source_hint	prebuilt_bin	status	summary
+iwr1843boost-toolbox-oob	radar_toolbox	4.00.00.05	source/ti/examples/Out_Of_Box_Demo/src/xwr1843	MSS+DSS	ti/demo/xwr18xx/mmw	prebuilt_binaries/out_of_box_1843_isk.bin	analysis-only	IWR1843BOOST OOB entry found in Radar Toolbox projectspecs
+iwr6843isk-toolbox-oob	radar_toolbox	4.00.00.05	source/ti/examples/Out_Of_Box_Demo/src/xwr6843ISK	MSS+DSS	ti/demo/xwr68xx/mmw	prebuilt_binaries/out_of_box_6843_isk.bin	analysis-only	IWR6843ISK OOB entry found in Radar Toolbox projectspecs
+iwr6843aop-toolbox-oob	radar_toolbox	4.00.00.05	source/ti/examples/Out_Of_Box_Demo/src/xwr6843AOP	MSS	ti/demo/xwr64xx/mmw	prebuilt_binaries/out_of_box_6843_aop.bin	analysis-only	IWR6843AOP OOB entry found in Radar Toolbox projectspec

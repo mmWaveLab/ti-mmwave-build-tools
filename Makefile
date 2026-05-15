@@ -3,7 +3,7 @@ SDK_FULL_IMAGE ?= meowkj/ti-mmwave-sdk:03.06.02-local
 TI_ROOT ?= /opt/ti
 HOST_TI_ROOT ?= $(TI_ROOT)
 
-.PHONY: docker-build docker-shell sdk-image sdk-image-smoke sdk-profile-validate github-actions-smoke project-new project-docker project-native doctor test ci docker-cmake native-cmake benchmark flash-list flash-doctor flash-dry-run flash package clean
+.PHONY: docker-build docker-shell sdk-image sdk-image-smoke sdk-profile-validate cmake-portability github-actions-smoke project-new project-docker project-native doctor test ci docker-cmake native-cmake benchmark flash-list flash-doctor flash-dry-run flash package clean
 
 docker-build:
 	docker build -t $(IMAGE) .
@@ -19,6 +19,9 @@ sdk-image-smoke:
 
 sdk-profile-validate:
 	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) PROFILE_VALIDATION_JOBS=$(or $(PROFILE_VALIDATION_JOBS),all) DEMO_PROFILES="$(DEMO_PROFILES)" scripts/validate-demo-profiles.sh
+
+cmake-portability:
+	scripts/validate-cmake-portability.sh
 
 github-actions-smoke:
 	scripts/github-actions-smoke.sh

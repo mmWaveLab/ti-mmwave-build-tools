@@ -183,6 +183,9 @@ mkdir -p "$abs_out/app"
 cp -a "$sdk_demo_dir/." "$abs_out/app/"
 mkdir -p "$abs_out/src"
 printf 'Project-local sources can live here when they are not part of the forked TI demo tree.\n' > "$abs_out/src/README.md"
+mkdir -p "$abs_out/tools"
+cp "$repo_dir/scripts/mmwave-run.sh" "$abs_out/tools/mmwave-run"
+chmod +x "$abs_out/tools/mmwave-run"
 
 render() {
   local src="$1"
