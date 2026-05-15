@@ -42,13 +42,11 @@ cmake -S "$repo_dir" -B "$repo_dir/build/github-actions-smoke" -G "Unix Makefile
 
 printf 'Public artifact paths\n'
 test -f "$repo_dir/README.md"
-test -f "$repo_dir/docs/ABOUT.md"
 test -f "$repo_dir/docs/CI.md"
 test -f "$repo_dir/docs/UNIFLASH.md"
+test -f "$repo_dir/docs/PROJECT_OVERVIEW.md"
 test -f "$repo_dir/docs/PROJECT_TEMPLATE.md"
-test -f "$repo_dir/docs/TOOLBOX_ANALYSIS.md"
 test -f "$repo_dir/docs/DOCKER_IMAGE.md"
-test -f "$repo_dir/docs/PROJECT_MANAGEMENT.md"
 test -f "$repo_dir/config/demo-profiles.tsv"
 test -f "$repo_dir/config/toolbox-oob-profiles.tsv"
 test -f "$repo_dir/scripts/validate-demo-profiles.sh"
@@ -124,20 +122,24 @@ with path.open(encoding="utf-8", newline="") as f:
     for line_no, row in enumerate(csv.reader(f, delimiter="\t"), 1):
         if not row or row[0].startswith("#"):
             continue
-        if len(row) != 9:
-            errors.append(f"line {line_no}: expected 9 columns, got {len(row)}")
+        if len(row) != 12:
+            errors.append(f"line {line_no}: expected 12 columns, got {len(row)}")
             continue
-        profile, toolbox, version, source_dir, cores, sdk_hint, prebuilt, status, summary = row
+        profile, toolbox, version, source_dir, sdk_family, cores, ti_target, prebuilt, projects, suitability, status, summary = row
         if profile in ids:
             errors.append(f"line {line_no}: duplicate profile {profile}")
         ids.add(profile)
         if toolbox not in {"radar_toolbox", "mmwave_industrial_toolbox"}:
             errors.append(f"line {line_no}: unexpected toolbox {toolbox}")
-        if cores not in {"MSS", "MSS+DSS"}:
+        if sdk_family not in {"SDK3", "L-SDK", "MCU+"}:
+            errors.append(f"line {line_no}: unexpected SDK family {sdk_family}")
+        if cores not in {"MSS", "MSS+DSS", "MSS+DSS+CM4", "MSS+CM4", "APPSS", "APPIMAGE"}:
             errors.append(f"line {line_no}: unexpected core set {cores}")
+        if suitability not in {"starter-sdk3", "starter-other-sdk", "defer"}:
+            errors.append(f"line {line_no}: unexpected suitability {suitability}")
         if status not in {"analysis-only", "validated"}:
             errors.append(f"line {line_no}: unexpected status {status}")
-        if not source_dir or not prebuilt or not summary:
+        if not source_dir or not prebuilt or not projects or not ti_target or not summary:
             errors.append(f"line {line_no}: missing required descriptive fields")
 if errors:
     raise SystemExit("\n".join(errors))

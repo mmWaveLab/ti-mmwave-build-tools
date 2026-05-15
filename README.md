@@ -220,13 +220,10 @@ automatically. The SDK mount is read-only, so builds do not write into
 - Portability guide: `docs/PORTABILITY.md`
 - CI guide: `docs/CI.md`
 - Maintenance guide: `docs/MAINTENANCE.md`
+- Project overview: `docs/PROJECT_OVERVIEW.md`
 - Project template guide: `docs/PROJECT_TEMPLATE.md`
-- Demo selection guide: `docs/DEMO_SELECTION.md`
-- Toolbox analysis: `docs/TOOLBOX_ANALYSIS.md`
 - Docker image guide: `docs/DOCKER_IMAGE.md`
-- Project management: `docs/PROJECT_MANAGEMENT.md`
 - UniFlash guide: `docs/UNIFLASH.md`
-- GitHub About text: `docs/ABOUT.md`
 
 CI entrypoint:
 

@@ -38,8 +38,10 @@ printf 'Toolbox profile manifest shape\n'
 awk -F '\t' '
   BEGIN { ok=1 }
   /^#/ || NF == 0 { next }
-  NF != 9 { printf "bad field count: %s\n", $0 > "/dev/stderr"; ok=0; next }
-  $5 !~ /^(MSS|DSS|MSS[+]DSS)$/ { printf "bad cores: %s\n", $0 > "/dev/stderr"; ok=0 }
+  NF != 12 { printf "bad field count: %s\n", $0 > "/dev/stderr"; ok=0; next }
+  $5 !~ /^(SDK3|L-SDK|MCU[+])$/ { printf "bad SDK family: %s\n", $0 > "/dev/stderr"; ok=0 }
+  $6 !~ /^(MSS|DSS|MSS[+]DSS|MSS[+]DSS[+]CM4|MSS[+]CM4|APPSS|APPIMAGE)$/ { printf "bad cores: %s\n", $0 > "/dev/stderr"; ok=0 }
+  $10 !~ /^(starter-sdk3|starter-other-sdk|defer)$/ { printf "bad suitability: %s\n", $0 > "/dev/stderr"; ok=0 }
   END { exit ok ? 0 : 1 }
 ' "$repo_dir/config/toolbox-oob-profiles.tsv"
 
