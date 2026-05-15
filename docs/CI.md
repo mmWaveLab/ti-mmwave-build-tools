@@ -41,7 +41,14 @@ does not expose private Docker credentials to forked PRs.
 
 ```bash
 make sdk-profile-validate SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
+make install-profile-validate SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
 ```
+
+The install validation simulates a no-clone new computer flow with
+`docs/install.py`: validated SDK-backed profiles must generate a standalone
+project, build through Docker+CMake+Ninja, and expose the expected flashable
+binary. Cataloged Toolbox projectspec profiles must fail with the explicit
+Toolbox importer message until that importer exists.
 
 Configure GitHub with:
 
@@ -56,7 +63,8 @@ Optional repository variable:
 
 If `SDK_FULL_IMAGE` is not set, the workflow defaults to
 `meowpas/ti-mmwave-sdk:03.06.02`. The job uploads the Markdown validation
-report and direct/fork logs as the `demo-profile-sha256-validation` artifact.
+reports and direct/fork/install logs as the
+`demo-profile-sha256-validation` artifact.
 
 ## Self-Hosted Full SDK CI
 
@@ -87,6 +95,8 @@ Private SDK profile validation uses `scripts/validate-demo-profiles.sh`.
 MSS-only and MSS+DSS profiles compare direct SDK and generated CMake fork
 flashable `.bin` SHA-256 values. Cataloged Toolbox projectspec profiles are
 listed but skipped until the projectspec importer is implemented.
+`scripts/validate-install-profiles.sh` separately checks the public installer
+path from a clean work directory.
 
 Full SDK runner requirements:
 

@@ -229,6 +229,7 @@ cmake --build perf/cmake-xwr68xx-native --target firmware
 ```bash
 make doctor
 make github-actions-smoke
+make install-profile-validate
 make test
 make benchmark
 make project-new PROJECT=name PROFILE=xwr6843isk-mss-dss

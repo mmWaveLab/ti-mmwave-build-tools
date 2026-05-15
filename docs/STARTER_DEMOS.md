@@ -82,9 +82,13 @@ characters with underscores.
 ## Validation Policy
 
 CI checks the six-profile matrix at the manifest level. Private SDK validation
-builds the SDK-backed profiles in Docker:
+builds the SDK-backed profiles in Docker and runs the public installer from a
+clean work directory:
 
 - MSS-only and MSS+DSS profiles must produce byte-identical direct and
   generated `.bin` outputs when the TI SDK makefile path is available.
+- `install.py` must generate and build each validated SDK-backed profile with
+  Docker+CMake+Ninja, without cloning this repository.
 - Cataloged Toolbox projectspec profiles are listed but skipped until the
-  importer exists.
+  importer exists; the installer must reject them with a clear Toolbox importer
+  message instead of silently aliasing them to another board.

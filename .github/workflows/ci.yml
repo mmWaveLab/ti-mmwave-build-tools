@@ -59,6 +59,8 @@ jobs:
         run: docker pull "$SDK_FULL_IMAGE"
       - name: Compare direct SDK and forked CMake demo profile SHA-256
         run: PROFILE_VALIDATION_JOBS=all SDK_FULL_IMAGE="$SDK_FULL_IMAGE" make sdk-profile-validate
+      - name: Validate no-clone installer profile matrix
+        run: INSTALL_VALIDATION_JOBS=all SDK_FULL_IMAGE="$SDK_FULL_IMAGE" make install-profile-validate
       - name: Upload SHA-256 validation report
         if: always()
         uses: actions/upload-artifact@v4
@@ -67,6 +69,8 @@ jobs:
           path: |
             reports/demo-profile-validation-*.md
             reports/demo-profile-*.log
+            reports/install-profile-validation-*.md
+            reports/install-profile-*.log
           if-no-files-found: warn
 
   self-hosted-full:
