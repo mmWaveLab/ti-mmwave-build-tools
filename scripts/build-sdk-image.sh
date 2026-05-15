@@ -26,6 +26,11 @@ rsync -a --delete \
   "$repo_dir/" "$context_dir/tools/"
 
 rsync -a --delete \
+  --exclude 'docs/' \
+  --exclude 'doc/' \
+  --exclude '*.chm' \
+  --exclude '*.html' \
+  --exclude '*.pdf' \
   --exclude '*/obj_*' \
   --exclude '*/mmw_configPkg_*' \
   --exclude '*.oer4f' \
@@ -41,6 +46,8 @@ rsync -a --delete \
   "$HOST_TI_ROOT/" "$context_dir/ti/"
 cp "$repo_dir/docker/Dockerfile.sdk-full" "$context_dir/Dockerfile"
 
+printf 'Building SDK-full Docker image: %s\n' "$sdk_image"
+printf 'Context: %s\n' "$context_dir"
 docker build -t "$sdk_image" "$context_dir"
 
 printf 'Built SDK-full Docker image: %s\n' "$sdk_image"
