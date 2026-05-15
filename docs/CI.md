@@ -34,14 +34,14 @@ CMake+Ninja, then compares direct SDK output with generated fork output by
 SHA-256:
 
 ```bash
-make sdk-profile-validate SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02
+make sdk-profile-validate SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
 ```
 
 Configure GitHub with:
 
 ```text
 Repository variable:
-  SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02
+  SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
 
 Repository secrets:
   DOCKERHUB_USERNAME

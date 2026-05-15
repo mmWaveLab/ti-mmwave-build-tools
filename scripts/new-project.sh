@@ -24,7 +24,7 @@ profile=""
 device="xwr68xx"
 device_was_set=0
 out_dir=""
-image="${SDK_IMAGE:-meowkj/ti-mmwave-sdk:03.06.02-local}"
+image="${SDK_IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}"
 force=0
 
 while [[ $# -gt 0 ]]; do

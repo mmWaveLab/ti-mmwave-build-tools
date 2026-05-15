@@ -6,7 +6,7 @@ repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$repo_dir/scripts/lib.sh"
 load_machine_env
 
-sdk_image="${SDK_FULL_IMAGE:-meowkj/ti-mmwave-sdk:03.06.02-local}"
+sdk_image="${SDK_FULL_IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}"
 context_dir="${SDK_IMAGE_CONTEXT:-$repo_dir/build/sdk-full-image-context}"
 
 require_host_ti_root

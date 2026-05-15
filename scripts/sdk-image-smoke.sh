@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-image="${SDK_FULL_IMAGE:-meowkj/ti-mmwave-sdk:03.06.02-local}"
+image="${SDK_FULL_IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}"
 work_dir="${SDK_SMOKE_WORK:-$(pwd)/build/sdk-image-smoke}"
 profiles="${SDK_SMOKE_PROFILES:-xwr6843isk-mss-dss xwr1843boost-mss-dss xwr6843aop-mss-only}"
 profiles_file="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/config/demo-profiles.tsv"

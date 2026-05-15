@@ -12,7 +12,7 @@ modifying the host shell environment.
 USAGE
 }
 
-image="${SDK_FULL_IMAGE:-${IMAGE:-meowkj/ti-mmwave-sdk:03.06.02-local}}"
+image="${SDK_FULL_IMAGE:-${IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}}"
 workdir="$PWD"
 pull=0
 shell_mode=0

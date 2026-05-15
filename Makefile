@@ -1,5 +1,5 @@
 IMAGE ?= ti-mmwave-build-tools:linux-smoke
-SDK_FULL_IMAGE ?= meowkj/ti-mmwave-sdk:03.06.02-local
+SDK_FULL_IMAGE ?= meowpas/ti-mmwave-sdk:03.06.02
 TI_ROOT ?= /opt/ti
 HOST_TI_ROOT ?= $(TI_ROOT)
 

@@ -44,15 +44,14 @@ make sdk-profile-validate
 Build the private SDK-full image on a machine that already has TI SDK installed:
 
 ```bash
-make sdk-image HOST_TI_ROOT=/opt/ti SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02-local
-make sdk-image-smoke SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02-local
+make sdk-image HOST_TI_ROOT=/opt/ti SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
+make sdk-image-smoke SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
 ```
 
 Push it to a private registry after `docker login`:
 
 ```bash
-docker tag meowkj/ti-mmwave-sdk:03.06.02-local meowkj/ti-mmwave-sdk:03.06.02
-docker push meowkj/ti-mmwave-sdk:03.06.02
+docker push meowpas/ti-mmwave-sdk:03.06.02
 ```
 
 Do not push SDK-full images to a public repository unless your TI license

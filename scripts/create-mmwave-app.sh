@@ -108,7 +108,7 @@ legacy_device="xwr68xx"
 device_was_set=0
 out_dir=""
 force=0
-sdk_image="${SDK_IMAGE:-meowkj/ti-mmwave-sdk:03.06.02-local}"
+sdk_image="${SDK_IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}"
 ti_root="${TI_ROOT:-/opt/ti}"
 
 while [[ $# -gt 0 ]]; do

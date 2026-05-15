@@ -3,7 +3,7 @@ set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 profiles_file="${DEMO_PROFILES_FILE:-$repo_dir/config/demo-profiles.tsv}"
-image="${SDK_FULL_IMAGE:-meowkj/ti-mmwave-sdk:03.06.02-local}"
+image="${SDK_FULL_IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}"
 work_dir="${PROFILE_VALIDATION_WORK:-$repo_dir/build/demo-profile-validation}"
 artifact_root="${ARTIFACT_DIR:-$repo_dir/artifacts}/demo-profile-validation"
 report_dir="${REPORT_DIR:-$repo_dir/reports}"

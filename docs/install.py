@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 
-DEFAULT_IMAGE = os.environ.get("SDK_FULL_IMAGE", "meowkj/ti-mmwave-sdk:03.06.02-local")
+DEFAULT_IMAGE = os.environ.get("SDK_FULL_IMAGE", "meowpas/ti-mmwave-sdk:03.06.02")
 SDK_PACKAGES = "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages"
 
 

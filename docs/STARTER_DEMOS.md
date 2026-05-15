@@ -43,7 +43,7 @@ python3 <(curl -fsSL https://mmwavelab.github.io/ti-mmwave-build-tools/install.p
   --name people-count-6843 \
   --cmake-name people_count_6843 \
   --profile xwr6843isk-mss-dss \
-  --image meowkj/ti-mmwave-sdk:03.06.02-local \
+  --image meowpas/ti-mmwave-sdk:03.06.02 \
   --build
 ```
 

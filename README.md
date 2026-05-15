@@ -68,7 +68,7 @@ Create and build a new forked CMake project from the SDK-full image:
 ```bash
 docker run --rm -it -v "$PWD":/work -w /work \
   --user "$(id -u):$(id -g)" \
-  meowkj/ti-mmwave-sdk:03.06.02-local \
+  meowpas/ti-mmwave-sdk:03.06.02 \
   create-mmwave-app people-count-6843 --profile xwr6843isk-mss-dss
 cd people-count-6843
 make build
@@ -81,7 +81,7 @@ python3 <(curl -fsSL https://mmwavelab.github.io/ti-mmwave-build-tools/install.p
   --name people-count-6843 \
   --cmake-name people_count_6843 \
   --profile xwr6843isk-mss-dss \
-  --image meowkj/ti-mmwave-sdk:03.06.02-local \
+  --image meowpas/ti-mmwave-sdk:03.06.02 \
   --build
 ```
 
@@ -93,7 +93,7 @@ writes a standalone CMake/Ninja wrapper, and does not clone
 List the common TI demo fork profiles:
 
 ```bash
-docker run --rm meowkj/ti-mmwave-sdk:03.06.02-local create-mmwave-app --list-profiles
+docker run --rm meowpas/ti-mmwave-sdk:03.06.02 create-mmwave-app --list-profiles
 ```
 
 Check UniFlash readiness:
