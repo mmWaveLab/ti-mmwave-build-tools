@@ -22,4 +22,5 @@ cmake_install.cmake
 compile_commands.json
 .vs/
 .vscode/
+.DS_Store
 config/machine.env

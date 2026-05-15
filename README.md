@@ -252,11 +252,8 @@ automatically. The SDK mount is read-only, so builds do not write into
 
 ## CI and Maintenance
 
-- Portability guide: `docs/PORTABILITY.md`
 - CI guide: `docs/CI.md`
-- Maintenance guide: `docs/MAINTENANCE.md`
-- Project overview: `docs/PROJECT_OVERVIEW.md`
-- Project template guide: `docs/PROJECT_TEMPLATE.md`
+- Starter demo contract: `docs/STARTER_DEMOS.md`
 - Docker image guide: `docs/DOCKER_IMAGE.md`
 - UniFlash guide: `docs/UNIFLASH.md`
 
