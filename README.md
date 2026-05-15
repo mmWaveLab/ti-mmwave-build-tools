@@ -109,6 +109,13 @@ coverage target:
 IWR6843AOP is not aliased to IWR6843ISK. Add it only when the Radar Toolbox OOB
 source package is included in the private SDK-full image.
 
+Radar Toolbox has two separate layers for 6843AOP:
+
+| Manifest | Meaning |
+|---|---|
+| `config/toolbox-oob-profiles.tsv` | TI OOB source folders exactly as packaged. The `xwr6843AOP` OOB entry is a separate single-projectspec target. |
+| `config/toolbox-application-profiles.tsv` | Application demos such as 3D People Tracking, Area Scanner, Automated Doors, and Overhead People Tracking. These 6843AOP-capable entries use 6843 MSS+DSS projects plus AOP configs or prebuilt images. |
+
 Validation reports are generated under `reports/` when the relevant commands
 run. The repository keeps only source, docs, templates, and lightweight
 manifests under version control.
@@ -129,6 +136,9 @@ Key files:
   firmware projects.
 - `config/demo-profiles.tsv`: starter TI OOB demo fork profiles used by
   `create-mmwave-app --profile`.
+- `config/toolbox-oob-profiles.tsv`: lightweight TI Radar Toolbox OOB catalog.
+- `config/toolbox-application-profiles.tsv`: lightweight TI Radar Toolbox
+  application demo catalog, including 6843AOP MSS+DSS candidates.
 - `docker/Dockerfile.sdk-full`: private SDK-full image recipe for local or
   private-registry use.
 

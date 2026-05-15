@@ -49,6 +49,7 @@ test -f "$repo_dir/docs/PROJECT_TEMPLATE.md"
 test -f "$repo_dir/docs/DOCKER_IMAGE.md"
 test -f "$repo_dir/config/demo-profiles.tsv"
 test -f "$repo_dir/config/toolbox-oob-profiles.tsv"
+test -f "$repo_dir/config/toolbox-application-profiles.tsv"
 test -f "$repo_dir/scripts/validate-demo-profiles.sh"
 test -f "$repo_dir/scripts/mmwave-run.sh"
 test -f "$repo_dir/scripts/validate-cmake-portability.sh"
@@ -144,6 +145,52 @@ with path.open(encoding="utf-8", newline="") as f:
 if errors:
     raise SystemExit("\n".join(errors))
 print(f"toolbox profiles ok: {len(ids)}")
+PY
+
+printf 'Toolbox application manifest\n'
+python3 - "$repo_dir/config/toolbox-application-profiles.tsv" <<'PY'
+import csv
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+errors = []
+ids = set()
+required = {
+    "iwr6843aop-3d-people-tracking",
+    "iwr6843aop-area-scanner",
+}
+with path.open(encoding="utf-8", newline="") as f:
+    for line_no, row in enumerate(csv.reader(f, delimiter="\t"), 1):
+        if not row or row[0].startswith("#"):
+            continue
+        if len(row) != 13:
+            errors.append(f"line {line_no}: expected 13 columns, got {len(row)}")
+            continue
+        profile, toolbox, version, source_dir, sdk_family, cores, ti_targets, prebuilt, projects, config_profiles, suitability, status, summary = row
+        if profile in ids:
+            errors.append(f"line {line_no}: duplicate profile {profile}")
+        ids.add(profile)
+        if toolbox not in {"radar_toolbox", "mmwave_industrial_toolbox"}:
+            errors.append(f"line {line_no}: unexpected toolbox {toolbox}")
+        if sdk_family != "SDK3":
+            errors.append(f"line {line_no}: unexpected SDK family {sdk_family}")
+        if cores != "MSS+DSS":
+            errors.append(f"line {line_no}: unexpected core set {cores}")
+        if "IWR6843AOP" not in ti_targets.split(","):
+            errors.append(f"line {line_no}: missing IWR6843AOP target")
+        if suitability != "starter-application":
+            errors.append(f"line {line_no}: unexpected suitability {suitability}")
+        if status not in {"analysis-only", "validated"}:
+            errors.append(f"line {line_no}: unexpected status {status}")
+        if not all((source_dir, prebuilt, projects, config_profiles, summary)):
+            errors.append(f"line {line_no}: missing required descriptive fields")
+missing = sorted(required - ids)
+if missing:
+    errors.append(f"missing required application profiles: {', '.join(missing)}")
+if errors:
+    raise SystemExit("\n".join(errors))
+print(f"toolbox application profiles ok: {len(ids)}")
 PY
 
 printf 'PASS: GitHub Actions smoke test succeeded.\n'

@@ -125,9 +125,10 @@ Use it for board bring-up, regression projects, and real firmware development
 starting from a known-good TI demo such as IWR1843 or IWR6843 out-of-box.
 
 The SDK 03.06 `ti/demo/xwr68xx/mmw` folder is represented as
-`iwr6843isk-oob`. IWR6843AOP should be tracked as a separate profile only after
-the Radar Toolbox OOB source package is added to the SDK-full image; do not
-treat it as the same fork target as IWR6843ISK.
+`iwr6843isk-oob`. IWR6843AOP should be tracked as separate Toolbox profiles;
+do not treat it as the same fork target as IWR6843ISK. The Toolbox OOB
+`xwr6843AOP` entry is a single-projectspec target, while several 6843AOP
+application demos use 6843 MSS+DSS projects plus AOP configs.
 
 ## Profile Granularity
 

@@ -45,4 +45,16 @@ awk -F '\t' '
   END { exit ok ? 0 : 1 }
 ' "$repo_dir/config/toolbox-oob-profiles.tsv"
 
+printf 'Toolbox application manifest shape\n'
+awk -F '\t' '
+  BEGIN { ok=1 }
+  /^#/ || NF == 0 { next }
+  NF != 13 { printf "bad field count: %s\n", $0 > "/dev/stderr"; ok=0; next }
+  $5 !~ /^SDK3$/ { printf "bad SDK family: %s\n", $0 > "/dev/stderr"; ok=0 }
+  $6 !~ /^MSS[+]DSS$/ { printf "bad cores: %s\n", $0 > "/dev/stderr"; ok=0 }
+  $7 !~ /IWR6843AOP/ { printf "missing AOP target: %s\n", $0 > "/dev/stderr"; ok=0 }
+  $11 !~ /^starter-application$/ { printf "bad suitability: %s\n", $0 > "/dev/stderr"; ok=0 }
+  END { exit ok ? 0 : 1 }
+' "$repo_dir/config/toolbox-application-profiles.tsv"
+
 printf 'PASS: CMake portability smoke succeeded.\n'
