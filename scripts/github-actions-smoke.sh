@@ -45,9 +45,19 @@ test -f "$repo_dir/README.md"
 test -f "$repo_dir/docs/ABOUT.md"
 test -f "$repo_dir/docs/CI.md"
 test -f "$repo_dir/docs/UNIFLASH.md"
+test -f "$repo_dir/docs/PROJECT_TEMPLATE.md"
+test -f "$repo_dir/docs/DOCKER_IMAGE.md"
+test -f "$repo_dir/docs/PROJECT_MANAGEMENT.md"
 test -f "$repo_dir/config/devices.tsv"
 test -f "$repo_dir/examples/official-sdk-demos/README.md"
 test -f "$repo_dir/examples/official-sdk-demos/devices-ci.tsv"
+test -f "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
+
+printf 'Project template generation\n'
+rm -rf "$repo_dir/build/template-smoke-project"
+"$repo_dir/scripts/new-project.sh" template-smoke --device xwr18xx --out build/template-smoke-project
+test -f "$repo_dir/build/template-smoke-project/CMakeLists.txt"
+grep -q 'ti/demo/xwr18xx/mmw' "$repo_dir/build/template-smoke-project/CMakeLists.txt"
 
 printf 'Official demo manifest\n'
 "$repo_dir/scripts/check-official-demo-manifest.sh"

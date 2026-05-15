@@ -1,0 +1,38 @@
+# @PROJECT_NAME@
+
+Generated TI mmWave CMake/Ninja firmware project.
+
+This project references the TI SDK demo at:
+
+```text
+@SDK_DEMO_REL@
+```
+
+The TI SDK, compilers, and generated firmware are not vendored here.
+
+## Native Build
+
+```bash
+cmake -S . -B build -G Ninja -DTI_ROOT=/home/kj/ti
+cmake --build build --target firmware
+```
+
+## Docker Build From Tool Repository
+
+From the `ti-mmwave-build-tools` repository:
+
+```bash
+make project-docker PROJECT=@PROJECT_PATH@
+```
+
+Output binary:
+
+```text
+build/@PROJECT_NAME@_sdk_demo/@OUTPUT_BIN@
+```
+
+## Next Customization Points
+
+- Keep this project as a reference-demo wrapper while validating the board.
+- Add local source overlays only after the reference demo is reproducible.
+- Keep generated build output under `build/`; do not commit TI SDK source.

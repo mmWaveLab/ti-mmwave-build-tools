@@ -1,0 +1,49 @@
+cmake_minimum_required(VERSION 3.20)
+project(@PROJECT_NAME@ NONE)
+
+list(APPEND CMAKE_MODULE_PATH "@TOOLS_CMAKE_DIR@")
+include(TiMmwaveSdkPaths)
+
+set(MMWAVE_SDK_DEVICE "@SDK_DEVICE@" CACHE STRING "mmWave SDK device")
+set(MMWAVE_SDK_DEVICE_TYPE "@SDK_DEVICE_TYPE@" CACHE STRING "mmWave SDK device type")
+set(SDK_DEMO_REL "@SDK_DEMO_REL@" CACHE STRING "TI SDK demo path under packages")
+set(SDK_DEMO_DIR "${MMWAVE_SDK_PACKAGES}/${SDK_DEMO_REL}" CACHE PATH "TI SDK demo source folder")
+set(APP_BUILD_DIR "${CMAKE_BINARY_DIR}/@PROJECT_NAME@_sdk_demo")
+set(OUTPUT_BIN "${APP_BUILD_DIR}/@OUTPUT_BIN@")
+
+foreach(required_path
+    "${SDK_DEMO_DIR}/makefile"
+    "${MMWAVE_SDK_PACKAGES}/scripts/unix/generateMetaImage.sh")
+  if(NOT EXISTS "${required_path}")
+    message(FATAL_ERROR "Required SDK path not found: ${required_path}")
+  endif()
+endforeach()
+
+add_custom_command(
+  OUTPUT "${OUTPUT_BIN}"
+  COMMAND "${CMAKE_COMMAND}" -E rm -rf "${APP_BUILD_DIR}"
+  COMMAND "${CMAKE_COMMAND}" -E copy_directory "${SDK_DEMO_DIR}" "${APP_BUILD_DIR}"
+  COMMAND "${CMAKE_COMMAND}" -E env
+    "CCS_MAKEFILE_BASED_BUILD=1"
+    "MMWAVE_SDK_DEVICE=${MMWAVE_SDK_DEVICE}"
+    "MMWAVE_SDK_DEVICE_TYPE=${MMWAVE_SDK_DEVICE_TYPE}"
+    "MMWAVE_SDK_TOOLS_INSTALL_PATH=${TI_ROOT}"
+    "MMWAVE_SDK_INSTALL_PATH=${MMWAVE_SDK_PACKAGES}"
+    "${CMAKE_COMMAND}" -E chdir "${APP_BUILD_DIR}"
+    make -f makefile clean
+  COMMAND "${CMAKE_COMMAND}" -E env
+    "CCS_MAKEFILE_BASED_BUILD=1"
+    "MMWAVE_SDK_DEVICE=${MMWAVE_SDK_DEVICE}"
+    "MMWAVE_SDK_DEVICE_TYPE=${MMWAVE_SDK_DEVICE_TYPE}"
+    "MMWAVE_SDK_TOOLS_INSTALL_PATH=${TI_ROOT}"
+    "MMWAVE_SDK_INSTALL_PATH=${MMWAVE_SDK_PACKAGES}"
+    "${CMAKE_COMMAND}" -E chdir "${APP_BUILD_DIR}"
+    make -f makefile all
+  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+  VERBATIM
+  COMMENT "Building @SDK_DEVICE_TYPE@ MSS+DSS firmware"
+)
+
+add_custom_target(firmware ALL DEPENDS "${OUTPUT_BIN}")
+
+install(FILES "${OUTPUT_BIN}" DESTINATION .)

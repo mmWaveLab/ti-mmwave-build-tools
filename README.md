@@ -15,6 +15,7 @@ by TI. Bring your own TI installation and mount it into the build environment.
 
 - Build TI mmWave SDK 03.06 demo firmware on Linux.
 - Build `xwr68xx/mmw` MSS+DSS through CMake and Ninja.
+- Create new mmWave CMake/Ninja firmware projects from a template.
 - Validate first-generation SDK demo families in Docker.
 - Track official TI SDK demo references without vendoring TI source files.
 - Compare Docker and native Ubuntu build time and output hashes.
@@ -61,6 +62,13 @@ Build the CMake+Ninja MSS+DSS example:
 
 ```bash
 make docker-cmake
+```
+
+Create and build a new CMake project:
+
+```bash
+make project-new PROJECT=people-count-6843 DEVICE=xwr68xx
+make project-docker PROJECT=examples/people-count-6843
 ```
 
 Check UniFlash readiness:
@@ -119,6 +127,12 @@ Latest GitHub Actions smoke report:
 reports/github-actions-smoke-20260515T0920Z.md
 ```
 
+Latest project-template validation report:
+
+```text
+reports/project-template-validation-20260515T130010Z.md
+```
+
 Validation here means the Docker SDK environment can compile the TI mmWave SDK
 03.06 demo and produce `.bin` artifacts. It does not mean each binary was
 flashed to hardware, and it does not imply other TI device generations are
@@ -138,6 +152,8 @@ Key files:
 - `cmake/TiMmwaveSdkPaths.cmake`: Linux path discovery used by this Docker lab.
 - `examples/official-sdk-demos/devices-ci.tsv`: official TI SDK demo matrix for
   CI builds.
+- `templates/mmwave-cmake-project`: project scaffold for new CMake/Ninja
+  firmware projects.
 
 The Docker validation flow in this README exercises the SDK reference demo
 makefiles. Downstream firmware projects can still use the reusable CMake API
@@ -203,6 +219,8 @@ make github-actions-smoke
 make test
 make benchmark
 make validate-devices
+make project-new PROJECT=name DEVICE=xwr68xx
+make project-docker PROJECT=examples/name
 make flash-list
 make flash-doctor
 make package
@@ -224,6 +242,9 @@ automatically. The SDK mount is read-only, so builds do not write into
 - Portability guide: `docs/PORTABILITY.md`
 - CI guide: `docs/CI.md`
 - Maintenance guide: `docs/MAINTENANCE.md`
+- Project template guide: `docs/PROJECT_TEMPLATE.md`
+- Docker image guide: `docs/DOCKER_IMAGE.md`
+- Project management: `docs/PROJECT_MANAGEMENT.md`
 - Device support: `docs/DEVICE_SUPPORT.md`
 - UniFlash guide: `docs/UNIFLASH.md`
 - GitHub About text: `docs/ABOUT.md`

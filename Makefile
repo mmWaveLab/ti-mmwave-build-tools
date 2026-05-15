@@ -2,16 +2,28 @@ IMAGE ?= ti-mmwave-build-tools:linux-smoke
 TI_ROOT ?= /home/kj/ti
 HOST_TI_ROOT ?= $(TI_ROOT)
 
-.PHONY: docker-build github-actions-smoke official-demo-manifest doctor test ci docker-cmake native-cmake benchmark validate-devices flash-list flash-doctor flash-dry-run flash package clean
+.PHONY: docker-build docker-shell github-actions-smoke official-demo-manifest project-new project-docker project-native doctor test ci docker-cmake native-cmake benchmark validate-devices flash-list flash-doctor flash-dry-run flash package clean
 
 docker-build:
 	docker build -t $(IMAGE) .
+
+docker-shell:
+	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/docker-shell.sh
 
 github-actions-smoke:
 	scripts/github-actions-smoke.sh
 
 official-demo-manifest:
 	scripts/check-official-demo-manifest.sh
+
+project-new:
+	scripts/new-project.sh $(PROJECT) --device $(or $(DEVICE),xwr68xx) $(if $(OUT),--out $(OUT),) $(if $(FORCE),--force,)
+
+project-docker:
+	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) PROJECT=$(PROJECT) scripts/cmake-build-project.sh
+
+project-native:
+	TI_ROOT=$(TI_ROOT) PROJECT=$(PROJECT) scripts/native-build-project.sh
 
 doctor:
 	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/doctor.sh
