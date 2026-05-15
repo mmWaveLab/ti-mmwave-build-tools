@@ -25,7 +25,20 @@ rsync -a --delete \
   --exclude '.DS_Store' \
   "$repo_dir/" "$context_dir/tools/"
 
-rsync -a --delete "$HOST_TI_ROOT/" "$context_dir/ti/"
+rsync -a --delete \
+  --exclude '*/obj_*' \
+  --exclude '*/mmw_configPkg_*' \
+  --exclude '*.oer4f' \
+  --exclude '*.oe674' \
+  --exclude '*.xer4f' \
+  --exclude '*.xe674' \
+  --exclude '*.map' \
+  --exclude '*.tmp' \
+  --exclude '*.rov.xs' \
+  --exclude '*.dep' \
+  --exclude '*.pp' \
+  --exclude 'xwr*_mmw*_demo*.bin' \
+  "$HOST_TI_ROOT/" "$context_dir/ti/"
 cp "$repo_dir/docker/Dockerfile.sdk-full" "$context_dir/Dockerfile"
 
 docker build -t "$sdk_image" "$context_dir"

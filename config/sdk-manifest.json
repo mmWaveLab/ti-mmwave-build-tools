@@ -1,43 +1,43 @@
 {
   "name": "ti-mmwave-sdk-linux-labpc",
-  "normalizedTiRoot": "/home/kj/ti",
+  "normalizedTiRoot": "/opt/ti",
   "sdk": {
     "name": "mmwave_sdk",
     "version": "03.06.02.00-LTS",
-    "root": "/home/kj/ti/mmwave_sdk_03_06_02_00-LTS",
-    "packages": "/home/kj/ti/mmwave_sdk_03_06_02_00-LTS/packages"
+    "root": "/opt/ti/mmwave_sdk_03_06_02_00-LTS",
+    "packages": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages"
   },
   "tools": {
     "armCgt": {
       "version": "16.9.6.LTS",
-      "root": "/home/kj/ti/ti-cgt-arm_16.9.6.LTS",
-      "compiler": "/home/kj/ti/ti-cgt-arm_16.9.6.LTS/bin/armcl"
+      "root": "/opt/ti/ti-cgt-arm_16.9.6.LTS",
+      "compiler": "/opt/ti/ti-cgt-arm_16.9.6.LTS/bin/armcl"
     },
     "c6000Cgt": {
       "version": "8.3.3",
-      "root": "/home/kj/ti/ti-cgt-c6000_8.3.3",
-      "compiler": "/home/kj/ti/ti-cgt-c6000_8.3.3/bin/cl6x"
+      "root": "/opt/ti/ti-cgt-c6000_8.3.3",
+      "compiler": "/opt/ti/ti-cgt-c6000_8.3.3/bin/cl6x"
     },
     "xdctools": {
       "version": "3.50.08.24_core",
-      "root": "/home/kj/ti/xdctools_3_50_08_24_core",
-      "xs": "/home/kj/ti/xdctools_3_50_08_24_core/xs"
+      "root": "/opt/ti/xdctools_3_50_08_24_core",
+      "xs": "/opt/ti/xdctools_3_50_08_24_core/xs"
     },
     "sysbios": {
       "version": "6.73.01.01",
-      "root": "/home/kj/ti/bios_6_73_01_01"
+      "root": "/opt/ti/bios_6_73_01_01"
     },
     "dsplibC64Px": {
       "version": "3.4.0.0",
-      "root": "/home/kj/ti/dsplib_c64Px_3_4_0_0"
+      "root": "/opt/ti/dsplib_c64Px_3_4_0_0"
     },
     "dsplibC674x": {
       "version": "3.4.0.0",
-      "root": "/home/kj/ti/dsplib_c674x_3_4_0_0"
+      "root": "/opt/ti/dsplib_c674x_3_4_0_0"
     },
     "mathlibC674x": {
       "version": "3.1.2.1",
-      "root": "/home/kj/ti/mathlib_c674x_3_1_2_1"
+      "root": "/opt/ti/mathlib_c674x_3_1_2_1"
     },
     "mono": {
       "requiredFor": "scripts/unix/generateMetaImage.sh calling out2rprc.exe"
@@ -46,7 +46,7 @@
   "testedDemo": {
     "device": "iwr68xx",
     "deviceType": "xwr68xx",
-    "source": "/home/kj/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr68xx/mmw",
+    "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr68xx/mmw",
     "output": "xwr68xx_mmw_demo.bin",
     "sha256": "4d37093668aa1106fdde282cc6e3eb22b6b823e6d73b93dbff908f8e1fc9d0b6"
   },

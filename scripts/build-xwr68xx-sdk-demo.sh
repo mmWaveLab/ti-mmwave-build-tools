@@ -18,14 +18,14 @@ cp -a "$HOST_TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr68xx/mmw" "$
 common_args=(
   CCS_MAKEFILE_BASED_BUILD=1
   MMWAVE_SDK_DEVICE=iwr68xx
-  MMWAVE_SDK_TOOLS_INSTALL_PATH=/home/kj/ti
-  MMWAVE_SDK_INSTALL_PATH=/home/kj/ti/mmwave_sdk_03_06_02_00-LTS/packages
+  MMWAVE_SDK_TOOLS_INSTALL_PATH=/opt/ti
+  MMWAVE_SDK_INSTALL_PATH=/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages
 )
 
 docker run --rm \
   --user "$(id -u):$(id -g)" \
   -e HOME=/tmp \
-  -v "$HOST_TI_ROOT":/home/kj/ti:ro \
+  -v "$HOST_TI_ROOT":/opt/ti:ro \
   -v "$work_dir":/work/mmw \
   "$IMAGE" \
   bash -lc 'cd /work/mmw && make -f makefile clean "$@" && make -f makefile all "$@"' \

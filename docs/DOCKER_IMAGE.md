@@ -25,8 +25,8 @@ Runtime mounts:
 Default path values:
 
 ```text
-HOST_TI_ROOT=/home/kj/ti
-CONTAINER_TI_ROOT=/home/kj/ti
+HOST_TI_ROOT=/opt/ti
+CONTAINER_TI_ROOT=/opt/ti
 ```
 
 Keeping the container TI path stable avoids surprises from TI generated
@@ -44,7 +44,7 @@ make validate-devices
 Build the private SDK-full image on a machine that already has TI SDK installed:
 
 ```bash
-make sdk-image HOST_TI_ROOT=/home/kj/ti SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02-local
+make sdk-image HOST_TI_ROOT=/opt/ti SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02-local
 make sdk-image-smoke SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02-local
 ```
 
@@ -58,7 +58,7 @@ docker push meowkj/ti-mmwave-sdk:03.06.02
 Do not push SDK-full images to a public repository unless your TI license
 explicitly permits redistribution.
 
-The SDK-full image keeps TI tools at `/home/kj/ti` inside the container. This is
+The SDK-full image keeps TI tools at `/opt/ti` inside the container. This is
 intentional: TI make/configuro fragments can embed the install path, so the
 container standardizes that path even when the host is macOS, Windows, or a
 different Linux distribution.

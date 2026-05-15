@@ -29,17 +29,17 @@ RUN dpkg --add-architecture i386 \
     && python3 -m pip install --no-cache-dir "cmake>=3.29,<3.31" \
     && rm -rf /var/lib/apt/lists/*
 
-ENV TI_ROOT=/home/kj/ti
-ENV MMWAVE_SDK_ROOT=/home/kj/ti/mmwave_sdk_03_06_02_00-LTS
-ENV MMWAVE_SDK_PACKAGES=/home/kj/ti/mmwave_sdk_03_06_02_00-LTS/packages
-ENV R4F_CODEGEN_ROOT=/home/kj/ti/ti-cgt-arm_16.9.6.LTS
-ENV C674_CODEGEN_ROOT=/home/kj/ti/ti-cgt-c6000_8.3.3
-ENV XDC_ROOT=/home/kj/ti/xdctools_3_50_08_24_core
-ENV BIOS_ROOT=/home/kj/ti/bios_6_73_01_01
-ENV DSPLIB_C64PX_ROOT=/home/kj/ti/dsplib_c64Px_3_4_0_0
-ENV DSPLIB_C674X_ROOT=/home/kj/ti/dsplib_c674x_3_4_0_0
-ENV MATHLIB_C674X_ROOT=/home/kj/ti/mathlib_c674x_3_1_2_1
-ENV PATH=/home/kj/ti/ti-cgt-arm_16.9.6.LTS/bin:/home/kj/ti/ti-cgt-c6000_8.3.3/bin:/home/kj/ti/xdctools_3_50_08_24_core:/usr/local/bin:/usr/bin:/bin
+ENV TI_ROOT=/opt/ti
+ENV MMWAVE_SDK_ROOT=/opt/ti/mmwave_sdk_03_06_02_00-LTS
+ENV MMWAVE_SDK_PACKAGES=/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages
+ENV R4F_CODEGEN_ROOT=/opt/ti/ti-cgt-arm_16.9.6.LTS
+ENV C674_CODEGEN_ROOT=/opt/ti/ti-cgt-c6000_8.3.3
+ENV XDC_ROOT=/opt/ti/xdctools_3_50_08_24_core
+ENV BIOS_ROOT=/opt/ti/bios_6_73_01_01
+ENV DSPLIB_C64PX_ROOT=/opt/ti/dsplib_c64Px_3_4_0_0
+ENV DSPLIB_C674X_ROOT=/opt/ti/dsplib_c674x_3_4_0_0
+ENV MATHLIB_C674X_ROOT=/opt/ti/mathlib_c674x_3_1_2_1
+ENV PATH=/opt/ti/ti-cgt-arm_16.9.6.LTS/bin:/opt/ti/ti-cgt-c6000_8.3.3/bin:/opt/ti/xdctools_3_50_08_24_core:/usr/local/bin:/usr/bin:/bin
 
 WORKDIR /work
 

@@ -7,7 +7,7 @@ source "$repo_dir/scripts/lib.sh"
 load_machine_env
 
 docker run --rm \
-  -v "$HOST_TI_ROOT":/home/kj/ti:ro \
+  -v "$HOST_TI_ROOT":/opt/ti:ro \
   "$IMAGE" \
   check-ti-linux
 

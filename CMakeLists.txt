@@ -5,7 +5,7 @@ enable_testing()
 
 set(TI_ROOT "$ENV{TI_ROOT}" CACHE PATH "TI SDK/tool root")
 if(NOT TI_ROOT)
-  set(TI_ROOT "/home/kj/ti" CACHE PATH "TI SDK/tool root" FORCE)
+  set(TI_ROOT "/opt/ti" CACHE PATH "TI SDK/tool root" FORCE)
 endif()
 
 add_test(

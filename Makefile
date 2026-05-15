@@ -1,6 +1,6 @@
 IMAGE ?= ti-mmwave-build-tools:linux-smoke
 SDK_FULL_IMAGE ?= meowkj/ti-mmwave-sdk:03.06.02-local
-TI_ROOT ?= /home/kj/ti
+TI_ROOT ?= /opt/ti
 HOST_TI_ROOT ?= $(TI_ROOT)
 
 .PHONY: docker-build docker-shell sdk-image sdk-image-smoke github-actions-smoke official-demo-manifest project-new project-docker project-native doctor test ci docker-cmake native-cmake benchmark validate-devices flash-list flash-doctor flash-dry-run flash package clean

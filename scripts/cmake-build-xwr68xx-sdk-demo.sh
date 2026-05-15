@@ -14,7 +14,7 @@ rm -rf "$build_dir"
 mkdir -p "$build_dir" "$artifact_dir"
 
 docker_sdk_run "$repo_dir" \
-  bash -lc 'source /usr/local/bin/ti-sdk-env && cmake -S /work/ti-mmwave-build-tools-docker/examples/xwr68xx-sdk-mss-dss-cmake -B "$0" -G Ninja -DTI_ROOT=/home/kj/ti && cmake --build "$0" --target firmware' \
+  bash -lc 'source /usr/local/bin/ti-sdk-env && cmake -S /work/ti-mmwave-build-tools-docker/examples/xwr68xx-sdk-mss-dss-cmake -B "$0" -G Ninja -DTI_ROOT=/opt/ti && cmake --build "$0" --target firmware' \
   "$container_build_dir"
 
 cp "$build_dir"/xwr68xx_mmw/xwr68xx_mmw_demo.bin "$artifact_dir"/xwr68xx_mmw_demo.docker.bin

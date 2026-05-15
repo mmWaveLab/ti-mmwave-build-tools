@@ -53,7 +53,7 @@ while IFS=$'\t' read -r id sdk_demo sdk_device label; do
       -v "$HOST_TI_ROOT:$CONTAINER_TI_ROOT:ro" \
       -v "$work_dir":/work/mmw \
       "$IMAGE" \
-      bash -lc 'source /usr/local/bin/ti-sdk-env && cd /work/mmw && make -f makefile clean CCS_MAKEFILE_BASED_BUILD=1 MMWAVE_SDK_DEVICE="$0" MMWAVE_SDK_TOOLS_INSTALL_PATH=/home/kj/ti MMWAVE_SDK_INSTALL_PATH=/home/kj/ti/mmwave_sdk_03_06_02_00-LTS/packages && make -f makefile all CCS_MAKEFILE_BASED_BUILD=1 MMWAVE_SDK_DEVICE="$0" MMWAVE_SDK_TOOLS_INSTALL_PATH=/home/kj/ti MMWAVE_SDK_INSTALL_PATH=/home/kj/ti/mmwave_sdk_03_06_02_00-LTS/packages' \
+      bash -lc 'source /usr/local/bin/ti-sdk-env && cd /work/mmw && make -f makefile clean CCS_MAKEFILE_BASED_BUILD=1 MMWAVE_SDK_DEVICE="$0" MMWAVE_SDK_TOOLS_INSTALL_PATH=/opt/ti MMWAVE_SDK_INSTALL_PATH=/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages && make -f makefile all CCS_MAKEFILE_BASED_BUILD=1 MMWAVE_SDK_DEVICE="$0" MMWAVE_SDK_TOOLS_INSTALL_PATH=/opt/ti MMWAVE_SDK_INSTALL_PATH=/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages' \
       "$sdk_device" >"$log" 2>&1
   rc=$?
   set -e

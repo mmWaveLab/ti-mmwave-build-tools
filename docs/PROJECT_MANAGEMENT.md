@@ -25,7 +25,7 @@ Before tagging or merging to `main`, run:
 ```bash
 make github-actions-smoke
 make docker-build
-make sdk-image SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02-local HOST_TI_ROOT=/home/kj/ti
+make sdk-image SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02-local HOST_TI_ROOT=/opt/ti
 make sdk-image-smoke SDK_FULL_IMAGE=meowkj/ti-mmwave-sdk:03.06.02-local
 make doctor
 make validate-devices

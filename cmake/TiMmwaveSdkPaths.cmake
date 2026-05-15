@@ -1,6 +1,6 @@
 set(TI_ROOT "$ENV{TI_ROOT}" CACHE PATH "TI SDK/tool root")
 if(NOT TI_ROOT)
-  set(TI_ROOT "/home/kj/ti" CACHE PATH "TI SDK/tool root" FORCE)
+  set(TI_ROOT "/opt/ti" CACHE PATH "TI SDK/tool root" FORCE)
 endif()
 
 set(MMWAVE_SDK_ROOT "${TI_ROOT}/mmwave_sdk_03_06_02_00-LTS" CACHE PATH "mmWave SDK root")

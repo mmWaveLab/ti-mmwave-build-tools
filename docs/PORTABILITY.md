@@ -1,6 +1,6 @@
 # Portability
 
-This repository keeps the container-internal TI path stable at `/home/kj/ti`
+This repository keeps the container-internal TI path stable at `/opt/ti`
 because TI XDC/configuro and generated make fragments embed absolute paths.
 
 On a new Linux machine:
@@ -13,7 +13,7 @@ Edit `config/machine.env`:
 
 ```bash
 HOST_TI_ROOT=/path/to/ti
-CONTAINER_TI_ROOT=/home/kj/ti
+CONTAINER_TI_ROOT=/opt/ti
 TI_ROOT=/path/to/ti
 ```
 

@@ -45,7 +45,7 @@ Edit `config/machine.env`:
 ```bash
 HOST_TI_ROOT=/path/to/ti
 TI_ROOT=/path/to/ti
-CONTAINER_TI_ROOT=/home/kj/ti
+CONTAINER_TI_ROOT=/opt/ti
 ```
 
 Build and test:
@@ -84,7 +84,7 @@ make flash-doctor
 ## SDK Path Contract
 
 The container sees the TI install at `CONTAINER_TI_ROOT`, defaulting to
-`/home/kj/ti`. This path is intentionally stable because TI XDC/configuro and
+`/opt/ti`. This path is intentionally stable because TI XDC/configuro and
 generated make fragments embed absolute SDK and toolchain paths.
 
 The host path can still be different. Set `HOST_TI_ROOT` to the real local TI
@@ -176,7 +176,7 @@ Validate the TI Linux tools directly inside the container:
 
 ```bash
 docker run --rm \
-  -v /home/kj/ti:/home/kj/ti:ro \
+  -v /opt/ti:/opt/ti:ro \
   ti-mmwave-build-tools:linux-smoke \
   check-ti-linux
 ```
@@ -185,7 +185,7 @@ Run the upstream repository smoke test:
 
 ```bash
 docker run --rm \
-  -v /home/kj/ti:/home/kj/ti:ro \
+  -v /opt/ti:/opt/ti:ro \
   -v "$PWD/work":/work \
   ti-mmwave-build-tools:linux-smoke \
   run-repo-smoke
@@ -218,7 +218,7 @@ Native Ubuntu:
 
 ```bash
 source scripts/ti-sdk-env.sh
-cmake -S examples/xwr68xx-sdk-mss-dss-cmake -B perf/cmake-xwr68xx-native -G Ninja -DTI_ROOT=/home/kj/ti
+cmake -S examples/xwr68xx-sdk-mss-dss-cmake -B perf/cmake-xwr68xx-native -G Ninja -DTI_ROOT=/opt/ti
 cmake --build perf/cmake-xwr68xx-native --target firmware
 ```
 
@@ -247,7 +247,7 @@ Generated files are kept under:
 
 The Docker commands use `--rm`, so stopped containers are removed
 automatically. The SDK mount is read-only, so builds do not write into
-`/home/kj/ti`.
+`/opt/ti`.
 
 ## CI and Maintenance
 
@@ -315,7 +315,7 @@ make flash \
 
 `PORT` is always required. The scripts never auto-select a serial port.
 
-Verified on `kj@192.168.8.109`:
+Verified on `labpc`:
 
 - native Ubuntu clean build: `60.44s`
 - Docker clean build: `62.58s`

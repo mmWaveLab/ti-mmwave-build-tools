@@ -13,7 +13,7 @@ configure:
 	  -v "$$(pwd)":/work/app \
 	  -w /work/app \
 	  $(IMAGE) \
-	  cmake -S . -B $(BUILD_DIR) -G Ninja -DTI_ROOT=/home/kj/ti
+	  cmake -S . -B $(BUILD_DIR) -G Ninja -DTI_ROOT=/opt/ti
 
 build: configure
 	docker run --rm \

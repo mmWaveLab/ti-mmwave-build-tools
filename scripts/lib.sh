@@ -13,9 +13,9 @@ load_machine_env() {
   fi
 
   export IMAGE="${IMAGE:-ti-mmwave-build-tools:linux-smoke}"
-  export TI_ROOT="${TI_ROOT:-/home/kj/ti}"
+  export TI_ROOT="${TI_ROOT:-/opt/ti}"
   export HOST_TI_ROOT="${HOST_TI_ROOT:-$TI_ROOT}"
-  export CONTAINER_TI_ROOT="${CONTAINER_TI_ROOT:-/home/kj/ti}"
+  export CONTAINER_TI_ROOT="${CONTAINER_TI_ROOT:-/opt/ti}"
   export BUILD_ROOT="${BUILD_ROOT:-$repo_dir/build}"
   export ARTIFACT_DIR="${ARTIFACT_DIR:-$repo_dir/artifacts}"
   export REPORT_DIR="${REPORT_DIR:-$repo_dir/reports}"

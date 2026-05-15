@@ -30,6 +30,6 @@ rm -rf "$build_dir"
 mkdir -p "$build_dir"
 
 docker_sdk_run "$repo_dir" \
-  bash -lc 'source /usr/local/bin/ti-sdk-env && cmake -S "$0" -B "$1" -G Ninja -DTI_ROOT=/home/kj/ti && cmake --build "$1" --target firmware' \
+  bash -lc 'source /usr/local/bin/ti-sdk-env && cmake -S "$0" -B "$1" -G Ninja -DTI_ROOT=/opt/ti && cmake --build "$1" --target firmware' \
   "$container_project_dir" \
   "$container_build_dir"

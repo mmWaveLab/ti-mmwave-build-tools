@@ -2,7 +2,7 @@
 
 - Timestamp UTC: `20260515T104422Z`
 - Docker image: `ti-mmwave-build-tools:linux-smoke`
-- Host TI root: `/home/kj/ti`
+- Host TI root: `/opt/ti`
 
 | Device ID | SDK Device | Result | Seconds | Firmware Outputs |
 |---|---|---:|---:|---|

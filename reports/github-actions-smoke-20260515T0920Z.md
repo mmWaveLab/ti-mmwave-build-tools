@@ -2,7 +2,7 @@
 
 - Timestamp UTC: `20260515T0920Z`
 - Local path: `/Volumes/DATA/Test/ti-mmwave-build-tools-docker`
-- Lab PC path: `/home/kj/ti-mmwave-build-tools-docker`
+- Lab PC path: `/opt/ti-mmwave-build-tools-docker`
 
 ## Workflow Changes
 

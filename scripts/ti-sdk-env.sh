@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export TI_ROOT="${TI_ROOT:-/home/kj/ti}"
+export TI_ROOT="${TI_ROOT:-/opt/ti}"
 export MMWAVE_SDK_ROOT="${MMWAVE_SDK_ROOT:-$TI_ROOT/mmwave_sdk_03_06_02_00-LTS}"
 export MMWAVE_SDK_PACKAGES="${MMWAVE_SDK_PACKAGES:-$MMWAVE_SDK_ROOT/packages}"
 export MMWAVE_SDK_INSTALL_PATH="$MMWAVE_SDK_PACKAGES"

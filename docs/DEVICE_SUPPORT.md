@@ -1,6 +1,6 @@
 # Device Support
 
-Validated on `kj@192.168.8.109` with Docker image
+Validated on `labpc` with Docker image
 `ti-mmwave-build-tools:linux-smoke`.
 
 Validation command:

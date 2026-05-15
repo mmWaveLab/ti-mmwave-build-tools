@@ -1,8 +1,8 @@
 # UniFlash Integration Test
 
 - Timestamp UTC: `20260515T090526Z`
-- Host: `kj@192.168.8.109`
-- Repository: `/home/kj/ti-mmwave-build-tools-docker`
+- Host: `labpc`
+- Repository: `/opt/ti-mmwave-build-tools-docker`
 - Firmware fixture: `artifacts/device-validation/xwr68xx/xwr68xx_mmw_demo.bin`
 
 ## Results

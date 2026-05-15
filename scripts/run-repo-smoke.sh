@@ -2,7 +2,7 @@
 set -euo pipefail
 
 repo="${1:-/work/ti-mmwave-build-tools}"
-TI_ROOT="${TI_ROOT:-/home/kj/ti}"
+TI_ROOT="${TI_ROOT:-/opt/ti}"
 build_dir="${repo}/build-linux-smoke"
 app_root="${APP_ROOT:-}"
 

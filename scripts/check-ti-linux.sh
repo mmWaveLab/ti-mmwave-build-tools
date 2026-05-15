@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-TI_ROOT="${TI_ROOT:-/home/kj/ti}"
+TI_ROOT="${TI_ROOT:-/opt/ti}"
 
 required_paths=(
   "$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages"

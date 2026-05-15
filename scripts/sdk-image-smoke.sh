@@ -40,6 +40,6 @@ for device in $devices; do
     -v "$work_dir/$project":/work/app \
     -w /work/app \
     "$image" \
-    bash -lc 'cmake -S . -B build -G Ninja -DTI_ROOT=/home/kj/ti && cmake --build build --target firmware'
-  sha256sum "$work_dir/$project/build/app/$output_bin"
+    bash -lc 'cmake -S . -B build -G Ninja -DTI_ROOT=/opt/ti && cmake --build build --target firmware'
+  (cd "$work_dir/$project/build/app" && sha256sum "$output_bin")
 done

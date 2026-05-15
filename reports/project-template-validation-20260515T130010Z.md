@@ -5,13 +5,13 @@ Date: 2026-05-15T13:00:10Z
 Host:
 
 ```text
-kj@192.168.8.109
+labpc
 ```
 
 Repository path:
 
 ```text
-/home/kj/ti-mmwave-build-tools-docker
+/opt/ti-mmwave-build-tools-docker
 ```
 
 ## Commands
