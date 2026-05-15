@@ -47,6 +47,7 @@ test -f "$repo_dir/docs/UNIFLASH.md"
 test -f "$repo_dir/docs/PROJECT_OVERVIEW.md"
 test -f "$repo_dir/docs/PROJECT_TEMPLATE.md"
 test -f "$repo_dir/docs/DOCKER_IMAGE.md"
+test -f "$repo_dir/docs/install.py"
 test -f "$repo_dir/config/demo-profiles.tsv"
 test -f "$repo_dir/config/toolbox-oob-profiles.tsv"
 test -f "$repo_dir/config/toolbox-application-profiles.tsv"
@@ -63,6 +64,8 @@ grep -q 'copy_directory.*APP_SOURCE_DIR' "$repo_dir/templates/mmwave-cmake-proje
 grep -q 'create-mmwave-app' "$repo_dir/docker/Dockerfile.sdk-full"
 "$repo_dir/scripts/create-mmwave-app.sh" --help >/dev/null
 "$repo_dir/scripts/create-mmwave-app.sh" --list-profiles >/dev/null
+python3 "$repo_dir/docs/install.py" --list-profiles >/dev/null
+python3 "$repo_dir/docs/install.py" --name smoke-project --profile xwr6843isk-mss-dss --dry-run --pull never >/dev/null
 
 printf 'Demo profile manifest\n'
 python3 - "$repo_dir/config/demo-profiles.tsv" <<'PY'

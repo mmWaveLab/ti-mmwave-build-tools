@@ -74,6 +74,22 @@ cd people-count-6843
 make build
 ```
 
+Create the same kind of project without cloning this tools repository:
+
+```bash
+python3 <(curl -fsSL https://mmwavelab.github.io/ti-mmwave-build-tools/install.py) \
+  --name people-count-6843 \
+  --cmake-name people_count_6843 \
+  --profile xwr6843isk-mss-dss \
+  --image meowkj/ti-mmwave-sdk:03.06.02-local \
+  --build
+```
+
+The GitHub Pages installer only needs Python and Docker. It pulls or uses the
+SDK-full Docker image, copies the selected TI SDK demo into the new project,
+writes a standalone CMake/Ninja wrapper, and does not clone
+`ti-mmwave-build-tools`.
+
 List the common TI demo fork profiles:
 
 ```bash
