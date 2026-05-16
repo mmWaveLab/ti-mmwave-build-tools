@@ -72,6 +72,8 @@ grep -q 'CMAKE_CURRENT_LIST_DIR.*/tools' "$repo_dir/templates/mmwave-cmake-proje
 grep -q 'sdk-full-sha256' "$repo_dir/.github/workflows/ci.yml"
 grep -q 'PROFILE_VALIDATION_JOBS=all SDK_FULL_IMAGE="$SDK_FULL_IMAGE" make sdk-profile-validate' "$repo_dir/.github/workflows/ci.yml"
 grep -q 'actions/upload-artifact@v4' "$repo_dir/.github/workflows/ci.yml"
+grep -q 'measure_command' "$repo_dir/scripts/benchmark.sh"
+! grep -q '/usr/bin/time -f' "$repo_dir/scripts/benchmark.sh"
 "$repo_dir/scripts/create-mmwave-app.sh" --help >/dev/null
 "$repo_dir/scripts/create-mmwave-app.sh" --list-profiles >/dev/null
 rm -rf "$repo_dir/build/github-actions-generated"

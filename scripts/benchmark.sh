@@ -17,21 +17,51 @@ docker_log="$(mktemp)"
 native_log="$(mktemp)"
 docker_time_file="$(mktemp)"
 native_time_file="$(mktemp)"
+cleanup() {
+  rm -f "$docker_log" "$native_log" "$docker_time_file" "$native_time_file"
+}
+trap cleanup EXIT
+
+measure_command() {
+  local time_file="$1"
+  local log_file="$2"
+  shift 2
+  local start
+  local end
+  local rc
+
+  start="$(date +%s)"
+  set +e
+  "$@" >"$log_file" 2>&1
+  rc=$?
+  set -e
+  end="$(date +%s)"
+  printf '%s\n' "$((end - start))" >"$time_file"
+  return "$rc"
+}
 
 printf '# TI mmWave Docker Benchmark\n\n' >"$report"
 printf '%s\n' "- Timestamp UTC: \`$timestamp\`" >>"$report"
 printf '%s\n\n' "- Host: \`$(hostname)\`" >>"$report"
 
 printf '## Docker CMake+Ninja\n\n' >>"$report"
-/usr/bin/time -f '%e' -o "$docker_time_file" \
-  "$repo_dir/scripts/cmake-build-xwr68xx-sdk-demo.sh" >"$docker_log" 2>&1
+if ! measure_command "$docker_time_file" "$docker_log" "$repo_dir/scripts/cmake-build-xwr68xx-sdk-demo.sh"; then
+  cat "$docker_log" >>"$report"
+  printf '\nResult: `FAIL`, Docker CMake+Ninja build failed.\n' >>"$report"
+  printf '%s\n' "$report"
+  exit 2
+fi
 docker_time="$(cat "$docker_time_file")"
 cat "$docker_log" >>"$report"
 printf '\nDocker elapsed seconds: `%s`\n\n' "$docker_time" >>"$report"
 
 printf '## Native CMake+Ninja\n\n' >>"$report"
-/usr/bin/time -f '%e' -o "$native_time_file" \
-  "$repo_dir/scripts/native-cmake-build-xwr68xx-sdk-demo.sh" >"$native_log" 2>&1
+if ! measure_command "$native_time_file" "$native_log" "$repo_dir/scripts/native-cmake-build-xwr68xx-sdk-demo.sh"; then
+  cat "$native_log" >>"$report"
+  printf '\nResult: `FAIL`, native CMake+Ninja build failed.\n' >>"$report"
+  printf '%s\n' "$report"
+  exit 2
+fi
 native_time="$(cat "$native_time_file")"
 cat "$native_log" >>"$report"
 printf '\nNative elapsed seconds: `%s`\n\n' "$native_time" >>"$report"
