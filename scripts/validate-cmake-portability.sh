@@ -39,6 +39,7 @@ for text_name, text in (("scripts/mmwave-run.sh", runner), ("docs/install.py", i
     require(f"{text_name}: must use isolated HOME", "HOME=/tmp/mmwave-home" in text)
     require(f"{text_name}: must set fixed TI_ROOT", "TI_ROOT=/opt/ti" in text)
     require(f"{text_name}: must support explicit Docker pulls", "--pull" in text and "docker pull" in text)
+    require(f"{text_name}: must preflight missing Docker", "Docker is required for this command" in text)
     require(f"{text_name}: must reject missing commands", "COMMAND is required unless --shell is used" in text)
     require(f"{text_name}: must check workdir writability", "Workdir is not writable" in text)
     require(f"{text_name}: must include TI ARM compiler path", "ti-cgt-arm_16.9.6.LTS/bin" in text)

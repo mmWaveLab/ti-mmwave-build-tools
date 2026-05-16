@@ -7,15 +7,18 @@ source "$repo_dir/scripts/lib.sh"
 load_machine_env
 
 status=0
+docker_available=0
 
 check_cmd() {
   local cmd="$1"
   if command -v "$cmd" >/dev/null 2>&1; then
     printf 'ok      command %s -> %s\n' "$cmd" "$(command -v "$cmd")"
+    [[ "$cmd" == "docker" ]] && docker_available=1
   else
     printf 'missing command %s\n' "$cmd"
     status=1
   fi
+  return 0
 }
 
 check_path() {
@@ -26,6 +29,7 @@ check_path() {
     printf 'missing %s\n' "$path"
     status=1
   fi
+  return 0
 }
 
 printf 'TI mmWave Docker SDK doctor\n'
@@ -54,7 +58,9 @@ check_path "$ARTIFACT_DIR"
 check_path "$REPORT_DIR"
 
 printf '\nDocker image\n'
-if docker image inspect "$IMAGE" >/dev/null 2>&1; then
+if (( ! docker_available )); then
+  printf 'skip    Docker image check because docker is not available\n'
+elif docker image inspect "$IMAGE" >/dev/null 2>&1; then
   docker image inspect "$IMAGE" --format 'ok      {{.RepoTags}} {{.Size}} bytes'
 else
   printf 'missing image %s, run: make docker-build\n' "$IMAGE"
@@ -62,7 +68,9 @@ else
 fi
 
 printf '\nContainer smoke\n'
-if docker run --rm -v "$HOST_TI_ROOT:$CONTAINER_TI_ROOT:ro" "$IMAGE" check-ti-linux >/tmp/ti-mmwave-doctor-check.log 2>&1; then
+if (( ! docker_available )); then
+  printf 'skip    Container smoke because docker is not available\n'
+elif docker run --rm -v "$HOST_TI_ROOT:$CONTAINER_TI_ROOT:ro" "$IMAGE" check-ti-linux >/tmp/ti-mmwave-doctor-check.log 2>&1; then
   tail -n 5 /tmp/ti-mmwave-doctor-check.log
 else
   cat /tmp/ti-mmwave-doctor-check.log

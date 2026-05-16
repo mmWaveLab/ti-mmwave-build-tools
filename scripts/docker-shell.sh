@@ -6,6 +6,7 @@ repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 source "$repo_dir/scripts/lib.sh"
 load_machine_env
 
+require_docker
 require_host_ti_root
 docker run --rm -it \
   --user "$(id -u):$(id -g)" \

@@ -275,6 +275,14 @@ need_value() {{
   fi
 }}
 
+require_docker() {{
+  if ! command -v docker >/dev/null 2>&1; then
+    printf 'Docker is required for this command, but the docker executable was not found in PATH.\\n' >&2
+    printf 'Install Docker or run this command on a machine with Docker access.\\n' >&2
+    exit 2
+  fi
+}}
+
 image="${{SDK_FULL_IMAGE:-${{IMAGE:-{default_image}}}}}"
 workdir="$PWD"
 pull=0
@@ -317,6 +325,7 @@ if [[ ! -w "$abs_workdir" ]]; then
 fi
 
 if (( pull )); then
+  require_docker
   docker pull "$image"
 fi
 
@@ -334,6 +343,7 @@ clean_env=(env -i
 )
 
 if [[ "$shell_mode" -eq 1 ]]; then
+  require_docker
   exec docker run -it "${{docker_args[@]}}" "$image" "${{clean_env[@]}}" bash --noprofile --norc
 fi
 
@@ -343,6 +353,7 @@ if [[ $# -eq 0 ]]; then
   exit 2
 fi
 
+require_docker
 exec docker run "${{docker_args[@]}}" "$image" "${{clean_env[@]}}" "$@"
 """
 

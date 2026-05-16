@@ -12,6 +12,7 @@ artifact_dir="${ARTIFACT_DIR:-$repo_dir/artifacts}"
 rm -rf "$work_dir"
 mkdir -p "$(dirname "$work_dir")"
 mkdir -p "$artifact_dir"
+require_docker
 require_host_ti_root
 cp -a "$HOST_TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr68xx/mmw" "$work_dir"
 

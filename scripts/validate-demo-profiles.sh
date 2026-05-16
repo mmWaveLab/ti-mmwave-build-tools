@@ -2,6 +2,8 @@
 set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck disable=SC1091
+source "$repo_dir/scripts/lib.sh"
 profiles_file="${DEMO_PROFILES_FILE:-$repo_dir/config/demo-profiles.tsv}"
 image="${SDK_FULL_IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}"
 work_dir="${PROFILE_VALIDATION_WORK:-$repo_dir/build/demo-profile-validation}"
@@ -13,6 +15,7 @@ profiles_filter="${DEMO_PROFILES:-}"
 jobs="${PROFILE_VALIDATION_JOBS:-all}"
 jobs_label="$jobs"
 
+require_docker
 mkdir -p "$work_dir" "$artifact_root" "$report_dir"
 
 case "$jobs" in

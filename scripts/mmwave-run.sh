@@ -12,6 +12,24 @@ modifying the host shell environment.
 USAGE
 }
 
+need_value() {
+  local opt="$1"
+  local value="${2:-}"
+  if [[ -z "$value" || "$value" == --* ]]; then
+    printf 'Missing value for %s.\n\n' "$opt" >&2
+    usage >&2
+    exit 2
+  fi
+}
+
+require_docker() {
+  if ! command -v docker >/dev/null 2>&1; then
+    printf 'Docker is required for this command, but the docker executable was not found in PATH.\n' >&2
+    printf 'Install Docker or run this command on a machine with Docker access.\n' >&2
+    exit 2
+  fi
+}
+
 image="${SDK_FULL_IMAGE:-${IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}}"
 workdir="$PWD"
 pull=0
@@ -20,10 +38,12 @@ shell_mode=0
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --image)
+      need_value "$1" "${2:-}"
       image="${2:-}"
       shift 2
       ;;
     --workdir|-w)
+      need_value "$1" "${2:-}"
       workdir="${2:-}"
       shift 2
       ;;
@@ -72,6 +92,7 @@ if [[ ! -w "$workdir" ]]; then
 fi
 
 if (( pull )); then
+  require_docker
   docker pull "$image"
 fi
 
@@ -92,6 +113,7 @@ clean_env=(env -i
   TI_ROOT=/opt/ti)
 
 if (( shell_mode )); then
+  require_docker
   docker run -it "${docker_args[@]}" "$image" \
     "${clean_env[@]}" bash --noprofile --norc
   exit 0
@@ -103,4 +125,5 @@ if [[ $# -eq 0 ]]; then
   exit 2
 fi
 
+require_docker
 docker run "${docker_args[@]}" "$image" "${clean_env[@]}" "$@"

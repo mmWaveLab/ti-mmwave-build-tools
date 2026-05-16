@@ -82,6 +82,7 @@ rm -rf "$repo_dir/build/github-actions-generated"
   --force >/dev/null
 grep -q 'project(smoke_project NONE)' "$repo_dir/build/github-actions-generated/CMakeLists.txt"
 grep -q -- '--pull' "$repo_dir/build/github-actions-generated/tools/mmwave-run"
+grep -q 'Docker is required for this command' "$repo_dir/build/github-actions-generated/tools/mmwave-run"
 python3 "$repo_dir/docs/install.py" --list-profiles >/dev/null
 python3 "$repo_dir/docs/install.py" --name smoke-project --profile xwr6843isk-mss-dss --dry-run --pull never >/dev/null
 python3 "$repo_dir/scripts/validate-starter-demos.py" >/dev/null

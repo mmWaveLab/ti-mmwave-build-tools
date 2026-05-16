@@ -2,6 +2,8 @@
 set -euo pipefail
 
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck disable=SC1091
+source "$repo_dir/scripts/lib.sh"
 profiles_file="${DEMO_PROFILES_FILE:-$repo_dir/config/demo-profiles.tsv}"
 image="${SDK_FULL_IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}"
 work_dir="${INSTALL_VALIDATION_WORK:-$repo_dir/build/install-profile-validation}"
@@ -14,6 +16,7 @@ jobs_label="$jobs"
 pull_policy="${INSTALL_VALIDATION_PULL:-auto}"
 require_all="${INSTALL_REQUIRE_ALL_PROFILES:-0}"
 
+require_docker
 mkdir -p "$work_dir" "$report_dir"
 rm -rf "$work_dir"/projects "$work_dir"/results
 mkdir -p "$work_dir"/projects "$work_dir"/results

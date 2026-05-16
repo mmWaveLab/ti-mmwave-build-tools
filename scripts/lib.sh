@@ -21,6 +21,14 @@ load_machine_env() {
   export REPORT_DIR="${REPORT_DIR:-$repo_dir/reports}"
 }
 
+require_docker() {
+  if ! command -v docker >/dev/null 2>&1; then
+    printf 'Docker is required for this command, but the docker executable was not found in PATH.\n' >&2
+    printf 'Install Docker or run this command on a machine with Docker access.\n' >&2
+    return 2
+  fi
+}
+
 require_host_ti_root() {
   local required=(
     "$HOST_TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages"
@@ -58,6 +66,7 @@ repo_path_for_container() {
 docker_sdk_run() {
   local repo_dir="$1"
   shift
+  require_docker
   require_host_ti_root
   docker run --rm \
     --user "$(id -u):$(id -g)" \

@@ -9,6 +9,7 @@ load_machine_env
 sdk_image="${SDK_FULL_IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}"
 context_dir="${SDK_IMAGE_CONTEXT:-$repo_dir/build/sdk-full-image-context}"
 
+require_docker
 require_host_ti_root
 
 rm -rf "$context_dir"

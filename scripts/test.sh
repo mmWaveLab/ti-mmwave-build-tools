@@ -5,6 +5,7 @@ repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 # shellcheck disable=SC1091
 source "$repo_dir/scripts/lib.sh"
 load_machine_env
+require_docker
 
 docker run --rm \
   -v "$HOST_TI_ROOT":/opt/ti:ro \

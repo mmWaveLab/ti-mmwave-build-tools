@@ -6,6 +6,10 @@ work_dir="${SDK_SMOKE_WORK:-$(pwd)/build/sdk-image-smoke}"
 profiles="${SDK_SMOKE_PROFILES:-xwr6843isk-mss-dss xwr1843boost-mss-dss xwr6843aop-mss-only}"
 profiles_file="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/config/demo-profiles.tsv"
 repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# shellcheck disable=SC1091
+source "$repo_dir/scripts/lib.sh"
+
+require_docker
 
 profile_output_bin() {
   local requested="$1"
