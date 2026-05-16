@@ -59,6 +59,15 @@ def main() -> None:
     manifest = load_manifest(repo / "config" / "demo-profiles.tsv")
     installer_profiles = load_installer(repo / "docs" / "install.py")
     errors: list[str] = []
+    notices = repo / "THIRD_PARTY_NOTICES.md"
+
+    if not notices.is_file():
+        errors.append("missing THIRD_PARTY_NOTICES.md")
+    else:
+        notice_text = notices.read_text(encoding="utf-8")
+        for required in ("Texas Instruments", "BSD-3-Clause", "packages/ti/demo"):
+            if required not in notice_text:
+                errors.append(f"THIRD_PARTY_NOTICES.md missing {required!r}")
 
     if set(manifest) != REQUIRED_PROFILES:
         errors.append(f"manifest profiles mismatch: {sorted(set(manifest) ^ REQUIRED_PROFILES)}")
@@ -107,6 +116,19 @@ def main() -> None:
             ]
             if generated:
                 errors.append(f"{profile}: vendored demo contains generated files: {generated[:5]}")
+
+    for path in sorted((repo / "demos" / "sdk").rglob("*")):
+        if not path.is_file() or path.suffix not in {".c", ".h"}:
+            continue
+        text = path.read_text(encoding="utf-8", errors="ignore")
+        rel = path.relative_to(repo)
+        for required in (
+            "Texas Instruments",
+            "Redistribution and use in source and binary forms",
+            "Neither the name of Texas Instruments Incorporated",
+        ):
+            if required not in text:
+                errors.append(f"{rel}: missing preserved TI BSD notice fragment {required!r}")
 
     if errors:
         raise SystemExit("\n".join(errors))

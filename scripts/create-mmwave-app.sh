@@ -215,6 +215,9 @@ printf 'Project-local sources can live here when they are not part of the forked
 mkdir -p "$abs_out/tools"
 cp "$repo_dir/scripts/mmwave-run.sh" "$abs_out/tools/mmwave-run"
 chmod +x "$abs_out/tools/mmwave-run"
+if [[ -f "$repo_dir/THIRD_PARTY_NOTICES.md" ]]; then
+  cp "$repo_dir/THIRD_PARTY_NOTICES.md" "$abs_out/THIRD_PARTY_NOTICES.md"
+fi
 
 render() {
   local src="$1"

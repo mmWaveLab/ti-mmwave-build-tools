@@ -21,4 +21,5 @@ libraries, scripts, and radarss firmware needed to build flashable metaimages.
 
 TI's SDK software manifest for 03.06.02.00-LTS lists `packages/ti/demo` under
 BSD-3-Clause. Keep upstream notices in source files intact when updating this
-directory.
+directory. The repository-level `THIRD_PARTY_NOTICES.md` records the upstream
+source, version, and license text.

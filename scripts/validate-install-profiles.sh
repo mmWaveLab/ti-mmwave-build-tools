@@ -82,10 +82,15 @@ validate_one_profile() {
       --build \
       --force >"$log" 2>&1 || rc=$?
     if [[ "$rc" -eq 0 && -f "$out_dir/build/app/$output_bin" ]]; then
-      sha="$(sha256sum "$out_dir/build/app/$output_bin" | cut -d ' ' -f 1)"
-      size="$(stat -c '%s' "$out_dir/build/app/$output_bin" 2>/dev/null || wc -c <"$out_dir/build/app/$output_bin" | tr -d ' ')"
-      result="PASS"
-      note="built"
+      if [[ ! -f "$out_dir/THIRD_PARTY_NOTICES.md" ]] || ! grep -q 'Texas Instruments' "$out_dir/THIRD_PARTY_NOTICES.md"; then
+        rc=3
+        note="missing-third-party-notices"
+      else
+        sha="$(sha256sum "$out_dir/build/app/$output_bin" | cut -d ' ' -f 1)"
+        size="$(stat -c '%s' "$out_dir/build/app/$output_bin" 2>/dev/null || wc -c <"$out_dir/build/app/$output_bin" | tr -d ' ')"
+        result="PASS"
+        note="built"
+      fi
     else
       note="install-or-build-failed"
     fi

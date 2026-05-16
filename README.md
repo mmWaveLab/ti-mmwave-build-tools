@@ -8,8 +8,11 @@ Docker for dependency isolation, CMake+Ninja entry points for firmware builds,
 starter-project validation, native-vs-Docker benchmarks, and guarded UniFlash
 command generation.
 
-It does not redistribute TI SDKs, compilers, UniFlash, or device firmware owned
-by TI. Bring your own TI installation and mount it into the build environment.
+It vendors a small source-only subset of TI mmWave SDK `packages/ti/demo` as
+starter project fork points, with upstream TI notices preserved. It does not
+redistribute TI compilers, UniFlash, radarss firmware images, prebuilt demo
+binaries, or other SDK binary components. Bring your own TI installation or use
+the private SDK-full Docker image for builds. See `THIRD_PARTY_NOTICES.md`.
 
 ## What Works
 
@@ -155,6 +158,8 @@ Key files:
 - `cmake/TiMmwaveSdkPaths.cmake`: Linux path discovery used by this Docker lab.
 - `demos/sdk`: source-only TI SDK 03.06.02 OOB demo fork points used by the
   installer and project generator.
+- `THIRD_PARTY_NOTICES.md`: preserved TI notice and license record for
+  vendored demo sources.
 - `templates/mmwave-cmake-project`: project scaffold for new CMake/Ninja
   firmware projects.
 - `config/demo-profiles.tsv`: starter TI OOB demo fork profiles used by
