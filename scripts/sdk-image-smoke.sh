@@ -13,7 +13,7 @@ require_docker
 
 profile_output_bin() {
   local requested="$1"
-  while IFS=$'\t' read -r profile _board _mode source_kind _source _device _sdk_device output_bin _cores _target _clean _vars _configs status _summary; do
+  while IFS=$'\t' read -r profile _board _mode source_kind _source _device _sdk_device output_bin _cores _entry_kind _entry _clean _vars _configs status _summary; do
     [[ -z "${profile:-}" || "$profile" == \#* ]] && continue
     if [[ "$profile" == "$requested" ]]; then
       if [[ "$source_kind" != "sdk-make" || "$status" != "validated" ]]; then

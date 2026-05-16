@@ -82,12 +82,15 @@ printf 'Demo profile manifest shape\n'
 awk -F '\t' '
   BEGIN { ok=1 }
   /^#/ || NF == 0 { next }
-  NF != 15 { printf "bad field count: %s\n", $0 > "/dev/stderr"; ok=0; next }
+  NF != 16 { printf "bad field count: %s\n", $0 > "/dev/stderr"; ok=0; next }
   $3 !~ /^(mss-only|mss-dss)$/ { printf "bad core mode: %s\n", $0 > "/dev/stderr"; ok=0 }
   $4 !~ /^(sdk-make|toolbox-projectspec)$/ { printf "bad source kind: %s\n", $0 > "/dev/stderr"; ok=0 }
   $8 !~ /[.]bin$/ { printf "starter output is not flashable bin: %s\n", $0 > "/dev/stderr"; ok=0 }
   $9 !~ /^(MSS|MSS[+]DSS)$/ { printf "bad cores: %s\n", $0 > "/dev/stderr"; ok=0 }
-  $14 !~ /^(validated|cataloged)$/ { printf "bad status: %s\n", $0 > "/dev/stderr"; ok=0 }
+  $10 !~ /^(make-target|ccs-projectspecs)$/ { printf "bad build entry kind: %s\n", $0 > "/dev/stderr"; ok=0 }
+  $4 == "sdk-make" && $10 != "make-target" { printf "sdk-make profile must use make-target entry: %s\n", $0 > "/dev/stderr"; ok=0 }
+  $4 == "toolbox-projectspec" && $10 != "ccs-projectspecs" { printf "toolbox profile must use ccs-projectspecs entry: %s\n", $0 > "/dev/stderr"; ok=0 }
+  $15 !~ /^(validated|cataloged)$/ { printf "bad status: %s\n", $0 > "/dev/stderr"; ok=0 }
   END { exit ok ? 0 : 1 }
 ' "$repo_dir/config/demo-profiles.tsv"
 

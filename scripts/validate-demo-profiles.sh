@@ -170,11 +170,12 @@ validate_one_profile() {
   local sdk_device_type="$6"
   local sdk_device="$7"
   local output_bin="$8"
-  local build_target="$9"
-  local clean_target="${10}"
-  local make_vars="${11}"
-  local status="${12}"
-  local cores="${13}"
+  local build_entry_kind="$9"
+  local build_entry="${10}"
+  local clean_target="${11}"
+  local make_vars="${12}"
+  local status="${13}"
+  local cores="${14}"
   local artifact_dir="$artifact_root/$profile"
   local direct_log="$report_dir/demo-profile-direct-$profile-$timestamp.log"
   local fork_log="$report_dir/demo-profile-fork-$profile-$timestamp.log"
@@ -194,7 +195,18 @@ validate_one_profile() {
     return 0
   fi
 
-  build_direct "$profile" "$source_rel" "$sdk_device" "$sdk_device_type" "$output_bin" "$build_target" "$clean_target" "$make_vars" >"$direct_log" 2>&1 || direct_rc=$?
+  if [[ "$build_entry_kind" != "make-target" ]]; then
+    printf 'Profile %s is sdk-make but does not expose a make target: %s:%s\n' "$profile" "$build_entry_kind" "$build_entry" >"$direct_log"
+    {
+      printf '\n## Failure: `%s`\n\n' "$profile"
+      printf -- '- Direct log: `%s`\n' "$direct_log"
+      printf -- '- Reason: SDK make profiles must use `make-target` build entries.\n'
+    } >"$failure_file"
+    printf '%s\t%s\t%s\t%s\t%s\n' "$profile" "FAILED" "FAILED" "FAIL" "$output_bin" >"$result_file"
+    return 0
+  fi
+
+  build_direct "$profile" "$source_rel" "$sdk_device" "$sdk_device_type" "$output_bin" "$build_entry" "$clean_target" "$make_vars" >"$direct_log" 2>&1 || direct_rc=$?
   if (( direct_rc == 0 )); then
     cp "$work_dir/direct-$profile/$output_bin" "$artifact_dir/direct-$output_bin"
     direct_sha="$(awk '{print $1}' "$work_dir/direct-$profile.sha256")"
@@ -245,13 +257,13 @@ wait_for_slot() {
   done
 }
 
-while IFS=$'\t' read -r profile board core_mode source_kind source_rel sdk_device_type sdk_device output_bin cores build_target clean_target make_vars config_profiles status summary; do
+while IFS=$'\t' read -r profile board core_mode source_kind source_rel sdk_device_type sdk_device output_bin cores build_entry_kind build_entry clean_target make_vars config_profiles status summary; do
   [[ -z "${profile:-}" || "$profile" == \#* ]] && continue
   profile_enabled "$profile" || continue
 
   wait_for_slot
   profiles+=("$profile")
-  validate_one_profile "$profile" "$board" "$core_mode" "$source_kind" "$source_rel" "$sdk_device_type" "$sdk_device" "$output_bin" "$build_target" "$clean_target" "$make_vars" "$status" "$cores" &
+  validate_one_profile "$profile" "$board" "$core_mode" "$source_kind" "$source_rel" "$sdk_device_type" "$sdk_device" "$output_bin" "$build_entry_kind" "$build_entry" "$clean_target" "$make_vars" "$status" "$cores" &
   pids+=("$!")
   running=$((running + 1))
 done < "$profiles_file"

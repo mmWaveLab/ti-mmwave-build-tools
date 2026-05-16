@@ -34,20 +34,25 @@ class Profile:
     sdk_device: str
     artifact: str
     cores: str
-    build_target: str
+    build_entry_kind: str
+    build_entry: str
     clean_target: str
     configs: tuple[str, ...]
     status: str
     summary: str
 
+    @property
+    def build_target(self) -> str:
+        return self.build_entry
+
 
 PROFILES = {
-    "xwr1843boost-mss-only": Profile("xwr1843boost-mss-only", "xwr1843boost", "mss-only", "sdk-make", "ti/demo/xwr18xx/mmw", "xwr18xx", "iwr18xx", "xwr18xx_mmw_demo.bin", "MSS", "mssDemo", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR1843BOOST MSS-only OOB"),
-    "xwr1843boost-mss-dss": Profile("xwr1843boost-mss-dss", "xwr1843boost", "mss-dss", "sdk-make", "ti/demo/xwr18xx/mmw", "xwr18xx", "iwr18xx", "xwr18xx_mmw_demo.bin", "MSS+DSS", "mmwDemo", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR1843BOOST MSS+DSS OOB"),
-    "xwr6843isk-mss-only": Profile("xwr6843isk-mss-only", "xwr6843isk", "mss-only", "sdk-make", "ti/demo/xwr68xx/mmw", "xwr68xx", "iwr68xx", "xwr68xx_mmw_demo.bin", "MSS", "mssDemo", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR6843ISK MSS-only OOB"),
-    "xwr6843isk-mss-dss": Profile("xwr6843isk-mss-dss", "xwr6843isk", "mss-dss", "sdk-make", "ti/demo/xwr68xx/mmw", "xwr68xx", "iwr68xx", "xwr68xx_mmw_demo.bin", "MSS+DSS", "all", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR6843ISK MSS+DSS OOB"),
-    "xwr6843aop-mss-only": Profile("xwr6843aop-mss-only", "xwr6843aop", "mss-only", "sdk-make", "ti/demo/xwr64xx/mmw", "xwr68xx", "iwr68xx", "xwr64xxAOP_mmw_demo.bin", "MSS", "all", "clean", ("profile_3d_aop.cfg",), "validated", "xWR6843AOP MSS-only OOB"),
-    "xwr6843aop-mss-dss": Profile("xwr6843aop-mss-dss", "xwr6843aop", "mss-dss", "toolbox-projectspec", "source/ti/examples/Industrial_and_Personal_Electronics/People_Tracking/3D_People_Tracking", "xwr68xx", "iwr68xx", "prebuilt_binaries/3D_people_track_6843_demo.bin", "MSS+DSS", "src/6843/3D_people_track_6843_mss.projectspec,src/6843/3D_people_track_6843_dss.projectspec", "-", ("chirp_configs/AOP_6m_default.cfg", "chirp_configs/AOP_9m_default.cfg"), "cataloged", "xWR6843AOP MSS+DSS Toolbox application"),
+    "xwr1843boost-mss-only": Profile("xwr1843boost-mss-only", "xwr1843boost", "mss-only", "sdk-make", "ti/demo/xwr18xx/mmw", "xwr18xx", "iwr18xx", "xwr18xx_mmw_demo.bin", "MSS", "make-target", "mssDemo", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR1843BOOST MSS-only OOB"),
+    "xwr1843boost-mss-dss": Profile("xwr1843boost-mss-dss", "xwr1843boost", "mss-dss", "sdk-make", "ti/demo/xwr18xx/mmw", "xwr18xx", "iwr18xx", "xwr18xx_mmw_demo.bin", "MSS+DSS", "make-target", "mmwDemo", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR1843BOOST MSS+DSS OOB"),
+    "xwr6843isk-mss-only": Profile("xwr6843isk-mss-only", "xwr6843isk", "mss-only", "sdk-make", "ti/demo/xwr68xx/mmw", "xwr68xx", "iwr68xx", "xwr68xx_mmw_demo.bin", "MSS", "make-target", "mssDemo", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR6843ISK MSS-only OOB"),
+    "xwr6843isk-mss-dss": Profile("xwr6843isk-mss-dss", "xwr6843isk", "mss-dss", "sdk-make", "ti/demo/xwr68xx/mmw", "xwr68xx", "iwr68xx", "xwr68xx_mmw_demo.bin", "MSS+DSS", "make-target", "all", "clean", ("profile_2d.cfg", "profile_3d.cfg"), "validated", "xWR6843ISK MSS+DSS OOB"),
+    "xwr6843aop-mss-only": Profile("xwr6843aop-mss-only", "xwr6843aop", "mss-only", "sdk-make", "ti/demo/xwr64xx/mmw", "xwr68xx", "iwr68xx", "xwr64xxAOP_mmw_demo.bin", "MSS", "make-target", "all", "clean", ("profile_3d_aop.cfg",), "validated", "xWR6843AOP MSS-only OOB"),
+    "xwr6843aop-mss-dss": Profile("xwr6843aop-mss-dss", "xwr6843aop", "mss-dss", "toolbox-projectspec", "source/ti/examples/Industrial_and_Personal_Electronics/People_Tracking/3D_People_Tracking", "xwr68xx", "iwr68xx", "prebuilt_binaries/3D_people_track_6843_demo.bin", "MSS+DSS", "ccs-projectspecs", "src/6843/3D_people_track_6843_mss.projectspec,src/6843/3D_people_track_6843_dss.projectspec", "-", ("chirp_configs/AOP_6m_default.cfg", "chirp_configs/AOP_9m_default.cfg"), "cataloged", "xWR6843AOP MSS+DSS Toolbox application"),
 }
 
 
@@ -78,7 +83,7 @@ def list_profiles() -> None:
     print("Available profiles:\n")
     for profile in PROFILES.values():
         print(f"  {profile.name:<26} {profile.board:<12} {profile.mode:<8} {profile.status:<9} {profile.summary}")
-        print(f"  {'':<26} output={profile.artifact} configs={','.join(profile.configs)}")
+        print(f"  {'':<26} entry={profile.build_entry_kind}:{profile.build_entry} output={profile.artifact} configs={','.join(profile.configs)}")
 
 
 def cmakelists(project: str, profile: Profile) -> str:
@@ -554,7 +559,12 @@ def create(args: argparse.Namespace) -> None:
     if profile is None:
         fail(f"unsupported profile: {args.profile}")
     if profile.source_kind != "sdk-make":
-        fail(f"{profile.name} needs the Toolbox projectspec importer before install.py can generate it")
+        fail(
+            f"{profile.name} needs the Toolbox projectspec importer before install.py can generate it "
+            f"(entry={profile.build_entry_kind}:{profile.build_entry})"
+        )
+    if profile.build_entry_kind != "make-target":
+        fail(f"{profile.name} does not expose a TI make target: {profile.build_entry_kind}:{profile.build_entry}")
     docker_missing = shutil.which("docker") is None
     if docker_missing and not args.dry_run:
         if args.build or args.pull != "never":

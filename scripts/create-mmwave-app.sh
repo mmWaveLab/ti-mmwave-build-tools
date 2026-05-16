@@ -57,16 +57,16 @@ cmake_name_from() {
 
 list_profiles() {
   printf 'Available TI mmWave demo profiles:\n\n'
-  while IFS=$'\t' read -r profile board core_mode source_kind source_rel sdk_device_type sdk_device output_bin cores build_target clean_target make_vars config_profiles status summary; do
+  while IFS=$'\t' read -r profile board core_mode source_kind source_rel sdk_device_type sdk_device output_bin cores build_entry_kind build_entry clean_target make_vars config_profiles status summary; do
     [[ -z "${profile:-}" || "$profile" == \#* ]] && continue
     printf '  %-26s %-12s %-8s %-17s %s\n' "$profile" "$board" "$core_mode" "$status" "$summary"
-    printf '  %-26s source=%s output=%s configs=%s\n' "" "$source_kind" "$output_bin" "$config_profiles"
+    printf '  %-26s source=%s entry=%s:%s output=%s configs=%s\n' "" "$source_kind" "$build_entry_kind" "$build_entry" "$output_bin" "$config_profiles"
   done < "$profiles_file"
 }
 
 load_profile() {
   local requested="$1"
-  while IFS=$'\t' read -r profile_row board_row core_mode_row source_kind_row source_rel_row sdk_device_type_row sdk_device_row output_bin_row cores_row build_target_row clean_target_row make_vars_row config_profiles_row status_row summary_row; do
+  while IFS=$'\t' read -r profile_row board_row core_mode_row source_kind_row source_rel_row sdk_device_type_row sdk_device_row output_bin_row cores_row build_entry_kind_row build_entry_row clean_target_row make_vars_row config_profiles_row status_row summary_row; do
     [[ -z "${profile_row:-}" || "$profile_row" == \#* ]] && continue
     if [[ "$profile_row" == "$requested" ]]; then
       profile="$profile_row"
@@ -78,7 +78,9 @@ load_profile() {
       sdk_device="$sdk_device_row"
       output_bin="$output_bin_row"
       core_hint="$cores_row"
-      build_target="$build_target_row"
+      build_entry_kind="$build_entry_kind_row"
+      build_entry="$build_entry_row"
+      build_target="$build_entry_row"
       clean_target="$clean_target_row"
       make_extra_args="$make_vars_row"
       [[ "$make_extra_args" == "-" ]] && make_extra_args=""
@@ -203,7 +205,14 @@ load_profile "$profile"
 if [[ "$source_kind" != "sdk-make" ]]; then
   printf 'Profile is cataloged but not yet generatable by this SDK makefile template: %s\n' "$profile" >&2
   printf 'Source kind: %s\n' "$source_kind" >&2
+  printf 'Build entry: %s:%s\n' "$build_entry_kind" "$build_entry" >&2
   printf 'This profile needs the Toolbox projectspec importer before create-mmwave-app can fork it.\n' >&2
+  exit 2
+fi
+
+if [[ "$build_entry_kind" != "make-target" ]]; then
+  printf 'Profile does not expose a TI make target: %s\n' "$profile" >&2
+  printf 'Build entry: %s:%s\n' "$build_entry_kind" "$build_entry" >&2
   exit 2
 fi
 
@@ -268,6 +277,8 @@ render() {
     -e "s|@PROFILE_SUMMARY@|$profile_summary|g" \
     -e "s|@PROFILE_CONFIGS@|$profile_configs|g" \
     -e "s|@CORE_HINT@|$core_hint|g" \
+    -e "s|@BUILD_ENTRY_KIND@|$build_entry_kind|g" \
+    -e "s|@BUILD_ENTRY@|$build_entry|g" \
     -e "s|@BUILD_TARGET@|$build_target|g" \
     -e "s|@CLEAN_TARGET@|$clean_target|g" \
     -e "s|@MAKE_EXTRA_ARGS@|$make_extra_args|g" \

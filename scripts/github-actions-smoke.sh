@@ -116,10 +116,10 @@ with path.open(encoding="utf-8", newline="") as f:
     for line_no, row in enumerate(csv.reader(f, delimiter="\t"), 1):
         if not row or row[0].startswith("#"):
             continue
-        if len(row) != 15:
-            errors.append(f"line {line_no}: expected 15 columns, got {len(row)}")
+        if len(row) != 16:
+            errors.append(f"line {line_no}: expected 16 columns, got {len(row)}")
             continue
-        profile, board, core_mode, source_kind, source_rel, sdk_device_type, sdk_device, output_artifact, cores, build_target, clean_target, make_vars, configs, status, summary = row
+        profile, board, core_mode, source_kind, source_rel, sdk_device_type, sdk_device, output_artifact, cores, build_entry_kind, build_entry, clean_target, make_vars, configs, status, summary = row
         if profile in ids:
             errors.append(f"line {line_no}: duplicate profile {profile}")
         ids.add(profile)
@@ -132,6 +132,14 @@ with path.open(encoding="utf-8", newline="") as f:
             errors.append(f"line {line_no}: unexpected source kind {source_kind}")
         if source_kind == "sdk-make" and not source_rel.startswith("ti/demo/"):
             errors.append(f"line {line_no}: unexpected SDK demo path {source_rel}")
+        if build_entry_kind not in {"make-target", "ccs-projectspecs"}:
+            errors.append(f"line {line_no}: unexpected build entry kind {build_entry_kind}")
+        if source_kind == "sdk-make" and build_entry_kind != "make-target":
+            errors.append(f"line {line_no}: SDK make rows must use make-target entries")
+        if source_kind == "toolbox-projectspec" and build_entry_kind != "ccs-projectspecs":
+            errors.append(f"line {line_no}: toolbox rows must use ccs-projectspecs entries")
+        if build_entry_kind == "ccs-projectspecs" and ".projectspec" not in build_entry:
+            errors.append(f"line {line_no}: projectspec entry must list .projectspec files")
         if sdk_device_type not in {"xwr18xx", "xwr68xx"}:
             errors.append(f"line {line_no}: unexpected SDK device type {sdk_device_type}")
         if sdk_device not in {"iwr18xx", "iwr68xx"}:
@@ -148,7 +156,7 @@ with path.open(encoding="utf-8", newline="") as f:
             errors.append(f"line {line_no}: starter output must be a flashable .bin")
         if not configs:
             errors.append(f"line {line_no}: missing profile config list")
-        if not all((output_artifact, build_target, clean_target, make_vars, summary)):
+        if not all((output_artifact, build_entry, clean_target, make_vars, summary)):
             errors.append(f"line {line_no}: missing summary")
         if source_kind == "sdk-make":
             demo_dir = path.parents[1] / "demos" / "sdk" / source_rel

@@ -144,7 +144,7 @@ wait_for_slot() {
   done
 }
 
-while IFS=$'\t' read -r profile _board _core_mode source_kind _source_rel _sdk_device_type _sdk_device output_bin _cores _build_target _clean_target _make_vars _config_profiles status _summary; do
+while IFS=$'\t' read -r profile _board _core_mode source_kind _source_rel _sdk_device_type _sdk_device output_bin _cores _build_entry_kind _build_entry _clean_target _make_vars _config_profiles status _summary; do
   [[ -z "${profile:-}" || "$profile" == \#* ]] && continue
   profile_enabled "$profile" || continue
 

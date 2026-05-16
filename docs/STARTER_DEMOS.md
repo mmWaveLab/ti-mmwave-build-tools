@@ -23,6 +23,9 @@ MSS-only.
 ## Canonical Storage
 
 - `config/demo-profiles.tsv` is the canonical in-repo profile manifest.
+  Build entry fields are normalized as `build_entry_kind` plus `build_entry`:
+  SDK makefile profiles use `make-target`, while cataloged Toolbox profiles
+  use `ccs-projectspecs`.
 - `demos/sdk` stores source-only SDK OOB demo fork points for validated
   SDK-backed profiles.
 - `docs/install.py` is the public GitHub Pages installer and duplicates only the

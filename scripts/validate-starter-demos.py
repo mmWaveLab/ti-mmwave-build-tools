@@ -92,7 +92,8 @@ def main() -> None:
             "sdk_device": installed.sdk_device,
             "output_artifact": installed.artifact,
             "cores": installed.cores,
-            "build_target": installed.build_target,
+            "build_entry_kind": installed.build_entry_kind,
+            "build_entry": installed.build_entry,
             "clean_target": installed.clean_target,
             "status": installed.status,
         }
@@ -104,7 +105,11 @@ def main() -> None:
             errors.append(f"{profile}: config profiles manifest={manifest_configs!r} installer={installed.configs!r}")
         if not row["output_artifact"].endswith(".bin"):
             errors.append(f"{profile}: starter output must be a flashable .bin")
+        if row["build_entry_kind"] not in {"make-target", "ccs-projectspecs"}:
+            errors.append(f"{profile}: invalid build entry kind {row['build_entry_kind']!r}")
         if row["source_kind"] == "sdk-make":
+            if row["build_entry_kind"] != "make-target":
+                errors.append(f"{profile}: SDK make profile must use make-target build entry")
             demo_dir = repo / "demos" / "sdk" / row["source_rel"]
             if not (demo_dir / "makefile").is_file():
                 errors.append(f"{profile}: missing vendored demo makefile at {demo_dir}")
@@ -116,6 +121,11 @@ def main() -> None:
             ]
             if generated:
                 errors.append(f"{profile}: vendored demo contains generated files: {generated[:5]}")
+        elif row["source_kind"] == "toolbox-projectspec":
+            if row["build_entry_kind"] != "ccs-projectspecs":
+                errors.append(f"{profile}: Toolbox profile must use ccs-projectspecs build entry")
+            if ".projectspec" not in row["build_entry"]:
+                errors.append(f"{profile}: Toolbox build entry must list projectspec files")
 
     for path in sorted((repo / "demos" / "sdk").rglob("*")):
         if not path.is_file() or path.suffix not in {".c", ".h"}:
