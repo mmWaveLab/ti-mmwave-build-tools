@@ -86,8 +86,8 @@ python3 <(curl -fsSL https://mmwavelab.github.io/ti-mmwave-build-tools/install.p
 ```
 
 The GitHub Pages installer only needs Python and Docker. It pulls or uses the
-SDK-full Docker image, copies the selected TI SDK demo into the new project,
-writes a standalone CMake/Ninja wrapper, and does not clone
+SDK-full Docker image, copies the selected vendored SDK OOB demo into the new
+project, writes a standalone CMake/Ninja wrapper, and does not clone
 `ti-mmwave-build-tools`.
 
 List the common TI demo fork profiles:
@@ -153,6 +153,8 @@ Key files:
 - `cmake/RunConfiguro.cmake`: XDC configuro wrapper.
 - `cmake/RunMetaImage.cmake`: ImageCreator wrapper.
 - `cmake/TiMmwaveSdkPaths.cmake`: Linux path discovery used by this Docker lab.
+- `demos/sdk`: source-only TI SDK 03.06.02 OOB demo fork points used by the
+  installer and project generator.
 - `templates/mmwave-cmake-project`: project scaffold for new CMake/Ninja
   firmware projects.
 - `config/demo-profiles.tsv`: starter TI OOB demo fork profiles used by

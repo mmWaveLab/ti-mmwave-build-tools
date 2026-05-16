@@ -50,7 +50,7 @@
       "coreMode": "mss-only",
       "device": "iwr18xx",
       "deviceType": "xwr18xx",
-      "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr18xx/mmw",
+      "source": "demos/sdk/ti/demo/xwr18xx/mmw",
       "output": "xwr18xx_mmw_demo.bin",
       "cores": "MSS",
       "buildTarget": "mssDemo"
@@ -61,7 +61,7 @@
       "coreMode": "mss-dss",
       "device": "iwr18xx",
       "deviceType": "xwr18xx",
-      "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr18xx/mmw",
+      "source": "demos/sdk/ti/demo/xwr18xx/mmw",
       "output": "xwr18xx_mmw_demo.bin",
       "cores": "MSS+DSS",
       "buildTarget": "mmwDemo"
@@ -72,7 +72,7 @@
       "coreMode": "mss-only",
       "device": "iwr68xx",
       "deviceType": "xwr68xx",
-      "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr68xx/mmw",
+      "source": "demos/sdk/ti/demo/xwr68xx/mmw",
       "output": "xwr68xx_mmw_demo.bin",
       "cores": "MSS",
       "buildTarget": "mssDemo"
@@ -83,7 +83,7 @@
       "coreMode": "mss-dss",
       "device": "iwr68xx",
       "deviceType": "xwr68xx",
-      "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr68xx/mmw",
+      "source": "demos/sdk/ti/demo/xwr68xx/mmw",
       "output": "xwr68xx_mmw_demo.bin",
       "cores": "MSS+DSS",
       "buildTarget": "all"
@@ -94,7 +94,7 @@
       "coreMode": "mss-only",
       "device": "iwr68xx",
       "deviceType": "xwr68xx",
-      "source": "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr64xx/mmw",
+      "source": "demos/sdk/ti/demo/xwr64xx/mmw",
       "output": "xwr64xxAOP_mmw_demo.bin",
       "cores": "MSS",
       "buildTarget": "all"

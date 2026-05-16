@@ -23,6 +23,8 @@ MSS-only.
 ## Canonical Storage
 
 - `config/demo-profiles.tsv` is the canonical in-repo profile manifest.
+- `demos/sdk` stores source-only SDK OOB demo fork points for validated
+  SDK-backed profiles.
 - `docs/install.py` is the public GitHub Pages installer and duplicates only the
   six starter profiles needed for no-clone project creation.
 - `scripts/create-mmwave-app.sh` is the repo-local development entrypoint and
@@ -30,9 +32,11 @@ MSS-only.
 - `scripts/validate-starter-demos.py` checks that `docs/install.py` and
   `config/demo-profiles.tsv` remain synchronized.
 
-The repository does not store generated starter projects, TI SDK source copies,
-Toolbox source trees, or firmware build outputs. Generated projects live in the
-user's chosen destination directory.
+The repository stores only the small SDK OOB demo source fork points required
+for starter project creation. It does not store generated starter projects,
+Toolbox source trees, compiler outputs, prebuilt firmware images, radarss
+firmware, or TI toolchains. Generated projects live in the user's chosen
+destination directory.
 
 ## Unified Entrypoints
 
@@ -63,8 +67,9 @@ my-project/
   Makefile             # pull/configure/build/shell/clean convenience targets
   README.md            # project-local profile and build notes
   .gitignore           # excludes generated build artifacts
-  app/                 # copied TI SDK demo source; this is the fork point
+  app/                 # copied vendored SDK OOB demo source; this is the fork point
     makefile
+    utils/
     mss/
     dss/               # present only when the selected source has DSS files
     profiles/

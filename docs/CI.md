@@ -16,7 +16,7 @@ It performs:
 - workflow YAML structure checks
 - root CMake configure without a TI SDK
 - public documentation and config path checks
-- starter demo profile manifest checks without vendoring TI files
+- starter demo profile manifest and vendored SDK OOB source checks
 
 The public workflow also builds the Docker image and verifies that the container
 contains the expected command-line tools.

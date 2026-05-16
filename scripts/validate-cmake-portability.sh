@@ -17,7 +17,7 @@ printf 'Template syntax and hermetic runner\n'
 bash -n "$repo_dir/scripts/mmwave-run.sh"
 test -f "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
 test -f "$repo_dir/templates/mmwave-cmake-project/Makefile.in"
-find "$repo_dir/scripts" "$repo_dir/templates" "$repo_dir/config" \
+find "$repo_dir/scripts" "$repo_dir/templates" "$repo_dir/config" "$repo_dir/demos" \
   -type f \
   ! -name validate-cmake-portability.sh \
   -print0 |

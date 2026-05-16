@@ -20,9 +20,9 @@ Examples:
   create-mmwave-app people-count-6843 --profile xwr6843isk-mss-dss
   create-mmwave-app vital-signs-1843 --profile xwr1843boost-mss-only --dir /work/vital-signs-1843
 
-This creates a clean standalone project by forking a TI mmWave SDK demo from
-the SDK-full Docker image. The generated project builds with CMake+Ninja inside
-the same SDK-full Docker image.
+This creates a clean standalone project by forking the source-only SDK OOB demo
+stored in this repository. The generated project builds with CMake+Ninja inside
+the SDK-full Docker image.
 
 Common --profile values:
   xwr6843isk-mss-only, xwr6843isk-mss-dss
@@ -169,7 +169,10 @@ if [[ "$source_kind" != "sdk-make" ]]; then
   exit 2
 fi
 
+repo_demo_dir="$repo_dir/demos/sdk/$sdk_demo_rel"
+repo_demo_utils_dir="$repo_dir/demos/sdk/ti/demo/utils"
 sdk_demo_dir="$ti_root/mmwave_sdk_03_06_02_00-LTS/packages/$sdk_demo_rel"
+sdk_demo_utils_dir="$ti_root/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/utils"
 
 if [[ -z "$out_dir" ]]; then
   out_dir="$PWD/$name"
@@ -186,15 +189,27 @@ if [[ -e "$abs_out" && "$force" -ne 1 ]]; then
   exit 2
 fi
 
-if [[ ! -f "$sdk_demo_dir/makefile" ]]; then
-  printf 'SDK demo makefile not found: %s/makefile\n' "$sdk_demo_dir" >&2
-  printf 'Run this generator inside the SDK-full Docker image, or set TI_ROOT.\n' >&2
+if [[ -f "$repo_demo_dir/makefile" ]]; then
+  demo_source_dir="$repo_demo_dir"
+elif [[ -f "$sdk_demo_dir/makefile" ]]; then
+  demo_source_dir="$sdk_demo_dir"
+else
+  printf 'Demo makefile not found in repository or SDK image:\n' >&2
+  printf '  repo: %s/makefile\n' "$repo_demo_dir" >&2
+  printf '  sdk:  %s/makefile\n' "$sdk_demo_dir" >&2
   exit 2
 fi
 
 rm -rf "$abs_out"
 mkdir -p "$abs_out/app"
-cp -a "$sdk_demo_dir/." "$abs_out/app/"
+cp -a "$demo_source_dir/." "$abs_out/app/"
+if [[ -f "$repo_demo_utils_dir/mmwdemo_rfparser.c" ]]; then
+  mkdir -p "$abs_out/app/utils"
+  cp -a "$repo_demo_utils_dir/." "$abs_out/app/utils/"
+elif [[ -f "$sdk_demo_utils_dir/mmwdemo_rfparser.c" ]]; then
+  mkdir -p "$abs_out/app/utils"
+  cp -a "$sdk_demo_utils_dir/." "$abs_out/app/utils/"
+fi
 mkdir -p "$abs_out/src"
 printf 'Project-local sources can live here when they are not part of the forked TI demo tree.\n' > "$abs_out/src/README.md"
 mkdir -p "$abs_out/tools"
@@ -240,7 +255,7 @@ Profile: $profile
 Board: $board
 Mode: $core_mode
 Device template: $device ($sdk_device)
-Forked SDK demo: $sdk_demo_rel
+Forked demo source: $demo_source_dir
 Cores: MSS=$mss DSS=$dss (profile: $core_hint)
 Expected output: $output_bin
 Docker image: $sdk_image

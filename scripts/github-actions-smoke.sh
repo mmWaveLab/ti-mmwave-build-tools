@@ -132,6 +132,10 @@ with path.open(encoding="utf-8", newline="") as f:
             errors.append(f"line {line_no}: missing profile config list")
         if not all((output_artifact, build_target, clean_target, make_vars, summary)):
             errors.append(f"line {line_no}: missing summary")
+        if source_kind == "sdk-make":
+            demo_dir = path.parents[1] / "demos" / "sdk" / source_rel
+            if not (demo_dir / "makefile").is_file():
+                errors.append(f"line {line_no}: missing vendored demo source {demo_dir}")
 missing = sorted(required - ids)
 if missing:
     errors.append(f"missing required profiles: {', '.join(missing)}")

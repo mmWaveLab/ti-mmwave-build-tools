@@ -95,6 +95,18 @@ def main() -> None:
             errors.append(f"{profile}: config profiles manifest={manifest_configs!r} installer={installed.configs!r}")
         if not row["output_artifact"].endswith(".bin"):
             errors.append(f"{profile}: starter output must be a flashable .bin")
+        if row["source_kind"] == "sdk-make":
+            demo_dir = repo / "demos" / "sdk" / row["source_rel"]
+            if not (demo_dir / "makefile").is_file():
+                errors.append(f"{profile}: missing vendored demo makefile at {demo_dir}")
+            generated = [
+                path.relative_to(demo_dir)
+                for path in demo_dir.rglob("*")
+                if path.is_file()
+                and path.suffix in {".bin", ".xer4f", ".xe674", ".map", ".obj"}
+            ]
+            if generated:
+                errors.append(f"{profile}: vendored demo contains generated files: {generated[:5]}")
 
     if errors:
         raise SystemExit("\n".join(errors))

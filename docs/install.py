@@ -9,12 +9,19 @@ import re
 import shutil
 import subprocess
 import sys
+import tarfile
+import tempfile
+import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
 
 DEFAULT_IMAGE = os.environ.get("SDK_FULL_IMAGE", "meowpas/ti-mmwave-sdk:03.06.02")
 SDK_PACKAGES = "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages"
+DEFAULT_TOOLS_ARCHIVE_URL = os.environ.get(
+    "MMWAVE_TOOLS_ARCHIVE_URL",
+    "https://github.com/mmWaveLab/ti-mmwave-build-tools/archive/refs/heads/main.tar.gz",
+)
 
 
 @dataclass(frozen=True)
@@ -95,13 +102,57 @@ set(MMWAVE_SDK_PACKAGES "${{TI_ROOT}}/mmwave_sdk_03_06_02_00-LTS/packages" CACHE
 set(MMWAVE_SDK_DEVICE "{profile.sdk_device}" CACHE STRING "SDK device")
 set(MMWAVE_SDK_DEVICE_TYPE "{profile.sdk_device_type}" CACHE STRING "SDK device type")
 set(MMWAVE_PROFILE "{profile.name}" CACHE STRING "Starter profile")
+set(MMWAVE_SDK_DEMO_REL "{profile.source_rel}" CACHE STRING "SDK package-relative demo source path")
 set(MMWAVE_BUILD_TARGET "{profile.build_target}" CACHE STRING "TI make build target")
 set(MMWAVE_CLEAN_TARGET "{profile.clean_target}" CACHE STRING "TI make clean target")
+option(MMWAVE_USE_SDK_OVERLAY "Build through a temporary SDK package overlay instead of the canonical SDK packages path" OFF)
 
 set(APP_SOURCE_DIR "${{CMAKE_CURRENT_LIST_DIR}}/app")
 set(APP_BUILD_DIR "${{CMAKE_BINARY_DIR}}/app")
+set(SDK_PACKAGES_OVERLAY "${{CMAKE_BINARY_DIR}}/sdk-packages-overlay")
+set(MMWAVE_BUILD_SDK_PACKAGES "${{MMWAVE_SDK_PACKAGES}}")
+if(MMWAVE_USE_SDK_OVERLAY)
+  set(MMWAVE_BUILD_SDK_PACKAGES "${{SDK_PACKAGES_OVERLAY}}")
+endif()
 set(OUTPUT_ARTIFACT "${{APP_BUILD_DIR}}/{profile.artifact}")
 set(MSS_METAIMAGE_HELPER "${{CMAKE_BINARY_DIR}}/mss-metaimage-if-needed.sh")
+set(SDK_OVERLAY_HELPER "${{CMAKE_BINARY_DIR}}/sdk-packages-overlay.sh")
+
+file(WRITE "${{SDK_OVERLAY_HELPER}}" [=[
+#!/usr/bin/env bash
+set -euo pipefail
+
+real="${{MMWAVE_SDK_PACKAGES:?}}"
+overlay="${{SDK_PACKAGES_OVERLAY:?}}"
+app="${{APP_BUILD_DIR:?}}"
+demo_rel="${{MMWAVE_SDK_DEMO_REL:?}}"
+
+rm -rf "$overlay"
+mkdir -p "$overlay" "$overlay/ti"
+
+for item in "$real"/*; do
+  base="$(basename "$item")"
+  [[ "$base" == "ti" ]] && continue
+  ln -s "$item" "$overlay/$base"
+done
+
+for item in "$real"/ti/*; do
+  base="$(basename "$item")"
+  [[ "$base" == "demo" ]] && continue
+  ln -s "$item" "$overlay/ti/$base"
+done
+
+mkdir -p "$overlay/ti/demo"
+if [[ -d "$app/utils" ]]; then
+  ln -s "$app/utils" "$overlay/ti/demo/utils"
+elif [[ -d "$real/ti/demo/utils" ]]; then
+  ln -s "$real/ti/demo/utils" "$overlay/ti/demo/utils"
+fi
+
+mkdir -p "$overlay/$(dirname "$demo_rel")"
+ln -s "$app" "$overlay/$demo_rel"
+test -f "$overlay/$demo_rel/makefile"
+]=])
 
 file(WRITE "${{MSS_METAIMAGE_HELPER}}" [=[
 #!/usr/bin/env bash
@@ -126,7 +177,7 @@ esac
 mss_out="${{OUTPUT_BIN%.bin}}_mss.xer4f"
 test -f "$mss_out"
 test -f "$radarss"
-MMWAVE_SDK_INSTALL_PATH="$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages" \
+MMWAVE_SDK_INSTALL_PATH="${{MMWAVE_SDK_INSTALL_PATH:-$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages}}" \
   "$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages/scripts/unix/generateMetaImage.sh" \
   "$OUTPUT_BIN" "$shmem_alloc" "$mss_out" "$radarss" NULL
 test -f "$OUTPUT_BIN"
@@ -145,11 +196,17 @@ add_custom_command(
   COMMAND "${{CMAKE_COMMAND}}" -E rm -rf "${{APP_BUILD_DIR}}"
   COMMAND "${{CMAKE_COMMAND}}" -E copy_directory "${{APP_SOURCE_DIR}}" "${{APP_BUILD_DIR}}"
   COMMAND "${{CMAKE_COMMAND}}" -E env
+    "MMWAVE_SDK_PACKAGES=${{MMWAVE_SDK_PACKAGES}}"
+    "SDK_PACKAGES_OVERLAY=${{SDK_PACKAGES_OVERLAY}}"
+    "APP_BUILD_DIR=${{APP_BUILD_DIR}}"
+    "MMWAVE_SDK_DEMO_REL=${{MMWAVE_SDK_DEMO_REL}}"
+    /bin/bash "${{SDK_OVERLAY_HELPER}}"
+  COMMAND "${{CMAKE_COMMAND}}" -E env
     "CCS_MAKEFILE_BASED_BUILD=1"
     "MMWAVE_SDK_DEVICE=${{MMWAVE_SDK_DEVICE}}"
     "MMWAVE_SDK_DEVICE_TYPE=${{MMWAVE_SDK_DEVICE_TYPE}}"
     "MMWAVE_SDK_TOOLS_INSTALL_PATH=${{TI_ROOT}}"
-    "MMWAVE_SDK_INSTALL_PATH=${{MMWAVE_SDK_PACKAGES}}"
+    "MMWAVE_SDK_INSTALL_PATH=${{MMWAVE_BUILD_SDK_PACKAGES}}"
     "${{CMAKE_COMMAND}}" -E chdir "${{APP_BUILD_DIR}}"
     make -f makefile "${{MMWAVE_CLEAN_TARGET}}"
   COMMAND "${{CMAKE_COMMAND}}" -E env
@@ -157,14 +214,14 @@ add_custom_command(
     "MMWAVE_SDK_DEVICE=${{MMWAVE_SDK_DEVICE}}"
     "MMWAVE_SDK_DEVICE_TYPE=${{MMWAVE_SDK_DEVICE_TYPE}}"
     "MMWAVE_SDK_TOOLS_INSTALL_PATH=${{TI_ROOT}}"
-    "MMWAVE_SDK_INSTALL_PATH=${{MMWAVE_SDK_PACKAGES}}"
+    "MMWAVE_SDK_INSTALL_PATH=${{MMWAVE_BUILD_SDK_PACKAGES}}"
     "${{CMAKE_COMMAND}}" -E chdir "${{APP_BUILD_DIR}}"
     make -f makefile "${{MMWAVE_BUILD_TARGET}}"
   COMMAND "${{CMAKE_COMMAND}}" -E env
     "OUTPUT_BIN=${{OUTPUT_ARTIFACT}}"
     "TI_ROOT=${{TI_ROOT}}"
     "MMWAVE_SDK_DEVICE_TYPE=${{MMWAVE_SDK_DEVICE_TYPE}}"
-    "MMWAVE_SDK_INSTALL_PATH=${{MMWAVE_SDK_PACKAGES}}"
+    "MMWAVE_SDK_INSTALL_PATH=${{MMWAVE_BUILD_SDK_PACKAGES}}"
     /bin/bash "${{MSS_METAIMAGE_HELPER}}"
   WORKING_DIRECTORY "${{CMAKE_BINARY_DIR}}"
   VERBATIM
@@ -262,7 +319,9 @@ make build
 ```
 
 The build runs inside the SDK-full Docker image. The host machine does not need
-a TI SDK install.
+a TI SDK install. The default CMake path preserves byte-identical SHA-256 output
+against TI's canonical SDK package path; set `MMWAVE_USE_SDK_OVERLAY=ON` only
+for slim-image experiments.
 """
 
 
@@ -284,18 +343,100 @@ def pull_image(image: str, policy: str, dry_run: bool) -> None:
         print(f"warning: could not pull {image}; trying local image", file=sys.stderr)
 
 
-def copy_demo(out_dir: Path, profile: Profile, image: str, dry_run: bool) -> None:
-    parent = out_dir.parent.resolve()
-    container_out = f"/work/{out_dir.name}"
-    source = f"{SDK_PACKAGES}/{profile.source_rel}"
-    script = (
-        "set -euo pipefail; "
-        f"test -f {q(source + '/makefile')}; "
-        f"rm -rf {q(container_out + '/app')}; "
-        f"mkdir -p {q(container_out + '/app')}; "
-        f"cp -a {q(source + '/.')} {q(container_out + '/app/')}"
-    )
-    run(docker_run_base() + ["-v", f"{parent}:/work", "-w", "/work", image, "bash", "-lc", script], dry_run=dry_run)
+def local_demo_source(profile: Profile) -> Path | None:
+    try:
+        repo_root = Path(__file__).resolve().parent.parent
+    except OSError:
+        return None
+    source = repo_root / "demos" / "sdk" / profile.source_rel
+    return source if (source / "makefile").is_file() else None
+
+
+def local_demo_utils() -> Path | None:
+    try:
+        repo_root = Path(__file__).resolve().parent.parent
+    except OSError:
+        return None
+    source = repo_root / "demos" / "sdk" / "ti" / "demo" / "utils"
+    return source if (source / "mmwdemo_rfparser.c").is_file() else None
+
+
+def copy_tree(src: Path, dst: Path) -> None:
+    if dst.exists():
+        shutil.rmtree(dst)
+    shutil.copytree(src, dst)
+
+
+def safe_child(base: Path, rel: Path) -> Path:
+    target = (base / rel).resolve()
+    base_resolved = base.resolve()
+    if target != base_resolved and base_resolved not in target.parents:
+        fail(f"unsafe archive path: {rel}")
+    return target
+
+
+def copy_demo_from_archive(out_dir: Path, profile: Profile, archive_url: str) -> None:
+    app_dir = out_dir / "app"
+    requests = {
+        f"demos/sdk/{profile.source_rel}/": app_dir,
+        "demos/sdk/ti/demo/utils/": app_dir / "utils",
+    }
+    with tempfile.TemporaryDirectory(prefix="mmwave-tools-archive-") as tmp:
+        archive = Path(tmp) / "tools.tar.gz"
+        print(f"+ download {q(archive_url)}")
+        with urllib.request.urlopen(archive_url, timeout=120) as response, archive.open("wb") as fh:
+            shutil.copyfileobj(response, fh)
+        for dst in requests.values():
+            if dst.exists():
+                shutil.rmtree(dst)
+            dst.mkdir(parents=True, exist_ok=True)
+        found = {suffix: False for suffix in requests}
+        with tarfile.open(archive, "r:*") as tar:
+            for member in tar:
+                name = member.name
+                matched_suffix = None
+                for suffix in requests:
+                    marker = "/" + suffix
+                    if marker in name:
+                        matched_suffix = suffix
+                        break
+                if matched_suffix is None:
+                    continue
+                rel_name = name.split("/" + matched_suffix, 1)[1]
+                if not rel_name:
+                    continue
+                found[matched_suffix] = True
+                dst = requests[matched_suffix]
+                rel = Path(rel_name)
+                target = safe_child(dst, rel)
+                if member.isdir():
+                    target.mkdir(parents=True, exist_ok=True)
+                elif member.isfile():
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    src = tar.extractfile(member)
+                    if src is None:
+                        fail(f"could not read archive member: {name}")
+                    with src, target.open("wb") as out:
+                        shutil.copyfileobj(src, out)
+        missing = [suffix for suffix, ok in found.items() if not ok]
+        if missing or not (app_dir / "makefile").is_file() or not (app_dir / "utils" / "mmwdemo_rfparser.c").is_file():
+            fail(f"demo source not found in tools archive: {', '.join(missing)}")
+
+
+def copy_demo(out_dir: Path, profile: Profile, archive_url: str, dry_run: bool) -> None:
+    app_dir = out_dir / "app"
+    local_source = local_demo_source(profile)
+    if dry_run:
+        source = str(local_source) if local_source else archive_url
+        print(f"+ copy demo {q(profile.source_rel)} from {q(source)} to {q(str(app_dir))}")
+        return
+    if local_source is not None:
+        copy_tree(local_source, app_dir)
+        utils = local_demo_utils()
+        if utils is not None:
+            copy_tree(utils, app_dir / "utils")
+        return
+    copy_demo_from_archive(out_dir, profile, archive_url)
 
 
 def create(args: argparse.Namespace) -> None:
@@ -332,7 +473,7 @@ def create(args: argparse.Namespace) -> None:
         print("Dry run: no files will be written.")
 
     pull_image(args.image, args.pull, args.dry_run)
-    copy_demo(out_dir, profile, args.image, args.dry_run)
+    copy_demo(out_dir, profile, args.tools_archive_url, args.dry_run)
 
     if not args.dry_run:
         write(out_dir / "CMakeLists.txt", cmakelists(cmake_project, profile))
@@ -358,6 +499,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--cmake-name")
     parser.add_argument("--profile", default="xwr6843isk-mss-dss")
     parser.add_argument("--image", default=DEFAULT_IMAGE)
+    parser.add_argument("--tools-archive-url", default=DEFAULT_TOOLS_ARCHIVE_URL)
     parser.add_argument("--pull", choices=("auto", "always", "never"), default="auto")
     parser.add_argument("--build", action="store_true")
     parser.add_argument("--force", action="store_true")
