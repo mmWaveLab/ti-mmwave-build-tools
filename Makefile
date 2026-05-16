@@ -3,7 +3,7 @@ SDK_FULL_IMAGE ?= meowpas/ti-mmwave-sdk:03.06.02
 TI_ROOT ?= /opt/ti
 HOST_TI_ROOT ?= $(TI_ROOT)
 
-.PHONY: docker-build docker-shell sdk-image sdk-image-smoke sdk-profile-validate install-profile-validate cmake-portability github-actions-smoke project-new project-docker project-native doctor test ci docker-cmake native-cmake benchmark flash-list flash-doctor flash-dry-run flash package clean
+.PHONY: docker-build docker-shell sdk-image sdk-image-smoke sdk-profile-validate install-profile-validate cmake-portability github-actions-smoke project-docker project-native doctor test ci docker-cmake native-cmake benchmark flash-list flash-doctor flash-dry-run flash package clean
 
 docker-build:
 	docker build -t $(IMAGE) .
@@ -28,9 +28,6 @@ cmake-portability:
 
 github-actions-smoke:
 	scripts/github-actions-smoke.sh
-
-project-new:
-	SDK_IMAGE=$(SDK_FULL_IMAGE) scripts/new-project.sh $(PROJECT) $(if $(PROFILE),--profile $(PROFILE),--device $(or $(DEVICE),xwr68xx)) --image $(SDK_FULL_IMAGE) $(if $(OUT),--out $(OUT),) $(if $(FORCE),--force,)
 
 project-docker:
 	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) PROJECT=$(PROJECT) scripts/cmake-build-project.sh

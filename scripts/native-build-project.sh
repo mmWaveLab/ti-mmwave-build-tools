@@ -8,7 +8,7 @@ load_machine_env
 
 project="${PROJECT:-${1:-}}"
 if [[ -z "$project" ]]; then
-  printf 'Set PROJECT=examples/name or pass a project path.\n' >&2
+  printf 'Set PROJECT to a generated project path, or pass one as the first argument.\n' >&2
   exit 2
 fi
 

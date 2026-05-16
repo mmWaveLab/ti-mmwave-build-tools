@@ -40,7 +40,7 @@ makefiles and XDC/configuro outputs that embed absolute paths.
 ```bash
 make docker-build
 make doctor
-make project-docker PROJECT=examples/name
+make project-docker PROJECT=/path/to/generated-project
 make sdk-profile-validate
 ```
 

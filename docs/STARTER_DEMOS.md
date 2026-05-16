@@ -31,6 +31,8 @@ MSS-only.
   reads `config/demo-profiles.tsv` directly.
 - `scripts/validate-starter-demos.py` checks that `docs/install.py` and
   `config/demo-profiles.tsv` remain synchronized.
+- `docs/catalog` stores analysis-only Toolbox catalogs until projectspec
+  import support turns those entries into buildable profiles.
 
 The repository stores only the small SDK OOB demo source fork points required
 for starter project creation. It does not store generated starter projects,

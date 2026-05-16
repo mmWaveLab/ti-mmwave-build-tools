@@ -128,8 +128,8 @@ Radar Toolbox has two separate layers for 6843AOP:
 
 | Manifest | Meaning |
 |---|---|
-| `config/toolbox-oob-profiles.tsv` | TI OOB source folders exactly as packaged. The `xwr6843AOP` OOB entry is a separate single-projectspec target. |
-| `config/toolbox-application-profiles.tsv` | Application demos such as 3D People Tracking, Area Scanner, Automated Doors, and Overhead People Tracking. These 6843AOP-capable entries use 6843 MSS+DSS projects plus AOP configs or prebuilt images. |
+| `docs/catalog/toolbox-oob-profiles.tsv` | TI OOB source folders exactly as packaged. The `xwr6843AOP` OOB entry is a separate single-projectspec target. |
+| `docs/catalog/toolbox-application-profiles.tsv` | Application demos such as 3D People Tracking, Area Scanner, Automated Doors, and Overhead People Tracking. These 6843AOP-capable entries use 6843 MSS+DSS projects plus AOP configs or prebuilt images. |
 
 Validation reports are generated under `reports/` when the relevant commands
 run. The repository keeps only source, docs, templates, and lightweight
@@ -160,8 +160,8 @@ Key files:
   projects.
 - `docs/STARTER_DEMOS.md`: normalized six-profile contract and generated
   project layout.
-- `config/toolbox-oob-profiles.tsv`: lightweight TI Radar Toolbox OOB catalog.
-- `config/toolbox-application-profiles.tsv`: lightweight TI Radar Toolbox
+- `docs/catalog/toolbox-oob-profiles.tsv`: lightweight TI Radar Toolbox OOB catalog.
+- `docs/catalog/toolbox-application-profiles.tsv`: lightweight TI Radar Toolbox
   application demo catalog, including 6843AOP MSS+DSS candidates.
 - `docker/Dockerfile.sdk-full`: private SDK-full image recipe for local or
   private-registry use. It contains the SDK/toolchain runtime, not this
@@ -192,7 +192,8 @@ docker run --rm \
   run-repo-smoke
 ```
 
-The smoke test configures the upstream example with explicit Linux tool paths.
+The smoke test configures a minimal CMake tool-discovery project with explicit
+Linux tool paths.
 Use it when checking whether upstream `mmWaveLab/ti-mmwave-build-tools`
 continues to work against the Linux SDK/toolchain profile.
 
@@ -204,10 +205,11 @@ scripts/build-xwr68xx-sdk-demo.sh
 
 ## Build MSS+DSS with CMake and Ninja
 
-The CMake example at `examples/xwr68xx-sdk-mss-dss-cmake` builds the TI SDK
-`xwr68xx/mmw` demo through Ninja. The Ninja target drives the official SDK
-make rules, so MSS, DSS, SYS/BIOS RTSC configuro, and metaimage generation all
-stay aligned with TI's reference build.
+The CMake build scripts create a temporary generated starter project under
+`build/` and build it through Ninja. The Ninja target drives the original TI
+make rules, so MSS, DSS, SYS/BIOS RTSC configuro, and metaimage generation stay
+aligned with TI's reference build without keeping a permanent `examples/`
+project in the repository.
 
 Docker:
 
@@ -218,9 +220,7 @@ scripts/cmake-build-xwr68xx-sdk-demo.sh
 Native Ubuntu:
 
 ```bash
-source scripts/ti-sdk-env.sh
-cmake -S examples/xwr68xx-sdk-mss-dss-cmake -B perf/cmake-xwr68xx-native -G Ninja -DTI_ROOT=/opt/ti
-cmake --build perf/cmake-xwr68xx-native --target firmware
+scripts/native-cmake-build-xwr68xx-sdk-demo.sh
 ```
 
 ## Test, Benchmark, Clean
@@ -231,7 +231,6 @@ make github-actions-smoke
 make install-profile-validate
 make test
 make benchmark
-make project-new PROJECT=name PROFILE=xwr6843isk-mss-dss
 make sdk-image
 make sdk-image-smoke
 make sdk-profile-validate

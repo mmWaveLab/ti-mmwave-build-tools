@@ -18,7 +18,8 @@ fi
 
 tar -czf "$package" \
   -C "$repo_dir" \
-  config/sdk-manifest.json \
+  config/demo-profiles.tsv \
+  THIRD_PARTY_NOTICES.md \
   artifacts \
   reports
 

@@ -51,8 +51,8 @@ test -f "$repo_dir/docs/DOCKER_IMAGE.md"
 test -f "$repo_dir/docs/STARTER_DEMOS.md"
 test -f "$repo_dir/docs/install.py"
 test -f "$repo_dir/config/demo-profiles.tsv"
-test -f "$repo_dir/config/toolbox-oob-profiles.tsv"
-test -f "$repo_dir/config/toolbox-application-profiles.tsv"
+test -f "$repo_dir/docs/catalog/toolbox-oob-profiles.tsv"
+test -f "$repo_dir/docs/catalog/toolbox-application-profiles.tsv"
 test -f "$repo_dir/scripts/validate-demo-profiles.sh"
 test -f "$repo_dir/scripts/mmwave-run.sh"
 test -f "$repo_dir/scripts/validate-cmake-portability.sh"
@@ -152,7 +152,7 @@ print(f"demo profiles ok: {len(ids)}")
 PY
 
 printf 'Toolbox profile manifest\n'
-python3 - "$repo_dir/config/toolbox-oob-profiles.tsv" <<'PY'
+python3 - "$repo_dir/docs/catalog/toolbox-oob-profiles.tsv" <<'PY'
 import csv
 import sys
 from pathlib import Path
@@ -189,7 +189,7 @@ print(f"toolbox profiles ok: {len(ids)}")
 PY
 
 printf 'Toolbox application manifest\n'
-python3 - "$repo_dir/config/toolbox-application-profiles.tsv" <<'PY'
+python3 - "$repo_dir/docs/catalog/toolbox-application-profiles.tsv" <<'PY'
 import csv
 import sys
 from pathlib import Path
