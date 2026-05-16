@@ -34,7 +34,7 @@ Legacy --device values are still accepted:
 USAGE
 }
 
-profiles_file="$repo_dir/config/demo-profiles.tsv"
+profiles_file="$repo_dir/config/starter-demo-profiles.tsv"
 
 need_value() {
   local opt="$1"

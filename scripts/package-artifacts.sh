@@ -18,7 +18,7 @@ fi
 
 tar -czf "$package" \
   -C "$repo_dir" \
-  config/demo-profiles.tsv \
+  config/starter-demo-profiles.tsv \
   THIRD_PARTY_NOTICES.md \
   artifacts \
   reports

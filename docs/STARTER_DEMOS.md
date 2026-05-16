@@ -22,7 +22,7 @@ MSS-only.
 
 ## Canonical Storage
 
-- `config/demo-profiles.tsv` is the canonical in-repo profile manifest.
+- `config/starter-demo-profiles.tsv` is the canonical in-repo profile manifest.
   Build entry fields are normalized as `build_entry_kind` plus `build_entry`:
   SDK makefile profiles use `make-target`, while cataloged Toolbox profiles
   use `ccs-projectspecs`.
@@ -31,9 +31,9 @@ MSS-only.
 - `docs/install.py` is the public GitHub Pages installer and duplicates only the
   six starter profiles needed for no-clone project creation.
 - `scripts/create-mmwave-app.sh` is the repo-local development entrypoint and
-  reads `config/demo-profiles.tsv` directly.
+  reads `config/starter-demo-profiles.tsv` directly.
 - `scripts/validate-starter-demos.py` checks that `docs/install.py` and
-  `config/demo-profiles.tsv` remain synchronized.
+  `config/starter-demo-profiles.tsv` remain synchronized.
 - `docs/catalog` stores analysis-only Toolbox catalogs until projectspec
   import support turns those entries into buildable profiles.
 

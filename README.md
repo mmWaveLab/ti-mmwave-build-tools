@@ -132,8 +132,8 @@ Radar Toolbox has two separate layers for 6843AOP:
 
 | Manifest | Meaning |
 |---|---|
-| `docs/catalog/toolbox-oob-profiles.tsv` | TI OOB source folders exactly as packaged. The `xwr6843AOP` OOB entry is a separate single-projectspec target. |
-| `docs/catalog/toolbox-application-profiles.tsv` | Application demos such as 3D People Tracking, Area Scanner, Automated Doors, and Overhead People Tracking. These 6843AOP-capable entries use 6843 MSS+DSS projects plus AOP configs or prebuilt images. |
+| `docs/catalog/toolbox-oob-demo-profiles.tsv` | TI OOB source folders exactly as packaged. The `xwr6843AOP` OOB entry is a separate single-projectspec target. |
+| `docs/catalog/toolbox-application-demo-profiles.tsv` | Application demos such as 3D People Tracking, Area Scanner, Automated Doors, and Overhead People Tracking. These 6843AOP-capable entries use 6843 MSS+DSS projects plus AOP configs or prebuilt images. |
 
 Validation reports are generated under `reports/` when the relevant commands
 run. The repository keeps only source, docs, templates, and lightweight
@@ -157,15 +157,15 @@ Key files:
   vendored demo sources.
 - `templates/mmwave-cmake-project`: project scaffold for new CMake/Ninja
   firmware projects.
-- `config/demo-profiles.tsv`: starter TI OOB demo fork profiles used by
+- `config/starter-demo-profiles.tsv`: starter TI OOB demo fork profiles used by
   `create-mmwave-app --profile`, including the 3 board by 2 core-mode starter
   matrix.
 - `docs/install.py`: no-clone GitHub Pages installer for creating standalone
   projects.
 - `docs/STARTER_DEMOS.md`: normalized six-profile contract and generated
   project layout.
-- `docs/catalog/toolbox-oob-profiles.tsv`: lightweight TI Radar Toolbox OOB catalog.
-- `docs/catalog/toolbox-application-profiles.tsv`: lightweight TI Radar Toolbox
+- `docs/catalog/toolbox-oob-demo-profiles.tsv`: lightweight TI Radar Toolbox OOB catalog.
+- `docs/catalog/toolbox-application-demo-profiles.tsv`: lightweight TI Radar Toolbox
   application demo catalog, including 6843AOP MSS+DSS candidates.
 - `docker/Dockerfile.sdk-full`: private SDK-full image recipe for local or
   private-registry use. It contains the SDK/toolchain runtime, not this

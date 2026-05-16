@@ -56,7 +56,7 @@ def load_installer(path: Path):
 
 def main() -> None:
     repo = Path(__file__).resolve().parents[1]
-    manifest = load_manifest(repo / "config" / "demo-profiles.tsv")
+    manifest = load_manifest(repo / "config" / "starter-demo-profiles.tsv")
     installer_profiles = load_installer(repo / "docs" / "install.py")
     errors: list[str] = []
     notices = repo / "THIRD_PARTY_NOTICES.md"
