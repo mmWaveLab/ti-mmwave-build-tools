@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(@PROJECT_NAME@ NONE)
+project(@CMAKE_PROJECT_NAME@ NONE)
 
 set(TI_MMWAVE_TOOLS_ROOT "$ENV{TI_MMWAVE_TOOLS_ROOT}" CACHE PATH "ti-mmwave-build-tools path for CMake helper modules")
 if(NOT TI_MMWAVE_TOOLS_ROOT)

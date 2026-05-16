@@ -38,6 +38,9 @@ for text_name, text in (("scripts/mmwave-run.sh", runner), ("docs/install.py", i
     require(f"{text_name}: must run commands through env -i", "env -i" in text)
     require(f"{text_name}: must use isolated HOME", "HOME=/tmp/mmwave-home" in text)
     require(f"{text_name}: must set fixed TI_ROOT", "TI_ROOT=/opt/ti" in text)
+    require(f"{text_name}: must support explicit Docker pulls", "--pull" in text and "docker pull" in text)
+    require(f"{text_name}: must reject missing commands", "COMMAND is required unless --shell is used" in text)
+    require(f"{text_name}: must check workdir writability", "Workdir is not writable" in text)
     require(f"{text_name}: must include TI ARM compiler path", "ti-cgt-arm_16.9.6.LTS/bin" in text)
     require(f"{text_name}: must include TI C6000 compiler path", "ti-cgt-c6000_8.3.3/bin" in text)
     require(f"{text_name}: must include XDC tools path", "xdctools_3_50_08_24_core" in text)
@@ -50,6 +53,8 @@ for text_name, text in (("template CMakeLists", template), ("docs/install.py CMa
             re.search(r'make -f makefile .*?MMWAVE_SDK_TOOLS_INSTALL_PATH=.*?TI_ROOT', text, re.S) is not None)
     require(f"{text_name}: make build must override SDK package path on command line",
             re.search(r'make -f makefile .*?MMWAVE_SDK_INSTALL_PATH=.*?MMWAVE_BUILD_SDK_PACKAGES', text, re.S) is not None)
+
+require("repo-local generator must support explicit CMake project names", "--cmake-name" in (repo / "scripts" / "create-mmwave-app.sh").read_text(encoding="utf-8"))
 
 stale_tokens = (
     "examples/xwr68xx-sdk-mss-dss-cmake",

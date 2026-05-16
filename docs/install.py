@@ -17,7 +17,6 @@ from pathlib import Path
 
 
 DEFAULT_IMAGE = os.environ.get("SDK_FULL_IMAGE", "meowpas/ti-mmwave-sdk:03.06.02")
-SDK_PACKAGES = "/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages"
 DEFAULT_TOOLS_ARCHIVE_URL = os.environ.get(
     "MMWAVE_TOOLS_ARCHIVE_URL",
     "https://github.com/mmWaveLab/ti-mmwave-build-tools/archive/refs/heads/main.tar.gz",
@@ -73,13 +72,6 @@ def cmake_name_from(project_name: str) -> str:
     name = re.sub(r"[^A-Za-z0-9_]", "_", project_name).strip("_")
     name = re.sub(r"_+", "_", name) or "mmwave_app"
     return f"app_{name}" if name[0].isdigit() else name
-
-
-def docker_run_base() -> list[str]:
-    cmd = ["docker", "run", "--rm"]
-    if os.name == "posix":
-        cmd += ["--user", f"{os.getuid()}:{os.getgid()}"]
-    return cmd
 
 
 def list_profiles() -> None:
@@ -265,24 +257,68 @@ def runner(default_image: str) -> str:
     return f"""#!/usr/bin/env bash
 set -euo pipefail
 
+usage() {{
+  cat <<'USAGE'
+Usage:
+  mmwave-run [--image IMAGE] [--workdir DIR] [--pull] -- COMMAND [ARG...]
+  mmwave-run [--image IMAGE] [--workdir DIR] --shell
+USAGE
+}}
+
+need_value() {{
+  local opt="$1"
+  local value="${{2:-}}"
+  if [[ -z "$value" || "$value" == --* ]]; then
+    printf 'Missing value for %s.\\n\\n' "$opt" >&2
+    usage >&2
+    exit 2
+  fi
+}}
+
 image="${{SDK_FULL_IMAGE:-${{IMAGE:-{default_image}}}}}"
 workdir="$PWD"
+pull=0
 shell_mode=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --image) image="$2"; shift 2 ;;
-    --workdir) workdir="$2"; shift 2 ;;
+    --image) need_value "$1" "${{2:-}}"; image="$2"; shift 2 ;;
+    --workdir|-w) need_value "$1" "${{2:-}}"; workdir="$2"; shift 2 ;;
+    --pull) pull=1; shift ;;
     --shell) shell_mode=1; shift ;;
     --) shift; break ;;
-    *) break ;;
+    -h|--help) usage; exit 0 ;;
+    *)
+      printf 'Unknown argument: %s\\n\\n' "$1" >&2
+      usage >&2
+      exit 2
+      ;;
   esac
 done
+
+if [[ -z "$image" ]]; then
+  printf 'IMAGE is required.\\n' >&2
+  exit 2
+fi
 
 case "$workdir" in
   /*) abs_workdir="$workdir" ;;
   *) abs_workdir="$PWD/$workdir" ;;
 esac
+
+if [[ ! -d "$abs_workdir" ]]; then
+  printf 'Workdir does not exist: %s\\n' "$abs_workdir" >&2
+  exit 2
+fi
+
+if [[ ! -w "$abs_workdir" ]]; then
+  printf 'Workdir is not writable by the current user: %s\\n' "$abs_workdir" >&2
+  exit 2
+fi
+
+if (( pull )); then
+  docker pull "$image"
+fi
 
 docker_args=(--rm -e HOME=/tmp/mmwave-home -v "$abs_workdir":/work/app -w /work/app)
 if [[ "$(uname -s)" != MINGW* && "$(uname -s)" != MSYS* && "$(uname -s)" != CYGWIN* ]]; then
@@ -299,6 +335,12 @@ clean_env=(env -i
 
 if [[ "$shell_mode" -eq 1 ]]; then
   exec docker run -it "${{docker_args[@]}}" "$image" "${{clean_env[@]}}" bash --noprofile --norc
+fi
+
+if [[ $# -eq 0 ]]; then
+  printf 'COMMAND is required unless --shell is used.\\n\\n' >&2
+  usage >&2
+  exit 2
 fi
 
 exec docker run "${{docker_args[@]}}" "$image" "${{clean_env[@]}}" "$@"
@@ -502,8 +544,11 @@ def create(args: argparse.Namespace) -> None:
         fail(f"unsupported profile: {args.profile}")
     if profile.source_kind != "sdk-make":
         fail(f"{profile.name} needs the Toolbox projectspec importer before install.py can generate it")
-    if shutil.which("docker") is None and not args.dry_run:
-        fail("docker command not found")
+    docker_missing = shutil.which("docker") is None
+    if docker_missing and not args.dry_run:
+        if args.build or args.pull != "never":
+            fail("docker command not found")
+        print("warning: docker command not found; generating project without build validation", file=sys.stderr)
 
     cmake_project = args.cmake_name or cmake_name_from(project_name)
     out_dir = Path(args.dir or project_name).expanduser()

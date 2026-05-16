@@ -86,9 +86,9 @@ my-project/
   build/               # generated CMake and TI build output, ignored by git
 ```
 
-The CMake project name is controlled by `--cmake-name`. If omitted, the
-installer converts `--name` into a valid CMake identifier by replacing invalid
-characters with underscores.
+The CMake project name is controlled by `--cmake-name` in both entrypoints. If
+omitted, the tools convert `--name` into a valid CMake identifier by replacing
+invalid characters with underscores.
 
 ## Validation Policy
 

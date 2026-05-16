@@ -74,6 +74,14 @@ grep -q 'PROFILE_VALIDATION_JOBS=all SDK_FULL_IMAGE="$SDK_FULL_IMAGE" make sdk-p
 grep -q 'actions/upload-artifact@v4' "$repo_dir/.github/workflows/ci.yml"
 "$repo_dir/scripts/create-mmwave-app.sh" --help >/dev/null
 "$repo_dir/scripts/create-mmwave-app.sh" --list-profiles >/dev/null
+rm -rf "$repo_dir/build/github-actions-generated"
+"$repo_dir/scripts/create-mmwave-app.sh" smoke-project \
+  --profile xwr6843isk-mss-dss \
+  --dir "$repo_dir/build/github-actions-generated" \
+  --cmake-name smoke_project \
+  --force >/dev/null
+grep -q 'project(smoke_project NONE)' "$repo_dir/build/github-actions-generated/CMakeLists.txt"
+grep -q -- '--pull' "$repo_dir/build/github-actions-generated/tools/mmwave-run"
 python3 "$repo_dir/docs/install.py" --list-profiles >/dev/null
 python3 "$repo_dir/docs/install.py" --name smoke-project --profile xwr6843isk-mss-dss --dry-run --pull never >/dev/null
 python3 "$repo_dir/scripts/validate-starter-demos.py" >/dev/null

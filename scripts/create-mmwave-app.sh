@@ -13,12 +13,12 @@ template_dir="$repo_dir/templates/mmwave-cmake-project"
 usage() {
   cat <<'USAGE'
 Usage:
-  create-mmwave-app NAME [--profile xwr6843isk-mss-dss] [--dir DIR] [--image IMAGE] [--force]
+  create-mmwave-app NAME [--profile xwr6843isk-mss-dss] [--dir DIR] [--cmake-name NAME] [--image IMAGE] [--force]
   create-mmwave-app --list-profiles
 
 Examples:
   create-mmwave-app people-count-6843 --profile xwr6843isk-mss-dss
-  create-mmwave-app vital-signs-1843 --profile xwr1843boost-mss-only --dir /work/vital-signs-1843
+  create-mmwave-app vital-signs-1843 --profile xwr1843boost-mss-only --dir /work/vital-signs-1843 --cmake-name vital_signs_1843
 
 This creates a clean standalone project by forking the source-only SDK OOB demo
 stored in this repository. The generated project builds with CMake+Ninja inside
@@ -35,6 +35,25 @@ USAGE
 }
 
 profiles_file="$repo_dir/config/demo-profiles.tsv"
+
+need_value() {
+  local opt="$1"
+  local value="${2:-}"
+  if [[ -z "$value" || "$value" == --* ]]; then
+    printf 'Missing value for %s.\n\n' "$opt" >&2
+    usage >&2
+    exit 2
+  fi
+}
+
+cmake_name_from() {
+  local raw="$1"
+  local name
+  name="$(printf '%s' "$raw" | sed -E -e 's/[^A-Za-z0-9_]/_/g' -e 's/^_+//' -e 's/_+$//' -e 's/_+/_/g')"
+  [[ -z "$name" ]] && name="mmwave_app"
+  [[ "$name" =~ ^[0-9] ]] && name="app_$name"
+  printf '%s\n' "$name"
+}
 
 list_profiles() {
   printf 'Available TI mmWave demo profiles:\n\n'
@@ -107,6 +126,7 @@ profile=""
 legacy_device="xwr68xx"
 device_was_set=0
 out_dir=""
+cmake_project=""
 force=0
 sdk_image="${SDK_IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}"
 ti_root="${TI_ROOT:-/opt/ti}"
@@ -114,19 +134,28 @@ ti_root="${TI_ROOT:-/opt/ti}"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --profile)
+      need_value "$1" "${2:-}"
       profile="${2:-}"
       shift 2
       ;;
     --device)
+      need_value "$1" "${2:-}"
       legacy_device="${2:-}"
       device_was_set=1
       shift 2
       ;;
     --dir|--out)
+      need_value "$1" "${2:-}"
       out_dir="${2:-}"
       shift 2
       ;;
+    --cmake-name)
+      need_value "$1" "${2:-}"
+      cmake_project="${2:-}"
+      shift 2
+      ;;
     --image)
+      need_value "$1" "${2:-}"
       sdk_image="${2:-}"
       shift 2
       ;;
@@ -154,6 +183,15 @@ fi
 if [[ ! "$name" =~ ^[A-Za-z0-9][A-Za-z0-9._-]*$ ]]; then
   printf 'Invalid project name: %s\n' "$name" >&2
   printf 'Use letters, numbers, dot, underscore, and hyphen only.\n' >&2
+  exit 2
+fi
+
+if [[ -z "$cmake_project" ]]; then
+  cmake_project="$(cmake_name_from "$name")"
+fi
+if [[ ! "$cmake_project" =~ ^[A-Za-z_][A-Za-z0-9_]*$ ]]; then
+  printf 'Invalid CMake project name: %s\n' "$cmake_project" >&2
+  printf 'Use letters, numbers, and underscore only; the first character must not be a number.\n' >&2
   exit 2
 fi
 
@@ -225,6 +263,7 @@ render() {
   local dst="$2"
   sed \
     -e "s|@PROJECT_NAME@|$name|g" \
+    -e "s|@CMAKE_PROJECT_NAME@|$cmake_project|g" \
     -e "s|@PROFILE@|$profile|g" \
     -e "s|@PROFILE_SUMMARY@|$profile_summary|g" \
     -e "s|@PROFILE_CONFIGS@|$profile_configs|g" \
@@ -256,6 +295,7 @@ fi
 cat <<EOF
 Created TI mmWave fork project: $abs_out
 Profile: $profile
+CMake project: $cmake_project
 Board: $board
 Mode: $core_mode
 Device template: $device ($sdk_device)
