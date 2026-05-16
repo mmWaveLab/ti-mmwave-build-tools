@@ -95,6 +95,7 @@ app/
   dss/      # present when the forked demo has DSS sources
 tools/
   mmwave-run
+  cmake/    # copied helper modules; the SDK Docker image does not embed them
 ```
 
 The build uses the forked demo's original TI makefile and the profile-selected

@@ -14,16 +14,8 @@ require_host_ti_root
 rm -rf "$context_dir"
 mkdir -p "$context_dir"
 
-rsync -a --delete \
-  --exclude '.git' \
-  --exclude 'build' \
-  --exclude 'artifacts' \
-  --exclude 'perf' \
-  --exclude 'packages' \
-  --exclude 'work' \
-  --exclude 'work-*' \
-  --exclude '.DS_Store' \
-  "$repo_dir/" "$context_dir/tools/"
+cp "$repo_dir/scripts/check-ti-linux.sh" "$context_dir/check-ti-linux.sh"
+cp "$repo_dir/scripts/ti-sdk-env.sh" "$context_dir/ti-sdk-env.sh"
 
 rsync -a --delete \
   --exclude 'docs/' \
@@ -45,6 +37,11 @@ rsync -a --delete \
   --exclude 'xwr*_mmw*_demo*.bin' \
   "$HOST_TI_ROOT/" "$context_dir/ti/"
 cp "$repo_dir/docker/Dockerfile.sdk-full" "$context_dir/Dockerfile"
+
+if [[ -e "$context_dir/tools" ]]; then
+  printf 'SDK-full image context must not include repository tools or demos: %s\n' "$context_dir/tools" >&2
+  exit 2
+fi
 
 printf 'Building SDK-full Docker image: %s\n' "$sdk_image"
 printf 'Context: %s\n' "$context_dir"

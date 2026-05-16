@@ -289,9 +289,9 @@ clean_env=(env -i
   HOME=/tmp/mmwave-home
   USER=mmwave
   LOGNAME=mmwave
-  PATH=/opt/ti/ti-cgt-arm_16.9.6.LTS/bin:/opt/ti/ti-cgt-c6000_8.3.3/bin:/opt/ti/xdctools_3_50_08_24_core:/opt/ti-mmwave-build-tools/scripts:/usr/local/bin:/usr/bin:/bin
+  PATH=/opt/ti/ti-cgt-arm_16.9.6.LTS/bin:/opt/ti/ti-cgt-c6000_8.3.3/bin:/opt/ti/xdctools_3_50_08_24_core:/usr/local/bin:/usr/bin:/bin
   TI_ROOT=/opt/ti
-  TI_MMWAVE_TOOLS_ROOT=/opt/ti-mmwave-build-tools)
+)
 
 if [[ "$shell_mode" -eq 1 ]]; then
   exec docker run -it "${{docker_args[@]}}" "$image" "${{clean_env[@]}}" bash --noprofile --norc

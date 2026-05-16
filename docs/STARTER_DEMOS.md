@@ -77,6 +77,7 @@ my-project/
     README.md
   tools/
     mmwave-run         # clean Docker runner, no host shell profile pollution
+    cmake/             # CMake helper modules copied by repo-local generator
   build/               # generated CMake and TI build output, ignored by git
 ```
 

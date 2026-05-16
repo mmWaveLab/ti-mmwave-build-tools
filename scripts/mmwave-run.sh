@@ -81,7 +81,6 @@ docker_args=(--rm
   -e USER=mmwave
   -e LOGNAME=mmwave
   -e TI_ROOT=/opt/ti
-  -e TI_MMWAVE_TOOLS_ROOT=/opt/ti-mmwave-build-tools
   -v "$workdir":/work/app
   -w /work/app)
 
@@ -90,8 +89,7 @@ clean_env=(env -i
   USER=mmwave
   LOGNAME=mmwave
   PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-  TI_ROOT=/opt/ti
-  TI_MMWAVE_TOOLS_ROOT=/opt/ti-mmwave-build-tools)
+  TI_ROOT=/opt/ti)
 
 if (( shell_mode )); then
   docker run -it "${docker_args[@]}" "$image" \

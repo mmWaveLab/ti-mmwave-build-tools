@@ -66,18 +66,8 @@ Build the CMake+Ninja MSS+DSS example:
 make docker-cmake
 ```
 
-Create and build a new forked CMake project from the SDK-full image:
-
-```bash
-docker run --rm -it -v "$PWD":/work -w /work \
-  --user "$(id -u):$(id -g)" \
-  meowpas/ti-mmwave-sdk:03.06.02 \
-  create-mmwave-app people-count-6843 --profile xwr6843isk-mss-dss
-cd people-count-6843
-make build
-```
-
-Create the same kind of project without cloning this tools repository:
+Create and build a new forked CMake project without cloning this tools
+repository:
 
 ```bash
 python3 <(curl -fsSL https://mmwavelab.github.io/ti-mmwave-build-tools/install.py) \
@@ -89,14 +79,15 @@ python3 <(curl -fsSL https://mmwavelab.github.io/ti-mmwave-build-tools/install.p
 ```
 
 The GitHub Pages installer only needs Python and Docker. It pulls or uses the
-SDK-full Docker image, copies the selected vendored SDK OOB demo into the new
-project, writes a standalone CMake/Ninja wrapper, and does not clone
+SDK-full Docker image, downloads the selected vendored SDK OOB demo from this
+repository archive, writes a standalone CMake/Ninja wrapper, and does not clone
 `ti-mmwave-build-tools`.
 
 List the common TI demo fork profiles:
 
 ```bash
-docker run --rm meowpas/ti-mmwave-sdk:03.06.02 create-mmwave-app --list-profiles
+python3 <(curl -fsSL https://mmwavelab.github.io/ti-mmwave-build-tools/install.py) \
+  --list-profiles
 ```
 
 Check UniFlash readiness:
@@ -173,7 +164,8 @@ Key files:
 - `config/toolbox-application-profiles.tsv`: lightweight TI Radar Toolbox
   application demo catalog, including 6843AOP MSS+DSS candidates.
 - `docker/Dockerfile.sdk-full`: private SDK-full image recipe for local or
-  private-registry use.
+  private-registry use. It contains the SDK/toolchain runtime, not this
+  repository's vendored demo tree.
 
 The Docker validation flow in this README exercises the SDK reference demo
 makefiles. Downstream firmware projects can still use the reusable CMake API
