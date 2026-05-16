@@ -17,6 +17,51 @@ printf 'Template syntax and hermetic runner\n'
 bash -n "$repo_dir/scripts/mmwave-run.sh"
 test -f "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
 test -f "$repo_dir/templates/mmwave-cmake-project/Makefile.in"
+python3 - "$repo_dir" <<'PY'
+import re
+import sys
+from pathlib import Path
+
+repo = Path(sys.argv[1])
+checks = []
+
+runner = (repo / "scripts" / "mmwave-run.sh").read_text(encoding="utf-8")
+installer = (repo / "docs" / "install.py").read_text(encoding="utf-8")
+template = (repo / "templates" / "mmwave-cmake-project" / "CMakeLists.txt.in").read_text(encoding="utf-8")
+root_cmake = (repo / "CMakeLists.txt").read_text(encoding="utf-8")
+
+def require(name: str, ok: bool) -> None:
+    if not ok:
+        checks.append(name)
+
+for text_name, text in (("scripts/mmwave-run.sh", runner), ("docs/install.py", installer)):
+    require(f"{text_name}: must run commands through env -i", "env -i" in text)
+    require(f"{text_name}: must use isolated HOME", "HOME=/tmp/mmwave-home" in text)
+    require(f"{text_name}: must set fixed TI_ROOT", "TI_ROOT=/opt/ti" in text)
+    require(f"{text_name}: must include TI ARM compiler path", "ti-cgt-arm_16.9.6.LTS/bin" in text)
+    require(f"{text_name}: must include TI C6000 compiler path", "ti-cgt-c6000_8.3.3/bin" in text)
+    require(f"{text_name}: must include XDC tools path", "xdctools_3_50_08_24_core" in text)
+    require(f"{text_name}: interactive shell must avoid host startup files", "bash --noprofile --norc" in text)
+
+for text_name, text in (("template CMakeLists", template), ("docs/install.py CMakeLists", installer)):
+    require(f"{text_name}: must expose SDK overlay option", "MMWAVE_USE_SDK_OVERLAY" in text)
+    require(f"{text_name}: must generate MSS-only metaimage when needed", "generateMetaImage.sh" in text and "NULL" in text)
+    require(f"{text_name}: make clean must override SDK tool path on command line",
+            re.search(r'make -f makefile .*?MMWAVE_SDK_TOOLS_INSTALL_PATH=.*?TI_ROOT', text, re.S) is not None)
+    require(f"{text_name}: make build must override SDK package path on command line",
+            re.search(r'make -f makefile .*?MMWAVE_SDK_INSTALL_PATH=.*?MMWAVE_BUILD_SDK_PACKAGES', text, re.S) is not None)
+
+stale_tokens = (
+    "examples/xwr68xx-sdk-mss-dss-cmake",
+    "scripts/new-project.sh",
+    "config/sdk-manifest.json",
+)
+for token in stale_tokens:
+    require(f"root CMake must not reference stale scaffold {token}", token not in root_cmake)
+
+if checks:
+    raise SystemExit("\n".join(checks))
+PY
 find "$repo_dir/scripts" "$repo_dir/templates" "$repo_dir/config" "$repo_dir/demos" \
   -type f \
   ! -name validate-cmake-portability.sh \

@@ -88,7 +88,7 @@ clean_env=(env -i
   HOME=/tmp/mmwave-home
   USER=mmwave
   LOGNAME=mmwave
-  PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  PATH=/opt/ti/ti-cgt-arm_16.9.6.LTS/bin:/opt/ti/ti-cgt-c6000_8.3.3/bin:/opt/ti/xdctools_3_50_08_24_core:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
   TI_ROOT=/opt/ti)
 
 if (( shell_mode )); then

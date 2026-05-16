@@ -23,7 +23,7 @@ Runtime mounts:
 | Host path | Container path | Mode | Purpose |
 |---|---|---|---|
 | `HOST_TI_ROOT` | `CONTAINER_TI_ROOT` | read-only | TI SDK, compilers, XDC, BIOS |
-| repository root | `/work/ti-mmwave-build-tools-docker` | read-write | build scripts, examples, artifacts |
+| repository root | `/work/ti-mmwave-build-tools-docker` | read-write | build scripts, generated projects, artifacts |
 
 Default path values:
 

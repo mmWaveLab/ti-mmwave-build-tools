@@ -59,7 +59,10 @@ For repository development, use the local entrypoint:
 scripts/create-mmwave-app.sh people-count-6843 --profile xwr6843isk-mss-dss
 ```
 
-Both entrypoints create the same project shape and use the same profile names.
+Both entrypoints use the same profile names and output contract. The repo-local
+generator copies this repository's CMake helper modules into `tools/cmake`.
+The no-clone installer emits a standalone CMake wrapper so a new machine does
+not need a full checkout.
 
 ## Generated Project Layout
 
@@ -79,7 +82,7 @@ my-project/
     README.md
   tools/
     mmwave-run         # clean Docker runner, no host shell profile pollution
-    cmake/             # CMake helper modules copied by repo-local generator
+    cmake/             # copied by repo-local generator; installer embeds equivalent logic
   build/               # generated CMake and TI build output, ignored by git
 ```
 
