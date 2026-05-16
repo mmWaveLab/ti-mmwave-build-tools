@@ -6,8 +6,7 @@ HOST_TI_ROOT ?= $(TI_ROOT)
 .PHONY: docker-build docker-shell sdk-image sdk-image-smoke sdk-profile-validate install-profile-validate cmake-portability github-actions-smoke project-docker project-native doctor test ci docker-cmake native-cmake benchmark flash-list flash-doctor flash-dry-run flash package clean
 
 docker-build:
-	@command -v docker >/dev/null 2>&1 || { printf 'Docker is required for this command, but the docker executable was not found in PATH.\n' >&2; printf 'Install Docker or run this command on a machine with Docker access.\n' >&2; exit 2; }
-	docker build -t $(IMAGE) .
+	IMAGE=$(IMAGE) scripts/docker-build.sh
 
 docker-shell:
 	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/docker-shell.sh

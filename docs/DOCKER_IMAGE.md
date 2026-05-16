@@ -4,6 +4,10 @@ The Docker image is the stable SDK host shell. It contains Linux build
 dependencies, CMake, Ninja, and helper entry points, but it does not contain TI
 SDKs or compilers.
 
+The public image build context is intentionally slim: generated output,
+catalogs, templates, vendored demos, and Git metadata are excluded by
+`.dockerignore` because the public image only needs the host shell helpers.
+
 For day-to-day private development, use an SDK-full private image instead. That
 image contains the TI SDK/toolchain runtime and is not meant for public
 redistribution. It must not embed this repository's vendored `demos/sdk` tree;
