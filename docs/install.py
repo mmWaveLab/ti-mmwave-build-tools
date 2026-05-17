@@ -458,17 +458,8 @@ def local_demo_source(profile: Profile) -> Path | None:
         repo_root = Path(__file__).resolve().parent.parent
     except OSError:
         return None
-    source = repo_root / "demos" / "sdk" / profile.source_rel
+    source = repo_root / "demos" / profile.name / "app"
     return source if (source / "makefile").is_file() else None
-
-
-def local_demo_utils() -> Path | None:
-    try:
-        repo_root = Path(__file__).resolve().parent.parent
-    except OSError:
-        return None
-    source = repo_root / "demos" / "sdk" / "ti" / "demo" / "utils"
-    return source if (source / "mmwdemo_rfparser.c").is_file() else None
 
 
 def copy_tree(src: Path, dst: Path) -> None:
@@ -488,8 +479,7 @@ def safe_child(base: Path, rel: Path) -> Path:
 def copy_demo_from_archive(out_dir: Path, profile: Profile, archive_url: str) -> None:
     app_dir = out_dir / "app"
     requests = {
-        f"demos/sdk/{profile.source_rel}/": app_dir,
-        "demos/sdk/ti/demo/utils/": app_dir / "utils",
+        f"demos/{profile.name}/app/": app_dir,
     }
     with tempfile.TemporaryDirectory(prefix="mmwave-tools-archive-") as tmp:
         archive = Path(tmp) / "tools.tar.gz"
@@ -538,13 +528,10 @@ def copy_demo(out_dir: Path, profile: Profile, archive_url: str, dry_run: bool) 
     local_source = local_demo_source(profile)
     if dry_run:
         source = str(local_source) if local_source else archive_url
-        print(f"+ copy demo {q(profile.source_rel)} from {q(source)} to {q(str(app_dir))}")
+        print(f"+ copy demo {q(profile.name + '/app')} from {q(source)} to {q(str(app_dir))}")
         return
     if local_source is not None:
         copy_tree(local_source, app_dir)
-        utils = local_demo_utils()
-        if utils is not None:
-            copy_tree(utils, app_dir / "utils")
         return
     copy_demo_from_archive(out_dir, profile, archive_url)
 

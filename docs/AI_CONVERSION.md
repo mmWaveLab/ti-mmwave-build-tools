@@ -119,7 +119,7 @@ During conversion:
 ```text
 [ ] Preserve upstream source layout under app/.
 [ ] Keep generated output under build/.
-[ ] Use tools/mmwave-run for Docker execution.
+[ ] Use tools/mmwave-run for standalone projects, or ../../scripts/mmwave-run.sh for in-repo demos.
 [ ] Use CMake custom commands for build steps.
 [ ] Keep the target name firmware for the primary firmware build.
 [ ] Keep the Docker image configurable through IMAGE or SDK_FULL_IMAGE.

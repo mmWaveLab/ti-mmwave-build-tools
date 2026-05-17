@@ -5,14 +5,14 @@ dependencies, CMake, Ninja, and helper entry points, but it does not contain TI
 SDKs or compilers.
 
 The public image build context is intentionally slim: generated output,
-catalogs, templates, vendored demos, and Git metadata are excluded by
+catalogs, templates, converted demos, and Git metadata are excluded by
 `.dockerignore` because the public image only needs the host shell helpers.
 
 For day-to-day private development, use an SDK-full private image instead. That
 image contains the TI SDK/toolchain runtime and is not meant for public
-redistribution. It must not embed this repository's vendored `demos/sdk` tree;
-project demo sources come from the repository archive or local checkout at
-project creation time.
+redistribution. It must not embed this repository's `demos/` tree; project demo
+sources come from the repository archive or local checkout at project creation
+time.
 
 ## Image Contract
 
@@ -69,8 +69,8 @@ intentional: TI make/configuro fragments can embed the install path, so the
 container standardizes that path even when the host is macOS, Windows, or a
 different Linux distribution. The image intentionally does not contain
 `/opt/ti-mmwave-build-tools` or `create-mmwave-app`; keeping project templates
-and vendored demos outside the image prevents stale demo copies after repository
-updates.
+and converted demos outside the image prevents stale demo copies after
+repository updates.
 
 Open a shell in the image:
 

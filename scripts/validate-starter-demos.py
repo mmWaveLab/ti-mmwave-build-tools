@@ -110,9 +110,9 @@ def main() -> None:
         if row["source_kind"] == "sdk-make":
             if row["build_entry_kind"] != "make-target":
                 errors.append(f"{profile}: SDK make profile must use make-target build entry")
-            demo_dir = repo / "demos" / "sdk" / row["source_rel"]
+            demo_dir = repo / "demos" / profile / "app"
             if not (demo_dir / "makefile").is_file():
-                errors.append(f"{profile}: missing vendored demo makefile at {demo_dir}")
+                errors.append(f"{profile}: missing converted demo makefile at {demo_dir}")
             generated = [
                 path.relative_to(demo_dir)
                 for path in demo_dir.rglob("*")
@@ -120,14 +120,14 @@ def main() -> None:
                 and path.suffix in {".bin", ".xer4f", ".xe674", ".map", ".obj"}
             ]
             if generated:
-                errors.append(f"{profile}: vendored demo contains generated files: {generated[:5]}")
+                errors.append(f"{profile}: converted demo contains generated files: {generated[:5]}")
         elif row["source_kind"] == "toolbox-projectspec":
             if row["build_entry_kind"] != "ccs-projectspecs":
                 errors.append(f"{profile}: Toolbox profile must use ccs-projectspecs build entry")
             if ".projectspec" not in row["build_entry"]:
                 errors.append(f"{profile}: Toolbox build entry must list projectspec files")
 
-    for path in sorted((repo / "demos" / "sdk").rglob("*")):
+    for path in sorted((repo / "demos").glob("*/app/**/*")):
         if not path.is_file() or path.suffix not in {".c", ".h"}:
             continue
         text = path.read_text(encoding="utf-8", errors="ignore")

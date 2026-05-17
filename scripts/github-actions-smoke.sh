@@ -62,6 +62,12 @@ test -x "$repo_dir/scripts/validate-install-profiles.sh"
 test -f "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
 test -f "$repo_dir/templates/mmwave-cmake-project/gitignore.in"
 test -f "$repo_dir/docker/Dockerfile.sdk-full"
+test -f "$repo_dir/demos/xwr1843boost-mss-only/CMakeLists.txt"
+test -f "$repo_dir/demos/xwr1843boost-mss-dss/CMakeLists.txt"
+test -f "$repo_dir/demos/xwr6843isk-mss-only/CMakeLists.txt"
+test -f "$repo_dir/demos/xwr6843isk-mss-dss/CMakeLists.txt"
+test -f "$repo_dir/demos/xwr6843aop-mss-only/CMakeLists.txt"
+test ! -d "$repo_dir/demos/sdk"
 
 printf 'Project template static checks\n'
 grep -q 'cmake --build' "$repo_dir/templates/mmwave-cmake-project/Makefile.in"
@@ -72,6 +78,8 @@ grep -q '^\.git$' "$repo_dir/.dockerignore"
 grep -q 'COPY check-ti-linux.sh' "$repo_dir/docker/Dockerfile.sdk-full"
 grep -q 'COPY ti-sdk-env.sh' "$repo_dir/docker/Dockerfile.sdk-full"
 grep -q 'CMAKE_CURRENT_LIST_DIR.*/tools' "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
+grep -q 'CMAKE_CURRENT_LIST_DIR.*/../..' "$repo_dir/demos/xwr6843isk-mss-dss/CMakeLists.txt"
+grep -q '../../scripts/mmwave-run.sh' "$repo_dir/demos/xwr6843isk-mss-dss/Makefile"
 ! grep -q 'COPY tools' "$repo_dir/docker/Dockerfile.sdk-full"
 ! grep -q 'create-mmwave-app' "$repo_dir/docker/Dockerfile.sdk-full"
 grep -q 'sdk-full-sha256' "$repo_dir/.github/workflows/ci.yml"
@@ -161,9 +169,9 @@ with path.open(encoding="utf-8", newline="") as f:
         if not all((output_artifact, build_entry, clean_target, make_vars, summary)):
             errors.append(f"line {line_no}: missing summary")
         if source_kind == "sdk-make":
-            demo_dir = path.parents[1] / "demos" / "sdk" / source_rel
+            demo_dir = path.parents[1] / "demos" / profile / "app"
             if not (demo_dir / "makefile").is_file():
-                errors.append(f"line {line_no}: missing vendored demo source {demo_dir}")
+                errors.append(f"line {line_no}: missing converted demo source {demo_dir}")
 missing = sorted(required - ids)
 if missing:
     errors.append(f"missing required profiles: {', '.join(missing)}")

@@ -26,8 +26,9 @@ MSS-only.
   Build entry fields are normalized as `build_entry_kind` plus `build_entry`:
   SDK makefile profiles use `make-target`, while cataloged Toolbox profiles
   use `ccs-projectspecs`.
-- `demos/sdk` stores source-only SDK OOB demo fork points for validated
-  SDK-backed profiles.
+- `demos/<profile>` stores the editable converted CMake/Ninja starter project
+  for each buildable SDK-backed profile. The forked TI demo source lives in
+  `demos/<profile>/app`.
 - `docs/install.py` is the public GitHub Pages installer and duplicates only the
   six starter profiles needed for no-clone project creation.
 - `scripts/create-mmwave-app.sh` is the repo-local development entrypoint and
@@ -37,11 +38,11 @@ MSS-only.
 - `docs/catalog` stores analysis-only Toolbox catalogs until projectspec
   import support turns those entries into buildable profiles.
 
-The repository stores only the small SDK OOB demo source fork points required
-for starter project creation. It does not store generated starter projects,
-Toolbox source trees, compiler outputs, prebuilt firmware images, radarss
-firmware, or TI toolchains. Generated projects live in the user's chosen
-destination directory.
+The repository stores only the small converted starter projects required for
+fast forking and CI checks. It does not store raw SDK mirror trees, Toolbox
+source trees, compiler outputs, prebuilt firmware images, radarss firmware, or
+TI toolchains. User-created projects live in the user's chosen destination
+directory.
 
 ## Unified Entrypoints
 
@@ -88,6 +89,11 @@ my-project/
     cmake/             # copied by repo-local generator; installer embeds equivalent logic
   build/               # generated CMake and TI build output, ignored by git
 ```
+
+Repository demos are slightly slimmer than generated standalone projects:
+`demos/<profile>/Makefile` calls `../../scripts/mmwave-run.sh`, and
+`CMakeLists.txt` uses the shared `../../cmake` modules. This keeps in-repo
+demos editable without carrying stale copies of project tooling.
 
 The CMake project name is controlled by `--cmake-name` in both entrypoints. If
 omitted, the tools convert `--name` into a valid CMake identifier by replacing

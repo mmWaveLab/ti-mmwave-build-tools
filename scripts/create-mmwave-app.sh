@@ -20,9 +20,9 @@ Examples:
   create-mmwave-app people-count-6843 --profile xwr6843isk-mss-dss
   create-mmwave-app vital-signs-1843 --profile xwr1843boost-mss-only --dir /work/vital-signs-1843 --cmake-name vital_signs_1843
 
-This creates a clean standalone project by forking the source-only SDK OOB demo
-stored in this repository. The generated project builds with CMake+Ninja inside
-the SDK-full Docker image.
+This creates a clean standalone project by forking one of the converted demo
+projects stored under demos/<profile>/app. The generated project builds with
+CMake+Ninja inside the SDK-full Docker image.
 
 Common --profile values:
   xwr6843isk-mss-only, xwr6843isk-mss-dss
@@ -216,10 +216,8 @@ if [[ "$build_entry_kind" != "make-target" ]]; then
   exit 2
 fi
 
-repo_demo_dir="$repo_dir/demos/sdk/$sdk_demo_rel"
-repo_demo_utils_dir="$repo_dir/demos/sdk/ti/demo/utils"
+repo_demo_dir="$repo_dir/demos/$profile/app"
 sdk_demo_dir="$ti_root/mmwave_sdk_03_06_02_00-LTS/packages/$sdk_demo_rel"
-sdk_demo_utils_dir="$ti_root/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/utils"
 
 if [[ -z "$out_dir" ]]; then
   out_dir="$PWD/$name"
@@ -241,7 +239,7 @@ if [[ -f "$repo_demo_dir/makefile" ]]; then
 elif [[ -f "$sdk_demo_dir/makefile" ]]; then
   demo_source_dir="$sdk_demo_dir"
 else
-  printf 'Demo makefile not found in repository or SDK image:\n' >&2
+  printf 'Demo makefile not found in repository converted demo or SDK image:\n' >&2
   printf '  repo: %s/makefile\n' "$repo_demo_dir" >&2
   printf '  sdk:  %s/makefile\n' "$sdk_demo_dir" >&2
   exit 2
@@ -250,12 +248,9 @@ fi
 rm -rf "$abs_out"
 mkdir -p "$abs_out/app"
 cp -a "$demo_source_dir/." "$abs_out/app/"
-if [[ -f "$repo_demo_utils_dir/mmwdemo_rfparser.c" ]]; then
+if [[ ! -f "$abs_out/app/utils/mmwdemo_rfparser.c" && -f "$ti_root/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/utils/mmwdemo_rfparser.c" ]]; then
   mkdir -p "$abs_out/app/utils"
-  cp -a "$repo_demo_utils_dir/." "$abs_out/app/utils/"
-elif [[ -f "$sdk_demo_utils_dir/mmwdemo_rfparser.c" ]]; then
-  mkdir -p "$abs_out/app/utils"
-  cp -a "$sdk_demo_utils_dir/." "$abs_out/app/utils/"
+  cp -a "$ti_root/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/utils/." "$abs_out/app/utils/"
 fi
 mkdir -p "$abs_out/src"
 printf 'Project-local sources can live here when they are not part of the forked TI demo tree.\n' > "$abs_out/src/README.md"

@@ -151,12 +151,12 @@ Key files:
 - `cmake/RunConfiguro.cmake`: XDC configuro wrapper.
 - `cmake/RunMetaImage.cmake`: ImageCreator wrapper.
 - `cmake/TiMmwaveSdkPaths.cmake`: Linux path discovery used by this Docker lab.
-- `demos/sdk`: source-only TI SDK 03.06.02 OOB demo fork points used by the
-  installer and project generator.
+- `demos/<profile>`: editable converted CMake/Ninja starter projects. Each
+  buildable profile keeps its forked TI demo source under `app/`.
 - `THIRD_PARTY_NOTICES.md`: preserved TI notice and license record for
   vendored demo sources.
-- `templates/mmwave-cmake-project`: project scaffold for new CMake/Ninja
-  firmware projects.
+- `templates/mmwave-cmake-project`: standalone project scaffold used when
+  copying one of the converted demos to a user-selected destination.
 - `config/starter-demo-profiles.tsv`: starter TI OOB demo fork profiles used by
   `create-mmwave-app --profile`, including the 3 board by 2 core-mode starter
   matrix.
@@ -171,7 +171,7 @@ Key files:
   application demo catalog, including 6843AOP MSS+DSS candidates.
 - `docker/Dockerfile.sdk-full`: private SDK-full image recipe for local or
   private-registry use. It contains the SDK/toolchain runtime, not this
-  repository's vendored demo tree.
+  repository's converted demo projects.
 
 The Docker validation flow in this README exercises the SDK reference demo
 makefiles. Downstream firmware projects can still use the reusable CMake API
