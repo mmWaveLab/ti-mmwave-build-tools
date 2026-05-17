@@ -164,6 +164,8 @@ Key files:
   projects.
 - `docs/STARTER_DEMOS.md`: normalized six-profile contract and generated
   project layout.
+- `docs/AI_CONVERSION.md`: project-specific AI conversion guide for existing
+  TI SDK, Toolbox, or CCS projects.
 - `docs/catalog/toolbox-oob-demo-profiles.tsv`: lightweight TI Radar Toolbox OOB catalog.
 - `docs/catalog/toolbox-application-demo-profiles.tsv`: lightweight TI Radar Toolbox
   application demo catalog, including 6843AOP MSS+DSS candidates.
