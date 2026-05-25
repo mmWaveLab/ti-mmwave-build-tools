@@ -16,8 +16,8 @@ profile_output_bin() {
   while IFS=$'\t' read -r profile _board _mode source_kind _source _device _sdk_device output_bin _cores _entry_kind _entry _clean _vars _configs status _summary; do
     [[ -z "${profile:-}" || "$profile" == \#* ]] && continue
     if [[ "$profile" == "$requested" ]]; then
-      if [[ "$source_kind" != "sdk-make" || "$status" != "validated" ]]; then
-        printf 'Smoke profile is not SDK-make validated: %s\n' "$requested" >&2
+      if [[ ( "$source_kind" != "sdk-make" && "$source_kind" != "toolbox-make" ) || "$status" != "validated" ]]; then
+        printf 'Smoke profile is not a validated make profile: %s\n' "$requested" >&2
         return 3
       fi
       printf '%s\n' "$output_bin"

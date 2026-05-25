@@ -15,3 +15,13 @@ add_test(
   NAME list_starter_profiles
   COMMAND "${BASH_EXE}" "${CMAKE_CURRENT_LIST_DIR}/scripts/create-mmwave-app.sh" --list-profiles
 )
+
+add_test(
+  NAME github_actions_smoke
+  COMMAND "${BASH_EXE}" "${CMAKE_CURRENT_LIST_DIR}/scripts/github-actions-smoke.sh"
+)
+
+add_test(
+  NAME cmake_portability
+  COMMAND "${BASH_EXE}" "${CMAKE_CURRENT_LIST_DIR}/scripts/validate-cmake-portability.sh"
+)

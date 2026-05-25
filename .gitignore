@@ -5,7 +5,7 @@ work/
 work-*/
 artifacts/
 reports/*
-packages/
+/packages/
 *.log
 __pycache__/
 *.pyc

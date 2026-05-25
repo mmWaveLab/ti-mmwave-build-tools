@@ -75,7 +75,7 @@ validate_one_profile() {
   local note="-"
 
   start="$(date +%s)"
-  if [[ "$source_kind" == "sdk-make" && "$status" == "validated" ]]; then
+  if [[ ( "$source_kind" == "sdk-make" || "$source_kind" == "toolbox-make" ) && "$status" == "validated" ]]; then
     python3 "$installer" \
       --name "$project" \
       --profile "$profile" \
@@ -125,7 +125,7 @@ printf '%s\n' "- Installer: \`${INSTALLER_URL:-$installer}\`" >>"$report"
 printf '%s\n' "- Profile manifest: \`$profiles_file\`" >>"$report"
 printf '%s\n' "- Parallel install jobs: \`$jobs_label\`" >>"$report"
 printf '%s\n\n' "- Work directory: \`$work_dir\`" >>"$report"
-printf '%s\n\n' "Validated SDK profiles must generate from \`install.py\`, build with CMake+Ninja inside Docker, and expose the expected flashable output. Cataloged Toolbox profiles must fail clearly until the projectspec importer exists." >>"$report"
+printf '%s\n\n' "Validated SDK and Toolbox make profiles must generate from \`install.py\`, build with CMake+Ninja inside Docker, and expose the expected flashable output. Cataloged projectspec profiles must fail clearly until the projectspec importer exists." >>"$report"
 printf '| Profile | Result | Exit | Seconds | SHA-256 | Bytes | Note |\n' >>"$report"
 printf '|---|---:|---:|---:|---|---:|---|\n' >>"$report"
 

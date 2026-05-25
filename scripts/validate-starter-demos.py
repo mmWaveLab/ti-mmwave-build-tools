@@ -107,9 +107,9 @@ def main() -> None:
             errors.append(f"{profile}: starter output must be a flashable .bin")
         if row["build_entry_kind"] not in {"make-target", "ccs-projectspecs"}:
             errors.append(f"{profile}: invalid build entry kind {row['build_entry_kind']!r}")
-        if row["source_kind"] == "sdk-make":
+        if row["source_kind"] in {"sdk-make", "toolbox-make"}:
             if row["build_entry_kind"] != "make-target":
-                errors.append(f"{profile}: SDK make profile must use make-target build entry")
+                errors.append(f"{profile}: make profile must use make-target build entry")
             demo_dir = repo / "demos" / profile / "app"
             if not (demo_dir / "makefile").is_file():
                 errors.append(f"{profile}: missing converted demo makefile at {demo_dir}")
@@ -126,19 +126,30 @@ def main() -> None:
                 errors.append(f"{profile}: Toolbox profile must use ccs-projectspecs build entry")
             if ".projectspec" not in row["build_entry"]:
                 errors.append(f"{profile}: Toolbox build entry must list projectspec files")
+        else:
+            errors.append(f"{profile}: invalid source kind {row['source_kind']!r}")
 
     for path in sorted((repo / "demos").glob("*/app/**/*")):
         if not path.is_file() or path.suffix not in {".c", ".h"}:
             continue
         text = path.read_text(encoding="utf-8", errors="ignore")
         rel = path.relative_to(repo)
-        for required in (
-            "Texas Instruments",
-            "Redistribution and use in source and binary forms",
-            "Neither the name of Texas Instruments Incorporated",
-        ):
+        if rel.parts[:3] == ("demos", "xwr6843aop-mss-dss", "app"):
+            required_fragments = (
+                "Texas Instruments",
+                "Limited License",
+                "Redistributions must preserve existing copyright notices",
+                "Neither the name of Texas Instruments Incorporated",
+            )
+        else:
+            required_fragments = (
+                "Texas Instruments",
+                "Redistribution and use in source and binary forms",
+                "Neither the name of Texas Instruments Incorporated",
+            )
+        for required in required_fragments:
             if required not in text:
-                errors.append(f"{rel}: missing preserved TI BSD notice fragment {required!r}")
+                errors.append(f"{rel}: missing preserved TI notice fragment {required!r}")
 
     if errors:
         raise SystemExit("\n".join(errors))

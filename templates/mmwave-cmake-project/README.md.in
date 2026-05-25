@@ -116,7 +116,7 @@ then calls TI's `generateMetaImage.sh` with radarss and `NULL` DSS input.
 
 ## License Note
 
-This project contains source copied from TI mmWave SDK `packages/ti/demo`,
-which TI's SDK 03.06.02 software manifest lists under BSD-3-Clause. Preserve
-the upstream copyright and license notices in source files. See this project's
-`THIRD_PARTY_NOTICES.md` for the TI notice text.
+This project contains source copied from the TI SDK or Radar Toolbox demo named
+by the selected profile. Preserve the upstream copyright and license notices in
+source files. See this project's `THIRD_PARTY_NOTICES.md` for the TI notice
+text.

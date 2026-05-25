@@ -202,7 +202,7 @@ if [[ -z "$profile" ]]; then
 fi
 load_profile "$profile"
 
-if [[ "$source_kind" != "sdk-make" ]]; then
+if [[ "$source_kind" != "sdk-make" && "$source_kind" != "toolbox-make" ]]; then
   printf 'Profile is cataloged but not yet generatable by this SDK makefile template: %s\n' "$profile" >&2
   printf 'Source kind: %s\n' "$source_kind" >&2
   printf 'Build entry: %s:%s\n' "$build_entry_kind" "$build_entry" >&2
@@ -236,7 +236,7 @@ fi
 
 if [[ -f "$repo_demo_dir/makefile" ]]; then
   demo_source_dir="$repo_demo_dir"
-elif [[ -f "$sdk_demo_dir/makefile" ]]; then
+elif [[ "$source_kind" == "sdk-make" && -f "$sdk_demo_dir/makefile" ]]; then
   demo_source_dir="$sdk_demo_dir"
 else
   printf 'Demo makefile not found in repository converted demo or SDK image:\n' >&2

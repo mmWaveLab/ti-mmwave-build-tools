@@ -1,0 +1,148 @@
+cmake_minimum_required(VERSION 3.20)
+project(xwr6843aop_mss_dss NONE)
+
+set(TI_MMWAVE_TOOLS_ROOT "$ENV{TI_MMWAVE_TOOLS_ROOT}" CACHE PATH "ti-mmwave-build-tools path for CMake helper modules")
+if(NOT TI_MMWAVE_TOOLS_ROOT)
+  set(TI_MMWAVE_TOOLS_ROOT "${CMAKE_CURRENT_LIST_DIR}/../.." CACHE PATH "ti-mmwave-build-tools path for CMake helper modules" FORCE)
+endif()
+list(APPEND CMAKE_MODULE_PATH "${TI_MMWAVE_TOOLS_ROOT}/cmake")
+include(TiMmwaveSdkPaths)
+
+set(MMWAVE_SDK_DEVICE "iwr68xx" CACHE STRING "mmWave SDK device")
+set(MMWAVE_SDK_DEVICE_TYPE "xwr68xx" CACHE STRING "mmWave SDK device type")
+set(MMWAVE_DEMO_PROFILE "xwr6843aop-mss-dss" CACHE STRING "mmWave demo profile used to create this project")
+set(MMWAVE_SDK_DEMO_REL "source/ti/examples/Industrial_and_Personal_Electronics/People_Tracking/3D_People_Tracking" CACHE STRING "SDK package-relative demo source path")
+set(MMWAVE_BUILD_TARGET "all" CACHE STRING "TI make target used to build this profile")
+set(MMWAVE_CLEAN_TARGET "clean" CACHE STRING "TI make target used to clean this profile")
+set(MMWAVE_EXTRA_MAKE_ARGS "" CACHE STRING "Extra TI make arguments for this profile")
+option(MMWAVE_USE_SDK_OVERLAY "Build through a temporary SDK package overlay instead of the canonical SDK packages path" OFF)
+set(APP_SOURCE_DIR "${CMAKE_CURRENT_LIST_DIR}/app")
+set(APP_BUILD_DIR "${CMAKE_BINARY_DIR}/app")
+set(SDK_PACKAGES_OVERLAY "${CMAKE_BINARY_DIR}/sdk-packages-overlay")
+set(MMWAVE_BUILD_SDK_PACKAGES "${MMWAVE_SDK_PACKAGES}")
+if(MMWAVE_USE_SDK_OVERLAY)
+  set(MMWAVE_BUILD_SDK_PACKAGES "${SDK_PACKAGES_OVERLAY}")
+endif()
+set(OUTPUT_BIN "${APP_BUILD_DIR}/3D_people_track_6843_demo.bin")
+set(MSS_METAIMAGE_HELPER "${CMAKE_BINARY_DIR}/mss-metaimage-if-needed.sh")
+set(SDK_OVERLAY_HELPER "${CMAKE_BINARY_DIR}/sdk-packages-overlay.sh")
+
+file(WRITE "${SDK_OVERLAY_HELPER}" [=[
+#!/usr/bin/env bash
+set -euo pipefail
+
+real="${MMWAVE_SDK_PACKAGES:?}"
+overlay="${SDK_PACKAGES_OVERLAY:?}"
+app="${APP_BUILD_DIR:?}"
+demo_rel="${MMWAVE_SDK_DEMO_REL:?}"
+
+rm -rf "$overlay"
+mkdir -p "$overlay" "$overlay/ti"
+
+for item in "$real"/*; do
+  base="$(basename "$item")"
+  [[ "$base" == "ti" ]] && continue
+  ln -s "$item" "$overlay/$base"
+done
+
+for item in "$real"/ti/*; do
+  base="$(basename "$item")"
+  [[ "$base" == "demo" ]] && continue
+  ln -s "$item" "$overlay/ti/$base"
+done
+
+mkdir -p "$overlay/ti/demo"
+if [[ -d "$app/utils" ]]; then
+  ln -s "$app/utils" "$overlay/ti/demo/utils"
+elif [[ -d "$real/ti/demo/utils" ]]; then
+  ln -s "$real/ti/demo/utils" "$overlay/ti/demo/utils"
+fi
+
+mkdir -p "$overlay/$(dirname "$demo_rel")"
+ln -s "$app" "$overlay/$demo_rel"
+test -f "$overlay/$demo_rel/makefile"
+]=])
+
+file(WRITE "${MSS_METAIMAGE_HELPER}" [=[
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [[ -f "$OUTPUT_BIN" || "$OUTPUT_BIN" != *.bin ]]; then
+  test -f "$OUTPUT_BIN"
+  exit 0
+fi
+
+case "$MMWAVE_SDK_DEVICE_TYPE" in
+  xwr18xx)
+    shmem_alloc="0x00000008"
+    radarss="$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/firmware/radarss/xwr18xx_radarss_rprc.bin"
+    ;;
+  *)
+    shmem_alloc="0x00000006"
+    radarss="$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/firmware/radarss/xwr6xxx_radarss_rprc.bin"
+    ;;
+esac
+
+mss_out="${OUTPUT_BIN%.bin}_mss.xer4f"
+test -f "$mss_out"
+test -f "$radarss"
+MMWAVE_SDK_INSTALL_PATH="${MMWAVE_SDK_INSTALL_PATH:-$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages}" \
+  "$TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages/scripts/unix/generateMetaImage.sh" \
+  "$OUTPUT_BIN" "$shmem_alloc" "$mss_out" "$radarss" NULL
+test -f "$OUTPUT_BIN"
+]=])
+
+foreach(required_path
+    "${APP_SOURCE_DIR}/makefile"
+    "${MMWAVE_SDK_PACKAGES}/scripts/unix/generateMetaImage.sh")
+  if(NOT EXISTS "${required_path}")
+    message(FATAL_ERROR "Required path not found: ${required_path}")
+  endif()
+endforeach()
+
+add_custom_command(
+  OUTPUT "${OUTPUT_BIN}"
+  COMMAND "${CMAKE_COMMAND}" -E rm -rf "${APP_BUILD_DIR}"
+  COMMAND "${CMAKE_COMMAND}" -E copy_directory "${APP_SOURCE_DIR}" "${APP_BUILD_DIR}"
+  COMMAND "${CMAKE_COMMAND}" -E env
+    "MMWAVE_SDK_PACKAGES=${MMWAVE_SDK_PACKAGES}"
+    "SDK_PACKAGES_OVERLAY=${SDK_PACKAGES_OVERLAY}"
+    "APP_BUILD_DIR=${APP_BUILD_DIR}"
+    "MMWAVE_SDK_DEMO_REL=${MMWAVE_SDK_DEMO_REL}"
+    /bin/bash "${SDK_OVERLAY_HELPER}"
+  COMMAND "${CMAKE_COMMAND}" -E env
+    "CCS_MAKEFILE_BASED_BUILD=1"
+    "MMWAVE_SDK_DEVICE=${MMWAVE_SDK_DEVICE}"
+    "MMWAVE_SDK_DEVICE_TYPE=${MMWAVE_SDK_DEVICE_TYPE}"
+    "MMWAVE_SDK_TOOLS_INSTALL_PATH=${TI_ROOT}"
+    "MMWAVE_SDK_INSTALL_PATH=${MMWAVE_BUILD_SDK_PACKAGES}"
+    "${CMAKE_COMMAND}" -E chdir "${APP_BUILD_DIR}"
+    make -f makefile "${MMWAVE_CLEAN_TARGET}"
+      "MMWAVE_SDK_TOOLS_INSTALL_PATH=${TI_ROOT}"
+      "MMWAVE_SDK_INSTALL_PATH=${MMWAVE_BUILD_SDK_PACKAGES}"
+      ${MMWAVE_EXTRA_MAKE_ARGS}
+  COMMAND "${CMAKE_COMMAND}" -E env
+    "CCS_MAKEFILE_BASED_BUILD=1"
+    "MMWAVE_SDK_DEVICE=${MMWAVE_SDK_DEVICE}"
+    "MMWAVE_SDK_DEVICE_TYPE=${MMWAVE_SDK_DEVICE_TYPE}"
+    "MMWAVE_SDK_TOOLS_INSTALL_PATH=${TI_ROOT}"
+    "MMWAVE_SDK_INSTALL_PATH=${MMWAVE_BUILD_SDK_PACKAGES}"
+    "${CMAKE_COMMAND}" -E chdir "${APP_BUILD_DIR}"
+    make -f makefile "${MMWAVE_BUILD_TARGET}"
+      "MMWAVE_SDK_TOOLS_INSTALL_PATH=${TI_ROOT}"
+      "MMWAVE_SDK_INSTALL_PATH=${MMWAVE_BUILD_SDK_PACKAGES}"
+      ${MMWAVE_EXTRA_MAKE_ARGS}
+  COMMAND "${CMAKE_COMMAND}" -E env
+    "OUTPUT_BIN=${OUTPUT_BIN}"
+    "TI_ROOT=${TI_ROOT}"
+    "MMWAVE_SDK_DEVICE_TYPE=${MMWAVE_SDK_DEVICE_TYPE}"
+    "MMWAVE_SDK_INSTALL_PATH=${MMWAVE_BUILD_SDK_PACKAGES}"
+    /bin/bash "${MSS_METAIMAGE_HELPER}"
+  WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
+  VERBATIM
+  COMMENT "Building forked xwr68xx firmware"
+)
+
+add_custom_target(firmware ALL DEPENDS "${OUTPUT_BIN}")
+
+install(FILES "${OUTPUT_BIN}" DESTINATION .)

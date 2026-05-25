@@ -67,6 +67,7 @@ test -f "$repo_dir/demos/xwr1843boost-mss-dss/CMakeLists.txt"
 test -f "$repo_dir/demos/xwr6843isk-mss-only/CMakeLists.txt"
 test -f "$repo_dir/demos/xwr6843isk-mss-dss/CMakeLists.txt"
 test -f "$repo_dir/demos/xwr6843aop-mss-only/CMakeLists.txt"
+test -f "$repo_dir/demos/xwr6843aop-mss-dss/CMakeLists.txt"
 test ! -d "$repo_dir/demos/sdk"
 
 printf 'Project template static checks\n'
@@ -98,8 +99,25 @@ rm -rf "$repo_dir/build/github-actions-generated"
 grep -q 'project(smoke_project NONE)' "$repo_dir/build/github-actions-generated/CMakeLists.txt"
 grep -q -- '--pull' "$repo_dir/build/github-actions-generated/tools/mmwave-run"
 grep -q 'Docker is required for this command' "$repo_dir/build/github-actions-generated/tools/mmwave-run"
+rm -rf "$repo_dir/build/github-actions-generated-aop"
+"$repo_dir/scripts/create-mmwave-app.sh" smoke-aop-project \
+  --profile xwr6843aop-mss-dss \
+  --dir "$repo_dir/build/github-actions-generated-aop" \
+  --cmake-name smoke_aop_project \
+  --force >/dev/null
+test -f "$repo_dir/build/github-actions-generated-aop/app/dpu/trackerproc_overhead/packages/ti/alg/gtrack/lib/libgtrack3D.aer4f"
+grep -q 'Radar Toolbox' "$repo_dir/build/github-actions-generated-aop/THIRD_PARTY_NOTICES.md"
 python3 "$repo_dir/docs/install.py" --list-profiles >/dev/null
 python3 "$repo_dir/docs/install.py" --name smoke-project --profile xwr6843isk-mss-dss --dry-run --pull never >/dev/null
+rm -rf "$repo_dir/build/github-actions-install-aop"
+python3 "$repo_dir/docs/install.py" \
+  --name smoke-aop-install \
+  --profile xwr6843aop-mss-dss \
+  --dir "$repo_dir/build/github-actions-install-aop" \
+  --pull never \
+  --force >/dev/null
+test -f "$repo_dir/build/github-actions-install-aop/app/dpu/trackerproc_overhead/packages/ti/alg/gtrack/lib/libgtrack3D.aer4f"
+grep -q 'Radar Toolbox' "$repo_dir/build/github-actions-install-aop/THIRD_PARTY_NOTICES.md"
 python3 "$repo_dir/scripts/validate-starter-demos.py" >/dev/null
 
 printf 'Demo profile manifest\n'
@@ -138,14 +156,14 @@ with path.open(encoding="utf-8", newline="") as f:
             errors.append(f"line {line_no}: unexpected board {board}")
         if core_mode not in required_modes:
             errors.append(f"line {line_no}: unexpected core mode {core_mode}")
-        if source_kind not in {"sdk-make", "toolbox-projectspec"}:
+        if source_kind not in {"sdk-make", "toolbox-make", "toolbox-projectspec"}:
             errors.append(f"line {line_no}: unexpected source kind {source_kind}")
         if source_kind == "sdk-make" and not source_rel.startswith("ti/demo/"):
             errors.append(f"line {line_no}: unexpected SDK demo path {source_rel}")
         if build_entry_kind not in {"make-target", "ccs-projectspecs"}:
             errors.append(f"line {line_no}: unexpected build entry kind {build_entry_kind}")
-        if source_kind == "sdk-make" and build_entry_kind != "make-target":
-            errors.append(f"line {line_no}: SDK make rows must use make-target entries")
+        if source_kind in {"sdk-make", "toolbox-make"} and build_entry_kind != "make-target":
+            errors.append(f"line {line_no}: make rows must use make-target entries")
         if source_kind == "toolbox-projectspec" and build_entry_kind != "ccs-projectspecs":
             errors.append(f"line {line_no}: toolbox rows must use ccs-projectspecs entries")
         if build_entry_kind == "ccs-projectspecs" and ".projectspec" not in build_entry:
@@ -168,7 +186,7 @@ with path.open(encoding="utf-8", newline="") as f:
             errors.append(f"line {line_no}: missing profile config list")
         if not all((output_artifact, build_entry, clean_target, make_vars, summary)):
             errors.append(f"line {line_no}: missing summary")
-        if source_kind == "sdk-make":
+        if source_kind in {"sdk-make", "toolbox-make"}:
             demo_dir = path.parents[1] / "demos" / profile / "app"
             if not (demo_dir / "makefile").is_file():
                 errors.append(f"line {line_no}: missing converted demo source {demo_dir}")

@@ -63,31 +63,45 @@ profile_enabled() {
 
 build_direct() {
   local profile="$1"
-  local source_rel="$2"
-  local sdk_device="$3"
-  local device_template="$4"
-  local output_bin="$5"
-  local build_target="$6"
-  local clean_target="$7"
-  local make_vars="$8"
+  local source_kind="$2"
+  local source_rel="$3"
+  local sdk_device="$4"
+  local device_template="$5"
+  local output_bin="$6"
+  local build_target="$7"
+  local clean_target="$8"
+  local make_vars="$9"
 
   docker run --rm \
     --user "$(id -u):$(id -g)" \
     -e HOME=/tmp \
+    -v "$repo_dir":/repo:ro \
     -v "$work_dir":/work \
     -w /work \
     "$image" \
     bash -lc '
       set -euo pipefail
       profile="$1"
-      source_rel="$2"
-      sdk_device="$3"
-      device_template="$4"
-      output_bin="$5"
-      build_target="$6"
-      clean_target="$7"
-      make_vars="$8"
-      src="/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/$source_rel"
+      source_kind="$2"
+      source_rel="$3"
+      sdk_device="$4"
+      device_template="$5"
+      output_bin="$6"
+      build_target="$7"
+      clean_target="$8"
+      make_vars="$9"
+      case "$source_kind" in
+        sdk-make)
+          src="/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/$source_rel"
+          ;;
+        toolbox-make)
+          src="/repo/demos/$profile/app"
+          ;;
+        *)
+          printf "Unsupported direct-build source kind: %s\n" "$source_kind" >&2
+          exit 2
+          ;;
+      esac
       dst="/work/direct-$profile"
       extra_args=()
       if [[ "$make_vars" != "-" && -n "$make_vars" ]]; then
@@ -128,7 +142,7 @@ build_direct() {
       fi
       test -f "$output_bin"
       sha256sum "$output_bin" > "/work/direct-$profile.sha256"
-    ' _ "$profile" "$source_rel" "$sdk_device" "$device_template" "$output_bin" "$build_target" "$clean_target" "$make_vars"
+    ' _ "$profile" "$source_kind" "$source_rel" "$sdk_device" "$device_template" "$output_bin" "$build_target" "$clean_target" "$make_vars"
 }
 
 build_fork() {
@@ -190,13 +204,13 @@ validate_one_profile() {
   rm -rf "$artifact_dir"
   mkdir -p "$artifact_dir"
 
-  if [[ "$source_kind" != "sdk-make" || "$status" != "validated" ]]; then
+  if [[ "$status" != "validated" || ( "$source_kind" != "sdk-make" && "$source_kind" != "toolbox-make" ) ]]; then
     printf '%s\t%s\t%s\t%s\t%s\n' "$profile" "SKIPPED" "SKIPPED" "SKIP" "$output_bin" >"$result_file"
     return 0
   fi
 
   if [[ "$build_entry_kind" != "make-target" ]]; then
-    printf 'Profile %s is sdk-make but does not expose a make target: %s:%s\n' "$profile" "$build_entry_kind" "$build_entry" >"$direct_log"
+    printf 'Profile %s is validated make source but does not expose a make target: %s:%s\n' "$profile" "$build_entry_kind" "$build_entry" >"$direct_log"
     {
       printf '\n## Failure: `%s`\n\n' "$profile"
       printf -- '- Direct log: `%s`\n' "$direct_log"
@@ -206,7 +220,7 @@ validate_one_profile() {
     return 0
   fi
 
-  build_direct "$profile" "$source_rel" "$sdk_device" "$sdk_device_type" "$output_bin" "$build_entry" "$clean_target" "$make_vars" >"$direct_log" 2>&1 || direct_rc=$?
+  build_direct "$profile" "$source_kind" "$source_rel" "$sdk_device" "$sdk_device_type" "$output_bin" "$build_entry" "$clean_target" "$make_vars" >"$direct_log" 2>&1 || direct_rc=$?
   if (( direct_rc == 0 )); then
     cp "$work_dir/direct-$profile/$output_bin" "$artifact_dir/direct-$output_bin"
     direct_sha="$(awk '{print $1}' "$work_dir/direct-$profile.sha256")"
