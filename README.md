@@ -274,6 +274,16 @@ CI_FULL_BUILD=1 scripts/ci.sh
 UniFlash flashing is host-side only. Docker builds firmware; the host runs TI
 UniFlash/DSLite against a user-selected serial download port.
 
+Launch the smooth local flash console:
+
+```bash
+make flash-ui
+```
+
+Open `http://127.0.0.1:8765`. The console provides instant click feedback,
+animated progress, live logs, dry-run command generation, and a typed `FLASH`
+gate before any real flashing action.
+
 List ports:
 
 ```bash

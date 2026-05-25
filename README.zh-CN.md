@@ -260,6 +260,15 @@ CI_FULL_BUILD=1 scripts/ci.sh
 UniFlash 烧录只在宿主机侧执行。Docker 负责构建固件；宿主机运行 TI
 UniFlash/DSLite，并使用用户选择的串口下载端口。
 
+启动丝滑的本地烧录控制台：
+
+```bash
+make flash-ui
+```
+
+打开 `http://127.0.0.1:8765`。控制台提供即时点击反馈、动画进度、实时日志、
+dry-run 命令生成，并且真实烧录前必须输入 `FLASH` 解锁。
+
 列出端口：
 
 ```bash

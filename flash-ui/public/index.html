@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>mmWaveLab Flash</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="topbar">
+        <div>
+          <p class="eyebrow">mmWaveLab</p>
+          <h1>Flash Console</h1>
+        </div>
+        <button class="icon-button" id="refreshBtn" title="刷新设备和固件" aria-label="刷新">
+          <span>↻</span>
+        </button>
+      </section>
+
+      <section class="status-strip" id="statusStrip">
+        <div class="status-dot"></div>
+        <div>
+          <strong id="statusTitle">待机</strong>
+          <span id="statusText">选择串口、固件和 DSLite 后先 dry-run。</span>
+        </div>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h2>目标</h2>
+            <span id="portCount">0 ports</span>
+          </div>
+          <label>Serial port</label>
+          <select id="portSelect"></select>
+          <input id="portInput" placeholder="/dev/ttyACM0" />
+
+          <label>Firmware image</label>
+          <select id="binSelect"></select>
+          <input id="binInput" placeholder="/absolute/path/to/demo.bin" />
+
+          <label>DSLite</label>
+          <input id="dsliteInput" placeholder="/path/to/dslite.sh" />
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>配置</h2>
+            <span>optional</span>
+          </div>
+          <label>CCXML</label>
+          <input id="ccxmlInput" placeholder="/path/to/mmwave.ccxml" />
+
+          <label>UF settings</label>
+          <input id="settingsInput" placeholder="/path/to/generated.ufsettings" />
+
+          <label>UniFlash CLI package</label>
+          <input id="cliDirInput" placeholder="/path/to/generated-cli-package" />
+        </div>
+
+        <div class="panel action-panel">
+          <div class="panel-head">
+            <h2>动作</h2>
+            <span id="latencyPill">instant UI</span>
+          </div>
+          <button class="primary magnetic" id="dryRunBtn">
+            <span>Dry Run</span>
+            <small>生成命令并检查路径</small>
+          </button>
+          <div class="confirm-row">
+            <input id="confirmInput" placeholder="输入 FLASH 解锁烧录" />
+            <button class="danger magnetic" id="flashBtn" disabled>
+              <span>Flash</span>
+              <small>真实烧录</small>
+            </button>
+          </div>
+          <div class="progress">
+            <div id="progressBar"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="console-panel">
+        <div class="panel-head">
+          <h2>实时日志</h2>
+          <button class="ghost" id="clearLogBtn">清空</button>
+        </div>
+        <pre id="logBox"></pre>
+      </section>
+    </main>
+    <div id="toast"></div>
+    <script src="/app.js"></script>
+  </body>
+</html>
