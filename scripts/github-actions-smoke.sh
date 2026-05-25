@@ -45,6 +45,7 @@ cmake -S "$repo_dir" -B "$repo_dir/build/github-actions-smoke" -G "Unix Makefile
 
 printf 'Public artifact paths\n'
 test -f "$repo_dir/README.md"
+test -f "$repo_dir/README.zh-CN.md"
 test -f "$repo_dir/docs/CI.md"
 test -f "$repo_dir/docs/UNIFLASH.md"
 test -f "$repo_dir/docs/DOCKER_IMAGE.md"
@@ -72,6 +73,8 @@ test ! -d "$repo_dir/demos/sdk"
 
 printf 'Project template static checks\n'
 grep -q 'cmake --build' "$repo_dir/templates/mmwave-cmake-project/Makefile.in"
+grep -q 'README.zh-CN.md' "$repo_dir/README.md"
+grep -q 'README.md' "$repo_dir/README.zh-CN.md"
 grep -q 'copy_directory.*APP_SOURCE_DIR' "$repo_dir/templates/mmwave-cmake-project/CMakeLists.txt.in"
 grep -q 'project-specific AI-assisted conversion' "$repo_dir/docs/AI_CONVERSION.md"
 grep -q '^demos$' "$repo_dir/.dockerignore"

@@ -13,22 +13,21 @@ by `install.py`, `create-mmwave-app`, CI, and generated project metadata.
 | xWR6843ISK | MSS only | `xwr6843isk-mss-only` | SDK `ti/demo/xwr68xx/mmw` | `xwr68xx_mmw_demo.bin` |
 | xWR6843ISK | MSS+DSS | `xwr6843isk-mss-dss` | SDK `ti/demo/xwr68xx/mmw` | `xwr68xx_mmw_demo.bin` |
 | xWR6843AOP | MSS only | `xwr6843aop-mss-only` | SDK `ti/demo/xwr64xx/mmw` | `xwr64xxAOP_mmw_demo.bin` |
-| xWR6843AOP | MSS+DSS | `xwr6843aop-mss-dss` | Radar Toolbox projectspec pair | `3D_people_track_6843_demo.bin` |
+| xWR6843AOP | MSS+DSS | `xwr6843aop-mss-dss` | Radar Toolbox 3D People Tracking makefile | `3D_people_track_6843_demo.bin` |
 
-`xwr6843aop-mss-dss` is part of the public matrix but remains `cataloged`
-until the Toolbox projectspec importer is implemented. The tools must reject
-generation for this profile instead of silently aliasing it to ISK or AOP
-MSS-only.
+`xwr6843aop-mss-dss` is a converted Radar Toolbox 3D People Tracking starter
+profile. The tools must generate it from its own vendored Toolbox source tree
+instead of silently aliasing it to ISK or AOP MSS-only.
 
 ## Canonical Storage
 
 - `config/starter-demo-profiles.tsv` is the canonical in-repo profile manifest.
   Build entry fields are normalized as `build_entry_kind` plus `build_entry`:
-  SDK makefile profiles use `make-target`, while cataloged Toolbox profiles
-  use `ccs-projectspecs`.
+  SDK and Toolbox makefile profiles use `make-target`, while cataloged Toolbox
+  profiles use `ccs-projectspecs`.
 - `demos/<profile>` stores the editable converted CMake/Ninja starter project
-  for each buildable SDK-backed profile. The forked TI demo source lives in
-  `demos/<profile>/app`.
+  for each buildable SDK-backed or Toolbox-backed profile. The forked TI demo
+  source lives in `demos/<profile>/app`.
 - `docs/install.py` is the public GitHub Pages installer and duplicates only the
   six starter profiles needed for no-clone project creation.
 - `scripts/create-mmwave-app.sh` is the repo-local development entrypoint and
@@ -76,7 +75,7 @@ my-project/
   Makefile             # pull/configure/build/shell/clean convenience targets
   README.md            # project-local profile and build notes
   .gitignore           # excludes generated build artifacts
-  app/                 # copied vendored SDK OOB demo source; this is the fork point
+  app/                 # copied vendored SDK/Toolbox demo source; this is the fork point
     makefile
     utils/
     mss/
@@ -102,13 +101,15 @@ invalid characters with underscores.
 ## Validation Policy
 
 CI checks the six-profile matrix at the manifest level. Private SDK validation
-builds the SDK-backed profiles in Docker and runs the public installer from a
-clean work directory:
+builds the SDK-backed and Toolbox-backed make profiles in Docker and runs the
+public installer from a clean work directory:
 
 - MSS-only and MSS+DSS profiles must produce byte-identical direct and
   generated `.bin` outputs when the TI SDK makefile path is available.
-- `install.py` must generate and build each validated SDK-backed profile with
-  Docker+CMake+Ninja, without cloning this repository.
-- Cataloged Toolbox projectspec profiles are listed but skipped until the
-  importer exists; the installer must reject them with a clear Toolbox importer
-  message instead of silently aliasing them to another board.
+- `install.py` must generate and build each validated SDK-backed or
+  Toolbox-backed make profile with Docker+CMake+Ninja, without cloning this
+  repository.
+- Cataloged Toolbox projectspec profiles outside the starter matrix are listed
+  in `docs/catalog` until the importer exists; the installer must reject them
+  with a clear Toolbox importer message instead of silently aliasing them to
+  another board.
