@@ -33,10 +33,6 @@ SECTIONS
 	
     .fastCode:
     {
-		RADARDEMO_detectionCFAR_priv.oe674 (.text:RADARDEMO_detectionCFAR_raCAAll)
-		RADARDEMO_aoaEst2DCaponBF_heatmapEst.oe674 (.text:RADARDEMO_aoaEst2DCaponBF_raHeatmap)
-		RADARDEMO_aoaEst2DCaponBF_rnEstInv.oe674 (.text:RADARDEMO_aoaEst2DCaponBF_covInv)
-		MATRIX_cholesky.oe674 (.text:MATRIX_cholesky_flp_inv)
 		RADARDEMO_aoaEst2DCaponBF_staticRemoval.oe674 (.text:RADARDEMO_aoaEst2DCaponBF_clutterRemoval)
 		RADARDEMO_aoaEst2DCaponBF_bpmDecoding.oe674 (.text:RADARDEMO_aoaEst2DCaponBF_bpmDecoding)
 		copyTranspose.oe674 (.text:copyTranspose)
@@ -75,6 +71,10 @@ SECTIONS
 
     .overlaidCode:
     {
+		RADARDEMO_detectionCFAR_priv.oe674 (.text:RADARDEMO_detectionCFAR_raCAAll)
+		RADARDEMO_aoaEst2DCaponBF_heatmapEst.oe674 (.text:RADARDEMO_aoaEst2DCaponBF_raHeatmap)
+		RADARDEMO_aoaEst2DCaponBF_rnEstInv.oe674 (.text:RADARDEMO_aoaEst2DCaponBF_covInv)
+		MATRIX_cholesky.oe674 (.text:MATRIX_cholesky_flp_inv)
     	RADARDEMO_aoaEst2DCaponBF.oe674 (.text:RADARDEMO_aoaEst2DCaponBF_create)
     	RADARDEMO_detectionCFAR.oe674 (.text:RADARDEMO_detectionCFAR_create)
     	RADARDEMO_aoaEst2DCaponBF_utils.oe674 (.text:tw_gen_float)
@@ -167,4 +167,3 @@ SECTIONS
 	
 }
 /*----------------------------------------------------------------------------*/
-
