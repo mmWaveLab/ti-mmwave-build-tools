@@ -30,6 +30,7 @@ jobs:
         xwr6843isk-mss-only
         xwr6843isk-mss-dss
         xwr6843aop-mss-only
+        xwr6843aop-mss-dss
     steps:
       - uses: actions/checkout@v5
       - name: Require SDK image credentials

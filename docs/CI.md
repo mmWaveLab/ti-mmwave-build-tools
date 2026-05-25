@@ -65,8 +65,8 @@ reports and direct/fork/install logs as the
 `demo-profile-sha256-validation` artifact.
 
 `SDK_CI_PROFILES` in the workflow lists the starter profiles enabled in hosted
-CI. Keep profiles out of that list until their vendored source tree builds
-cleanly inside the SDK-full image.
+CI. The hosted job currently validates all six starter profiles, including the
+xWR6843AOP MSS+DSS fork/install path.
 
 ## Local Full SDK CI
 
