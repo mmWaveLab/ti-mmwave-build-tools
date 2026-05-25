@@ -1,22 +1,22 @@
-IMAGE ?= @SDK_IMAGE@
+SDK_FULL_IMAGE ?= @SDK_IMAGE@
 BUILD_DIR ?= build
 MMWAVE_RUN ?= tools/mmwave-run
 
 .PHONY: pull configure build shell clean
 
 pull:
-	docker pull $(IMAGE)
+	docker pull $(SDK_FULL_IMAGE)
 
 configure:
-	$(MMWAVE_RUN) --image $(IMAGE) --workdir . -- \
+	$(MMWAVE_RUN) --image $(SDK_FULL_IMAGE) --workdir . -- \
 	  cmake -S . -B $(BUILD_DIR) -G Ninja -DTI_ROOT=/opt/ti
 
 build: configure
-	$(MMWAVE_RUN) --image $(IMAGE) --workdir . -- \
+	$(MMWAVE_RUN) --image $(SDK_FULL_IMAGE) --workdir . -- \
 	  cmake --build $(BUILD_DIR) --target firmware
 
 shell:
-	$(MMWAVE_RUN) --image $(IMAGE) --workdir . --shell
+	$(MMWAVE_RUN) --image $(SDK_FULL_IMAGE) --workdir . --shell
 
 clean:
 	rm -rf $(BUILD_DIR)

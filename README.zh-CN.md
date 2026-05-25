@@ -11,9 +11,7 @@ Docker 构建基准对比，以及带保护的 UniFlash 命令生成。
 
 仓库内带有少量仅源码形式的 TI mmWave SDK `packages/ti/demo` 和 Radar
 Toolbox starter demo 副本，用作可 fork 的 starter 项目，并保留上游 TI
-声明。本仓库不重新分发 TI 编译器、UniFlash、radarss 固件镜像、预构建
-demo 二进制或其他 SDK 二进制组件。构建时需要自备 TI 安装，或者使用私有
-SDK-full Docker 镜像。详见 `THIRD_PARTY_NOTICES.md`。
+声明。固件构建统一通过 `SDK_FULL_IMAGE` 指定的 SDK-full Docker 镜像运行。
 
 ## 当前能力
 
@@ -38,24 +36,21 @@ SDK-full Docker 镜像。详见 `THIRD_PARTY_NOTICES.md`。
 
 ## 快速开始
 
-在已安装 TI 工具的 Linux 主机上：
+在可以访问 SDK-full 镜像并安装了 Docker 的机器上：
 
 ```bash
-cp config/machine.env.example config/machine.env
+docker pull meowpas/ti-mmwave-sdk:03.06.02
 ```
 
-编辑 `config/machine.env`：
+或者从已有 TI 安装本地构建这个镜像：
 
 ```bash
-HOST_TI_ROOT=/path/to/ti
-TI_ROOT=/path/to/ti
-CONTAINER_TI_ROOT=/opt/ti
+make sdk-image HOST_TI_ROOT=/path/to/ti SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
 ```
 
 构建并测试：
 
 ```bash
-make docker-build
 make doctor
 make test
 make sdk-profile-validate
@@ -96,14 +91,15 @@ make flash-list
 make flash-doctor
 ```
 
-## SDK 路径约定
+## SDK 镜像约定
 
-容器内通过 `CONTAINER_TI_ROOT` 看到 TI 安装，默认是 `/opt/ti`。这个路径保持
-稳定是有意的，因为 TI XDC/configuro 和生成的 make 片段会嵌入 SDK 与工具链
-的绝对路径。
+Docker 构建只使用一个镜像：`SDK_FULL_IMAGE`，默认是
+`meowpas/ti-mmwave-sdk:03.06.02`。镜像内的 TI 工具固定在 `/opt/ti`。这个路径
+保持稳定是有意的，因为 TI XDC/configuro 和生成的 make 片段会嵌入 SDK 与
+工具链的绝对路径。
 
-宿主机路径可以不同。把 `HOST_TI_ROOT` 设置为真实 TI 安装路径，脚本会以只读
-方式把它挂载进容器。
+`HOST_TI_ROOT` 只在执行 `make sdk-image` 创建 SDK-full 镜像时使用；正常 Docker
+构建不会挂载宿主机 TI 安装。
 
 ## Starter Profiles
 
@@ -160,20 +156,19 @@ submodule、subtree 或 `FetchContent` 继承通用 TI mmWave 构建规则。
 - `docs/catalog/toolbox-oob-demo-profiles.tsv`：轻量 TI Radar Toolbox OOB catalog。
 - `docs/catalog/toolbox-application-demo-profiles.tsv`：轻量 TI Radar Toolbox 应用
   demo catalog，包括 6843AOP MSS+DSS 候选项。
-- `docker/Dockerfile.sdk-full`：本地或私有 registry 使用的私有 SDK-full 镜像
-  recipe。它包含 SDK/toolchain runtime，不包含本仓库转换后的 demo 项目。
+- `Dockerfile`：SDK-full 镜像 recipe。它包含 SDK/toolchain runtime，不包含本仓库
+  转换后的 demo 项目。
 
 本 README 中的 Docker 验证流会跑 SDK reference demo makefiles。需要更细粒度
 源码级构建集成的下游固件项目，仍可直接使用可复用 CMake API。
 
 ## 常用命令
 
-在容器中直接验证 TI Linux 工具：
+在 SDK-full 容器中直接验证 TI Linux 工具：
 
 ```bash
 docker run --rm \
-  -v /opt/ti:/opt/ti:ro \
-  ti-mmwave-build-tools:linux-smoke \
+  meowpas/ti-mmwave-sdk:03.06.02 \
   check-ti-linux
 ```
 
@@ -181,9 +176,8 @@ docker run --rm \
 
 ```bash
 docker run --rm \
-  -v /opt/ti:/opt/ti:ro \
   -v "$PWD/work":/work \
-  ti-mmwave-build-tools:linux-smoke \
+  meowpas/ti-mmwave-sdk:03.06.02 \
   run-repo-smoke
 ```
 

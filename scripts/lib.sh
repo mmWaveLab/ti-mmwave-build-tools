@@ -12,10 +12,9 @@ load_machine_env() {
     source "$repo_dir/config/machine.env"
   fi
 
-  export IMAGE="${IMAGE:-ti-mmwave-build-tools:linux-smoke}"
+  export SDK_FULL_IMAGE="${SDK_FULL_IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}"
   export TI_ROOT="${TI_ROOT:-/opt/ti}"
   export HOST_TI_ROOT="${HOST_TI_ROOT:-$TI_ROOT}"
-  export CONTAINER_TI_ROOT="${CONTAINER_TI_ROOT:-/opt/ti}"
   export BUILD_ROOT="${BUILD_ROOT:-$repo_dir/build}"
   export ARTIFACT_DIR="${ARTIFACT_DIR:-$repo_dir/artifacts}"
   export REPORT_DIR="${REPORT_DIR:-$repo_dir/reports}"
@@ -67,13 +66,11 @@ docker_sdk_run() {
   local repo_dir="$1"
   shift
   require_docker
-  require_host_ti_root
   docker run --rm \
     --user "$(id -u):$(id -g)" \
     -e HOME=/tmp \
-    -e TI_ROOT="$CONTAINER_TI_ROOT" \
-    -v "$HOST_TI_ROOT:$CONTAINER_TI_ROOT:ro" \
+    -e TI_ROOT=/opt/ti \
     -v "$repo_dir":/work/ti-mmwave-build-tools-docker \
-    "$IMAGE" \
+    "$SDK_FULL_IMAGE" \
     "$@"
 }

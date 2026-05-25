@@ -122,7 +122,7 @@ During conversion:
 [ ] Use tools/mmwave-run for standalone projects, or ../../scripts/mmwave-run.sh for in-repo demos.
 [ ] Use CMake custom commands for build steps.
 [ ] Keep the target name firmware for the primary firmware build.
-[ ] Keep the Docker image configurable through IMAGE or SDK_FULL_IMAGE.
+[ ] Keep the Docker image configurable through SDK_FULL_IMAGE.
 ```
 
 After conversion:

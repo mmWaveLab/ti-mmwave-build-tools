@@ -34,22 +34,12 @@ check_path() {
 
 printf 'TI mmWave Docker SDK doctor\n'
 printf 'repo: %s\n' "$repo_dir"
-printf 'image: %s\n' "$IMAGE"
-printf 'host TI root: %s\n' "$HOST_TI_ROOT"
-printf 'container TI root: %s\n\n' "$CONTAINER_TI_ROOT"
+printf 'SDK-full image: %s\n\n' "$SDK_FULL_IMAGE"
 
 check_cmd docker
 check_cmd cmake
 check_cmd ninja
 check_cmd make
-
-printf '\nSDK paths\n'
-check_path "$HOST_TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages"
-check_path "$HOST_TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages/scripts/unix/generateMetaImage.sh"
-check_path "$HOST_TI_ROOT/mmwave_sdk_03_06_02_00-LTS/firmware/radarss/xwr6xxx_radarss_rprc.bin"
-check_path "$HOST_TI_ROOT/ti-cgt-arm_16.9.6.LTS/bin/armcl"
-check_path "$HOST_TI_ROOT/ti-cgt-c6000_8.3.3/bin/cl6x"
-check_path "$HOST_TI_ROOT/xdctools_3_50_08_24_core/xs"
 
 printf '\nWritable output roots\n'
 mkdir -p "$BUILD_ROOT" "$ARTIFACT_DIR" "$REPORT_DIR"
@@ -60,17 +50,17 @@ check_path "$REPORT_DIR"
 printf '\nDocker image\n'
 if (( ! docker_available )); then
   printf 'skip    Docker image check because docker is not available\n'
-elif docker image inspect "$IMAGE" >/dev/null 2>&1; then
-  docker image inspect "$IMAGE" --format 'ok      {{.RepoTags}} {{.Size}} bytes'
+elif docker image inspect "$SDK_FULL_IMAGE" >/dev/null 2>&1; then
+  docker image inspect "$SDK_FULL_IMAGE" --format 'ok      {{.RepoTags}} {{.Size}} bytes'
 else
-  printf 'missing image %s, run: make docker-build\n' "$IMAGE"
+  printf 'missing image %s, run: make sdk-image or docker pull it\n' "$SDK_FULL_IMAGE"
   status=1
 fi
 
 printf '\nContainer smoke\n'
 if (( ! docker_available )); then
   printf 'skip    Container smoke because docker is not available\n'
-elif docker run --rm -v "$HOST_TI_ROOT:$CONTAINER_TI_ROOT:ro" "$IMAGE" check-ti-linux >/tmp/ti-mmwave-doctor-check.log 2>&1; then
+elif docker run --rm "$SDK_FULL_IMAGE" check-ti-linux >/tmp/ti-mmwave-doctor-check.log 2>&1; then
   tail -n 5 /tmp/ti-mmwave-doctor-check.log
 else
   cat /tmp/ti-mmwave-doctor-check.log

@@ -8,8 +8,7 @@ load_machine_env
 require_docker
 
 docker run --rm \
-  -v "$HOST_TI_ROOT":/opt/ti:ro \
-  "$IMAGE" \
+  "$SDK_FULL_IMAGE" \
   check-ti-linux
 
 project_dir="$BUILD_ROOT/test-generated-project"

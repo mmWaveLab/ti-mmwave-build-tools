@@ -1,15 +1,8 @@
-IMAGE ?= ti-mmwave-build-tools:linux-smoke
 SDK_FULL_IMAGE ?= meowpas/ti-mmwave-sdk:03.06.02
 TI_ROOT ?= /opt/ti
 HOST_TI_ROOT ?= $(TI_ROOT)
 
-.PHONY: docker-build docker-shell sdk-image sdk-image-smoke sdk-profile-validate install-profile-validate cmake-portability github-actions-smoke project-docker project-native doctor test ci docker-cmake native-cmake benchmark flash-list flash-doctor flash-dry-run flash package clean
-
-docker-build:
-	IMAGE=$(IMAGE) scripts/docker-build.sh
-
-docker-shell:
-	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/docker-shell.sh
+.PHONY: sdk-image sdk-image-smoke sdk-profile-validate install-profile-validate cmake-portability github-actions-smoke project-docker project-native doctor test ci docker-cmake native-cmake benchmark flash-list flash-doctor flash-dry-run flash package clean
 
 sdk-image:
 	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/build-sdk-image.sh
@@ -30,28 +23,28 @@ github-actions-smoke:
 	scripts/github-actions-smoke.sh
 
 project-docker:
-	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) PROJECT=$(PROJECT) scripts/cmake-build-project.sh
+	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) PROJECT=$(PROJECT) scripts/cmake-build-project.sh
 
 project-native:
 	TI_ROOT=$(TI_ROOT) PROJECT=$(PROJECT) scripts/native-build-project.sh
 
 doctor:
-	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/doctor.sh
+	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) scripts/doctor.sh
 
 test:
-	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/test.sh
+	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) scripts/test.sh
 
 ci:
-	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/ci.sh
+	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) scripts/ci.sh
 
 docker-cmake:
-	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/cmake-build-xwr68xx-sdk-demo.sh
+	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) scripts/cmake-build-xwr68xx-sdk-demo.sh
 
 native-cmake:
 	TI_ROOT=$(TI_ROOT) scripts/native-cmake-build-xwr68xx-sdk-demo.sh
 
 benchmark:
-	IMAGE=$(IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/benchmark.sh
+	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/benchmark.sh
 
 flash-list:
 	scripts/flash-list.sh

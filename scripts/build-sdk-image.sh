@@ -16,6 +16,7 @@ rm -rf "$context_dir"
 mkdir -p "$context_dir"
 
 cp "$repo_dir/scripts/check-ti-linux.sh" "$context_dir/check-ti-linux.sh"
+cp "$repo_dir/scripts/run-repo-smoke.sh" "$context_dir/run-repo-smoke.sh"
 cp "$repo_dir/scripts/ti-sdk-env.sh" "$context_dir/ti-sdk-env.sh"
 
 rsync -a --delete \
@@ -37,7 +38,7 @@ rsync -a --delete \
   --exclude '*.pp' \
   --exclude 'xwr*_mmw*_demo*.bin' \
   "$HOST_TI_ROOT/" "$context_dir/ti/"
-cp "$repo_dir/docker/Dockerfile.sdk-full" "$context_dir/Dockerfile"
+cp "$repo_dir/Dockerfile" "$context_dir/Dockerfile"
 
 if [[ -e "$context_dir/tools" ]]; then
   printf 'SDK-full image context must not include repository tools or demos: %s\n' "$context_dir/tools" >&2

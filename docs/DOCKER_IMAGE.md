@@ -1,81 +1,67 @@
 # Docker Image Management
 
-The Docker image is the stable SDK host shell. It contains Linux build
-dependencies, CMake, Ninja, and helper entry points, but it does not contain TI
-SDKs or compilers.
-
-The public image build context is intentionally slim: generated output,
-catalogs, templates, converted demos, and Git metadata are excluded by
-`.dockerignore` because the public image only needs the host shell helpers.
-
-For day-to-day private development, use an SDK-full private image instead. That
-image contains the TI SDK/toolchain runtime and is not meant for public
-redistribution. It must not embed this repository's `demos/` tree; project demo
-sources come from the repository archive or local checkout at project creation
-time.
-
-## Image Contract
-
-Default image:
+This repository uses one Docker image for firmware builds: `SDK_FULL_IMAGE`.
+The default is:
 
 ```text
-ti-mmwave-build-tools:linux-smoke
+meowpas/ti-mmwave-sdk:03.06.02
 ```
 
-Runtime mounts:
+The image contains the Linux build runtime, CMake, Ninja, helper entry points,
+and the SDK/toolchain tree at `/opt/ti`. Repository demos, templates, and
+CMake helper modules are intentionally kept outside the image and come from the
+current checkout or repository archive.
 
-| Host path | Container path | Mode | Purpose |
-|---|---|---|---|
-| `HOST_TI_ROOT` | `CONTAINER_TI_ROOT` | read-only | TI SDK, compilers, XDC, BIOS |
-| repository root | `/work/ti-mmwave-build-tools-docker` | read-write | build scripts, generated projects, artifacts |
+## Build Or Pull
 
-Default path values:
-
-```text
-HOST_TI_ROOT=/opt/ti
-CONTAINER_TI_ROOT=/opt/ti
-```
-
-Keeping the container TI path stable avoids surprises from TI generated
-makefiles and XDC/configuro outputs that embed absolute paths.
-
-## Common Commands
+Pull an existing image:
 
 ```bash
-make docker-build
-make doctor
-make project-docker PROJECT=/path/to/generated-project
-make sdk-profile-validate
+docker pull meowpas/ti-mmwave-sdk:03.06.02
 ```
 
-Build the private SDK-full image on a machine that already has TI SDK installed:
+Build the image from a local TI install:
 
 ```bash
 make sdk-image HOST_TI_ROOT=/opt/ti SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
 make sdk-image-smoke SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
 ```
 
-Push it to a private registry after `docker login`:
+Push after `docker login`:
 
 ```bash
 docker push meowpas/ti-mmwave-sdk:03.06.02
 ```
 
-Do not push SDK-full images to a public repository unless your TI license
-explicitly permits redistribution.
+## Runtime Contract
 
-The SDK-full image keeps TI tools at `/opt/ti` inside the container. This is
-intentional: TI make/configuro fragments can embed the install path, so the
-container standardizes that path even when the host is macOS, Windows, or a
-different Linux distribution. The image intentionally does not contain
-`/opt/ti-mmwave-build-tools` or `create-mmwave-app`; keeping project templates
-and converted demos outside the image prevents stale demo copies after
-repository updates.
+| Item | Container path |
+|---|---|
+| SDK/toolchain root | `/opt/ti` |
+| mmWave SDK packages | `/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages` |
+| Repository checkout | `/work/ti-mmwave-build-tools-docker` |
 
-Open a shell in the image:
+Normal Docker builds do not mount a host TI installation. `HOST_TI_ROOT` is
+only used by `make sdk-image` while assembling the image build context.
+
+## Common Commands
 
 ```bash
-make docker-shell
+make doctor
+make project-docker PROJECT=/path/to/generated-project
+make docker-cmake
+make sdk-profile-validate
+make install-profile-validate
+```
+
+Open a shell:
+
+```bash
+docker run --rm -it \
+  -v "$PWD":/work/ti-mmwave-build-tools-docker \
+  -w /work/ti-mmwave-build-tools-docker \
+  meowpas/ti-mmwave-sdk:03.06.02 \
+  bash
 ```
 
 ## Cleanup

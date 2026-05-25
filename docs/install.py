@@ -235,23 +235,23 @@ install(FILES "${{OUTPUT_ARTIFACT}}" DESTINATION .)
 
 
 def makefile(image: str) -> str:
-    return f"""IMAGE ?= {image}
+    return f"""SDK_FULL_IMAGE ?= {image}
 BUILD_DIR ?= build
 MMWAVE_RUN ?= tools/mmwave-run
 
 .PHONY: pull configure build shell clean
 
 pull:
-\tdocker pull $(IMAGE)
+\tdocker pull $(SDK_FULL_IMAGE)
 
 configure:
-\t$(MMWAVE_RUN) --image $(IMAGE) --workdir . -- cmake -S . -B $(BUILD_DIR) -G Ninja -DTI_ROOT=/opt/ti
+\t$(MMWAVE_RUN) --image $(SDK_FULL_IMAGE) --workdir . -- cmake -S . -B $(BUILD_DIR) -G Ninja -DTI_ROOT=/opt/ti
 
 build: configure
-\t$(MMWAVE_RUN) --image $(IMAGE) --workdir . -- cmake --build $(BUILD_DIR) --target firmware
+\t$(MMWAVE_RUN) --image $(SDK_FULL_IMAGE) --workdir . -- cmake --build $(BUILD_DIR) --target firmware
 
 shell:
-\t$(MMWAVE_RUN) --image $(IMAGE) --workdir . --shell
+\t$(MMWAVE_RUN) --image $(SDK_FULL_IMAGE) --workdir . --shell
 
 clean:
 \trm -rf $(BUILD_DIR)
@@ -288,7 +288,7 @@ require_docker() {{
   fi
 }}
 
-image="${{SDK_FULL_IMAGE:-${{IMAGE:-{default_image}}}}}"
+image="${{SDK_FULL_IMAGE:-{default_image}}}"
 workdir="$PWD"
 pull=0
 shell_mode=0
@@ -310,7 +310,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$image" ]]; then
-  printf 'IMAGE is required.\\n' >&2
+  printf 'SDK_FULL_IMAGE is required.\\n' >&2
   exit 2
 fi
 

@@ -4,8 +4,8 @@ set -euo pipefail
 usage() {
   cat <<'USAGE'
 Usage:
-  mmwave-run [--image IMAGE] [--workdir DIR] [--pull] -- COMMAND [ARG...]
-  mmwave-run [--image IMAGE] [--workdir DIR] --shell
+  mmwave-run [--image SDK_FULL_IMAGE] [--workdir DIR] [--pull] -- COMMAND [ARG...]
+  mmwave-run [--image SDK_FULL_IMAGE] [--workdir DIR] --shell
 
 Run TI mmWave build commands inside an SDK Docker image without sourcing or
 modifying the host shell environment.
@@ -30,7 +30,7 @@ require_docker() {
   fi
 }
 
-image="${SDK_FULL_IMAGE:-${IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}}"
+image="${SDK_FULL_IMAGE:-meowpas/ti-mmwave-sdk:03.06.02}"
 workdir="$PWD"
 pull=0
 shell_mode=0
@@ -72,7 +72,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$image" ]]; then
-  printf 'IMAGE is required.\n' >&2
+  printf 'SDK_FULL_IMAGE is required.\n' >&2
   exit 2
 fi
 

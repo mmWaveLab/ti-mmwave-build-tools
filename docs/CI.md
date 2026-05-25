@@ -1,10 +1,11 @@
 # CI
 
-GitHub Actions has three tiers.
+GitHub Actions has two tiers.
 
-## Public Smoke
+## Repository Smoke
 
-The public smoke tier runs on `ubuntu-latest` and does not require TI SDK files:
+The repository smoke tier runs on `ubuntu-latest` and does not require the
+SDK-full image:
 
 ```bash
 make github-actions-smoke
@@ -18,26 +19,23 @@ It performs:
 - public documentation and config path checks
 - starter demo profile manifest and vendored SDK OOB source checks
 
-The public workflow also builds the Docker image and verifies that the container
-contains the expected command-line tools.
-
-Public jobs run on every push and pull request. They use workflow concurrency
+Smoke jobs run on every push and pull request. They use workflow concurrency
 per branch so a newer push cancels older in-progress runs, and each public job
 has a timeout to avoid hanging on a transient Docker or runner issue.
 
 ## Every-Push SDK SHA-256 Gate
 
-The private-image tier runs on every `push` and `workflow_dispatch` event. It
-pulls the SDK-full Docker image, builds each validated SDK-backed starter
-profile twice, and compares the two flashable `.bin` SHA-256 values:
+The full-image tier runs on every `push` and `workflow_dispatch` event. It
+pulls `SDK_FULL_IMAGE`, builds the `SDK_CI_PROFILES` starter set twice, and
+compares the two flashable `.bin` SHA-256 values:
 
 - direct TI SDK makefile build
 - generated fork project built through CMake+Ninja
 
-The job is named `sdk-full-sha256`. It does not silently skip when credentials
-are missing; missing Docker Hub credentials fail the run so every commit has a
+The job is named `sdk-full-sha256`. It does not silently skip when Docker Hub
+credentials are missing; missing credentials fail the run so every commit has a
 visible SDK validation result. `pull_request` events are skipped because GitHub
-does not expose private Docker credentials to forked PRs.
+does not expose Docker credentials to forked PRs.
 
 ```bash
 make sdk-profile-validate SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
@@ -45,10 +43,10 @@ make install-profile-validate SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
 ```
 
 The install validation simulates a no-clone new computer flow with
-`docs/install.py`: validated SDK-backed profiles must generate a standalone
-project, build through Docker+CMake+Ninja, and expose the expected flashable
-binary. Cataloged Toolbox projectspec profiles must fail with the explicit
-Toolbox importer message until that importer exists.
+`docs/install.py`: validated SDK-backed and Toolbox-backed make profiles must
+generate a standalone project, build through Docker+CMake+Ninja, and expose the
+expected flashable binary. Cataloged Toolbox projectspec profiles must fail with
+the explicit Toolbox importer message until that importer exists.
 
 Configure GitHub with:
 
@@ -66,7 +64,11 @@ If `SDK_FULL_IMAGE` is not set, the workflow defaults to
 reports and direct/fork/install logs as the
 `demo-profile-sha256-validation` artifact.
 
-## Self-Hosted Full SDK CI
+`SDK_CI_PROFILES` in the workflow lists the starter profiles enabled in hosted
+CI. Keep profiles out of that list until their vendored source tree builds
+cleanly inside the SDK-full image.
+
+## Local Full SDK CI
 
 The full SDK entrypoint is:
 
@@ -79,7 +81,7 @@ Default mode performs:
 - shell syntax checks for scripts
 - root CMake configure
 - CTest configure-only check
-- Docker toolchain smoke test
+- SDK-full image smoke test
 - CMake/Ninja configure check
 
 Full build mode:
@@ -104,14 +106,8 @@ Full SDK runner requirements:
 - CMake 3.20+
 - Ninja
 - GNU make
-- TI SDK/toolchain installed on the runner
-- `config/machine.env` or exported `HOST_TI_ROOT`
+- `SDK_FULL_IMAGE` available locally or pullable
+- TI SDK/toolchain installed only when building the image with `make sdk-image`
 
-The self-hosted jobs are guarded behind `workflow_dispatch` and the
-`self-hosted, ti-mmwave` runner labels because public GitHub-hosted runners
-cannot legally or practically contain the TI SDK/toolchain.
-
-Until a permanently available licensed self-hosted runner is attached, public
-CI validates repository structure and Docker tooling, while the private
-SDK-full image job validates real starter firmware forks when credentials are
-available.
+The workflow keeps real firmware validation in the single SDK-full image job.
+Repository smoke remains image-free and checks scripts, manifests, and docs.

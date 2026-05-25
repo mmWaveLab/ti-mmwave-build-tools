@@ -29,6 +29,11 @@ RUN dpkg --add-architecture i386 \
     && python3 -m pip install --no-cache-dir "cmake>=3.29,<3.31" \
     && rm -rf /var/lib/apt/lists/*
 
+COPY ti /opt/ti
+COPY check-ti-linux.sh /usr/local/bin/check-ti-linux
+COPY run-repo-smoke.sh /usr/local/bin/run-repo-smoke
+COPY ti-sdk-env.sh /usr/local/bin/ti-sdk-env
+
 ENV TI_ROOT=/opt/ti
 ENV MMWAVE_SDK_ROOT=/opt/ti/mmwave_sdk_03_06_02_00-LTS
 ENV MMWAVE_SDK_PACKAGES=/opt/ti/mmwave_sdk_03_06_02_00-LTS/packages
@@ -41,12 +46,11 @@ ENV DSPLIB_C674X_ROOT=/opt/ti/dsplib_c674x_3_4_0_0
 ENV MATHLIB_C674X_ROOT=/opt/ti/mathlib_c674x_3_1_2_1
 ENV PATH=/opt/ti/ti-cgt-arm_16.9.6.LTS/bin:/opt/ti/ti-cgt-c6000_8.3.3/bin:/opt/ti/xdctools_3_50_08_24_core:/usr/local/bin:/usr/bin:/bin
 
+RUN chmod +x /usr/local/bin/check-ti-linux /usr/local/bin/run-repo-smoke /usr/local/bin/ti-sdk-env \
+    && sed -i -E 's#/home/[^/]+/ti#/opt/ti#g' /opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/scripts/unix/setenv.sh \
+    && sed -i -E 's#/home/[^/]+/ti#/opt/ti#g' /opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/scripts/unix/setenv.mak \
+    && check-ti-linux
+
 WORKDIR /work
-
-COPY scripts/check-ti-linux.sh /usr/local/bin/check-ti-linux
-COPY scripts/run-repo-smoke.sh /usr/local/bin/run-repo-smoke
-COPY scripts/ti-sdk-env.sh /usr/local/bin/ti-sdk-env
-
-RUN chmod +x /usr/local/bin/check-ti-linux /usr/local/bin/run-repo-smoke /usr/local/bin/ti-sdk-env
 
 CMD ["/bin/bash"]

@@ -11,10 +11,8 @@ starter-project validation, native-vs-Docker benchmarks, and guarded UniFlash
 command generation.
 
 It vendors a small source-only subset of TI mmWave SDK `packages/ti/demo` as
-starter project fork points, with upstream TI notices preserved. It does not
-redistribute TI compilers, UniFlash, radarss firmware images, prebuilt demo
-binaries, or other SDK binary components. Bring your own TI installation or use
-the private SDK-full Docker image for builds. See `THIRD_PARTY_NOTICES.md`.
+starter project fork points, with upstream TI notices preserved. Firmware builds
+run through one SDK-full Docker image selected by `SDK_FULL_IMAGE`.
 
 ## What Works
 
@@ -39,24 +37,21 @@ the private SDK-full Docker image for builds. See `THIRD_PARTY_NOTICES.md`.
 
 ## Quick Start
 
-On a Linux host with TI tools installed:
+On a machine with Docker and access to the SDK-full image:
 
 ```bash
-cp config/machine.env.example config/machine.env
+docker pull meowpas/ti-mmwave-sdk:03.06.02
 ```
 
-Edit `config/machine.env`:
+Or build that image locally from an existing TI install:
 
 ```bash
-HOST_TI_ROOT=/path/to/ti
-TI_ROOT=/path/to/ti
-CONTAINER_TI_ROOT=/opt/ti
+make sdk-image HOST_TI_ROOT=/path/to/ti SDK_FULL_IMAGE=meowpas/ti-mmwave-sdk:03.06.02
 ```
 
 Build and test:
 
 ```bash
-make docker-build
 make doctor
 make test
 make sdk-profile-validate
@@ -99,14 +94,15 @@ make flash-list
 make flash-doctor
 ```
 
-## SDK Path Contract
+## SDK Image Contract
 
-The container sees the TI install at `CONTAINER_TI_ROOT`, defaulting to
-`/opt/ti`. This path is intentionally stable because TI XDC/configuro and
+Docker builds use exactly one image: `SDK_FULL_IMAGE`, defaulting to
+`meowpas/ti-mmwave-sdk:03.06.02`. The image keeps TI tools at `/opt/ti` inside
+the container. This path is intentionally stable because TI XDC/configuro and
 generated make fragments embed absolute SDK and toolchain paths.
 
-The host path can still be different. Set `HOST_TI_ROOT` to the real local TI
-installation, and the scripts mount it read-only into the container.
+`HOST_TI_ROOT` is only used when creating the SDK-full image with
+`make sdk-image`; normal Docker builds do not mount a host TI install.
 
 ## Starter Profiles
 
@@ -170,9 +166,8 @@ Key files:
 - `docs/catalog/toolbox-oob-demo-profiles.tsv`: lightweight TI Radar Toolbox OOB catalog.
 - `docs/catalog/toolbox-application-demo-profiles.tsv`: lightweight TI Radar Toolbox
   application demo catalog, including 6843AOP MSS+DSS candidates.
-- `docker/Dockerfile.sdk-full`: private SDK-full image recipe for local or
-  private-registry use. It contains the SDK/toolchain runtime, not this
-  repository's converted demo projects.
+- `Dockerfile`: SDK-full image recipe. It contains the SDK/toolchain runtime,
+  not this repository's converted demo projects.
 
 The Docker validation flow in this README exercises the SDK reference demo
 makefiles. Downstream firmware projects can still use the reusable CMake API
@@ -180,12 +175,11 @@ directly when they need finer-grained source-level build integration.
 
 ## Useful Commands
 
-Validate the TI Linux tools directly inside the container:
+Validate the TI Linux tools directly inside the SDK-full container:
 
 ```bash
 docker run --rm \
-  -v /opt/ti:/opt/ti:ro \
-  ti-mmwave-build-tools:linux-smoke \
+  meowpas/ti-mmwave-sdk:03.06.02 \
   check-ti-linux
 ```
 
@@ -193,9 +187,8 @@ Run the upstream repository smoke test:
 
 ```bash
 docker run --rm \
-  -v /opt/ti:/opt/ti:ro \
   -v "$PWD/work":/work \
-  ti-mmwave-build-tools:linux-smoke \
+  meowpas/ti-mmwave-sdk:03.06.02 \
   run-repo-smoke
 ```
 

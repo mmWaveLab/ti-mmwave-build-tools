@@ -13,8 +13,6 @@ rm -rf "$work_dir"
 mkdir -p "$(dirname "$work_dir")"
 mkdir -p "$artifact_dir"
 require_docker
-require_host_ti_root
-cp -a "$HOST_TI_ROOT/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr68xx/mmw" "$work_dir"
 
 common_args=(
   CCS_MAKEFILE_BASED_BUILD=1
@@ -26,10 +24,9 @@ common_args=(
 docker run --rm \
   --user "$(id -u):$(id -g)" \
   -e HOME=/tmp \
-  -v "$HOST_TI_ROOT":/opt/ti:ro \
   -v "$work_dir":/work/mmw \
-  "$IMAGE" \
-  bash -lc 'cd /work/mmw && make -f makefile clean "$@" && make -f makefile all "$@"' \
+  "$SDK_FULL_IMAGE" \
+  bash -lc 'cp -a /opt/ti/mmwave_sdk_03_06_02_00-LTS/packages/ti/demo/xwr68xx/mmw/. /work/mmw/ && cd /work/mmw && make -f makefile clean "$@" && make -f makefile all "$@"' \
   _ "${common_args[@]}"
 
 cp "$work_dir"/xwr68xx_mmw_demo.bin "$artifact_dir"/xwr68xx_mmw_demo.make-docker.bin

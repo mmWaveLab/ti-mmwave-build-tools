@@ -1,0 +1,31 @@
+name: docs
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package-docs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v5
+      - name: Validate docs entry points
+        run: |
+          test -f README.md
+          test -f README.zh-CN.md
+          test -d docs
+      - name: Upload docs artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ti-mmwave-build-tools-docs
+          path: |
+            README.md
+            README.zh-CN.md
+            docs/**

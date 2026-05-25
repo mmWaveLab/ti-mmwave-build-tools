@@ -10,23 +10,13 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  public-smoke:
+  repo-smoke:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v5
-      - name: Public smoke test without TI SDK
+      - name: Repository smoke test without SDK image
         run: make github-actions-smoke cmake-portability
-
-  docker-image:
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@v5
-      - name: Build Docker image
-        run: docker build -t ti-mmwave-build-tools:ci .
-      - name: Container entrypoint smoke
-        run: docker run --rm ti-mmwave-build-tools:ci bash -lc 'command -v cmake && command -v ninja && command -v check-ti-linux'
 
   sdk-full-sha256:
     if: github.event_name != 'pull_request'
@@ -34,9 +24,15 @@ jobs:
     timeout-minutes: 60
     env:
       SDK_FULL_IMAGE: ${{ vars.SDK_FULL_IMAGE || 'meowpas/ti-mmwave-sdk:03.06.02' }}
+      SDK_CI_PROFILES: >-
+        xwr1843boost-mss-only
+        xwr1843boost-mss-dss
+        xwr6843isk-mss-only
+        xwr6843isk-mss-dss
+        xwr6843aop-mss-only
     steps:
       - uses: actions/checkout@v5
-      - name: Require private SDK image credentials
+      - name: Require SDK image credentials
         env:
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -55,12 +51,12 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
         run: |
           printf '%s\n' "$DOCKERHUB_TOKEN" | docker login -u "$DOCKERHUB_USERNAME" --password-stdin
-      - name: Pull private SDK-full image
+      - name: Pull SDK-full image
         run: docker pull "$SDK_FULL_IMAGE"
       - name: Compare direct SDK and forked CMake demo profile SHA-256
-        run: PROFILE_VALIDATION_JOBS=all SDK_FULL_IMAGE="$SDK_FULL_IMAGE" make sdk-profile-validate
+        run: PROFILE_VALIDATION_JOBS=all DEMO_PROFILES="$SDK_CI_PROFILES" SDK_FULL_IMAGE="$SDK_FULL_IMAGE" make sdk-profile-validate
       - name: Validate no-clone installer profile matrix
-        run: INSTALL_VALIDATION_JOBS=all SDK_FULL_IMAGE="$SDK_FULL_IMAGE" make install-profile-validate
+        run: INSTALL_VALIDATION_JOBS=all DEMO_PROFILES="$SDK_CI_PROFILES" SDK_FULL_IMAGE="$SDK_FULL_IMAGE" make install-profile-validate
       - name: Upload SHA-256 validation report
         if: always()
         uses: actions/upload-artifact@v4
@@ -72,12 +68,3 @@ jobs:
             reports/install-profile-validation-*.md
             reports/install-profile-*.log
           if-no-files-found: warn
-
-  self-hosted-full:
-    if: github.event_name == 'workflow_dispatch'
-    runs-on: [self-hosted, ti-mmwave]
-    timeout-minutes: 30
-    steps:
-      - uses: actions/checkout@v5
-      - name: Full SDK CI
-        run: CI_FULL_BUILD=1 scripts/ci.sh
