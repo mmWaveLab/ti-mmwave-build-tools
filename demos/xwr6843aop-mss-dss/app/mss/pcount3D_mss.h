@@ -121,6 +121,9 @@ extern "C"
 #define PCOUNT3DDEMO_DOPCFARCFG_OFFSET (PCOUNT3DDEMO_DOACAPONCFG_OFFSET + \
                                         offsetof(doaConfig, dopCfarCfg))
 
+#ifndef MAX_RESOLVED_OBJECTS_PER_FRAME
+#define MAX_RESOLVED_OBJECTS_PER_FRAME DOA_OUTPUT_MAXPOINTS
+#endif
 
     typedef struct MmwDemo_output_message_compressedPointCloud_uart_t
     {

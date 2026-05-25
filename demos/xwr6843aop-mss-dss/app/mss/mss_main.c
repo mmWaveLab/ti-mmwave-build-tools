@@ -637,7 +637,6 @@ void MmwDemo_uartTxTask(UArg arg0, UArg arg1)
         uartHandle = gMmwMssMCB.loggingUartHandle;
         objOut = &(gMmwMssMCB.pointCloudToUart);
         subFrameIdx = gMmwMssMCB.currSubFrameIdx;
-        timingInfo = &gMmwMssMCB.subFrameStats[subFrameIdx].outputStats;
         frameIdx = gMmwMssMCB.frameStatsFromDSP->frameStartIntCounter;
 
         packetLen = sizeof(MmwDemo_output_message_header);
