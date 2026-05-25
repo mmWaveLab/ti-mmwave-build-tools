@@ -116,7 +116,9 @@
 #else
 
 //#error Target shall be C6x
+#ifndef _LITTLE_ENDIAN
 #define _LITTLE_ENDIAN
+#endif
 /* various macros */
 #define IN
 #define OUT
@@ -217,7 +219,9 @@ typedef uint40_t           uint_fast40_t; /* c99 types */
 #define _BIG_ENDIAN
 #endif
 #ifdef LITTLE_ENDIAN_HOST
+#ifndef _LITTLE_ENDIAN
 #define _LITTLE_ENDIAN
+#endif
 #endif
 #define IN
 #define OUT
@@ -296,7 +300,9 @@ typedef unsigned int     _Bool; /* c99 types */
 #define _BIG_ENDIAN
 #endif
 #ifdef LITTLE_ENDIAN_HOST
+#ifndef _LITTLE_ENDIAN
 #define _LITTLE_ENDIAN
+#endif
 #endif
 #define IN
 #define OUT
