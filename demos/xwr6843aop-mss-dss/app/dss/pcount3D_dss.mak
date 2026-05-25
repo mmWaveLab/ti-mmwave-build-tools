@@ -34,7 +34,7 @@ DSS_PCOUNT3D_STD_LIBS = $(C674_COMMON_STD_LIB) \
 	-lmathlib.$(C674_LIB_EXT) \
 	-llibmathutils.$(C674_LIB_EXT) \
 	-llibmmwavealg_$(MMWAVE_SDK_DEVICE_TYPE).$(C674_LIB_EXT) \
-	-libsoc_$(MMWAVE_SDK_DEVICE_TYPE).$(C674_LIB_EXT) \
+	-llibsoc_$(MMWAVE_SDK_DEVICE_TYPE).$(C674_LIB_EXT) \
 	-llibosal_$(MMWAVE_SDK_DEVICE_TYPE).$(C674_LIB_EXT) \
 	-llibmmwavelink_$(MMWAVE_SDK_DEVICE_TYPE).$(C674_LIB_EXT) \
 	-llibmmwave_$(MMWAVE_SDK_DEVICE_TYPE).$(C674_LIB_EXT) \
@@ -127,4 +127,3 @@ dssDemoClean:
 	@$(DEL) $(PLATFORM_OBJDIR)
 
 -include $(DSS_PCOUNT3D_DEPENDS)
-
