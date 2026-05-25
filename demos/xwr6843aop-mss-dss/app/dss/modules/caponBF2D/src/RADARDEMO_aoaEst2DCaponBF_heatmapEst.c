@@ -47,7 +47,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <dpu/capon3d/modules/DoA/CaponBF2D/src/RADARDEMO_aoaEst2DCaponBF_priv.h>
+#include "RADARDEMO_aoaEst2DCaponBF_priv.h"
 
 
 #ifdef _TMS320C6X
