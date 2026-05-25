@@ -597,7 +597,6 @@ void MmwDemo_uartTxTask(UArg arg0, UArg arg1)
     uint32_t tlvIdx = 0;
     uint32_t packetLen, subFrameIdx, frameIdx;
     uint32_t numPaddingBytes;
-    MmwDemo_output_message_stats *timingInfo;
     uint8_t padding[MMWDEMO_OUTPUT_MSG_SEGMENT_LEN];
 
     MmwDemo_output_message_compressedPointCloud_uart *objOut;
