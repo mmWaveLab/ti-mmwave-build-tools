@@ -50,6 +50,7 @@
 #include <dpu/capon3d/include/radarProcess_internal.h>
 #include <math.h>
 #include <dpu/capon3d/modules/utilities/cycle_measure.h>
+#include <dpu/capon3d/modules/utilities/radar_commonMath.h>
 #include <dpu/capon3d/modules/utilities/radarOsal_malloc.h>
 #include <dpu/capon3d/modules/utilities/radar_c674x.h>
 
