@@ -2,7 +2,7 @@ SDK_FULL_IMAGE ?= meowpas/ti-mmwave-sdk:03.06.02
 TI_ROOT ?= /opt/ti
 HOST_TI_ROOT ?= $(TI_ROOT)
 
-.PHONY: sdk-image sdk-image-smoke sdk-profile-validate install-profile-validate cmake-portability github-actions-smoke project-docker project-native doctor test ci docker-cmake native-cmake benchmark flash-ui flash-list flash-doctor flash-dry-run flash package clean
+.PHONY: sdk-image sdk-image-smoke sdk-profile-validate install-profile-validate cmake-portability github-actions-smoke project-docker project-native doctor test ci docker-cmake native-cmake benchmark flash-client flash-ui flash-list flash-doctor flash-dry-run flash package clean
 
 sdk-image:
 	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/build-sdk-image.sh
@@ -45,6 +45,9 @@ native-cmake:
 
 benchmark:
 	SDK_FULL_IMAGE=$(SDK_FULL_IMAGE) TI_ROOT=$(TI_ROOT) HOST_TI_ROOT=$(HOST_TI_ROOT) scripts/benchmark.sh
+
+flash-client:
+	scripts/mmwavelab-flash $(ARGS)
 
 flash-ui:
 	MMWAVELAB_FLASH_HOST=$(or $(HOST),127.0.0.1) MMWAVELAB_FLASH_PORT=$(or $(PORT),8765) scripts/flash-ui.sh

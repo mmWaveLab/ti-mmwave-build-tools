@@ -91,6 +91,23 @@ make flash-list
 make flash-doctor
 ```
 
+运行自有 flash client。CLI 面向 AI agent 和脚本：默认输出给人看，
+`--json` 输出最终机器可读结果，`--ndjson` 流式输出任务事件。
+
+```bash
+scripts/mmwavelab-flash state --json
+scripts/mmwavelab-flash dry-run --port /dev/ttyACM0 --bin /path/to/app.bin --ndjson
+scripts/mmwavelab-flash flash --port /dev/ttyACM0 --bin /path/to/app.bin --confirm FLASH --ndjson
+```
+
+启动同一套 client core 驱动的动画本地 UI：
+
+```bash
+make flash-ui
+```
+
+然后打开 `http://127.0.0.1:8765`。
+
 ## SDK 镜像约定
 
 Docker 构建只使用一个镜像：`SDK_FULL_IMAGE`，默认是

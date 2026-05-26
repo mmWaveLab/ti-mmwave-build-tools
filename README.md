@@ -94,6 +94,24 @@ make flash-list
 make flash-doctor
 ```
 
+Run the self-owned flash client. The CLI is designed for AI agents and scripts:
+plain output for humans, `--json` for final machine-readable results, and
+`--ndjson` for streaming job events.
+
+```bash
+scripts/mmwavelab-flash state --json
+scripts/mmwavelab-flash dry-run --port /dev/ttyACM0 --bin /path/to/app.bin --ndjson
+scripts/mmwavelab-flash flash --port /dev/ttyACM0 --bin /path/to/app.bin --confirm FLASH --ndjson
+```
+
+Launch the animated local UI backed by the same client core:
+
+```bash
+make flash-ui
+```
+
+Then open `http://127.0.0.1:8765`.
+
 ## SDK Image Contract
 
 Docker builds use exactly one image: `SDK_FULL_IMAGE`, defaulting to

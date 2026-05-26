@@ -34,6 +34,25 @@ Optional but recommended:
 
 ## Commands
 
+Use the unified local client when you want one entry point for AI control,
+scripts, and the UI:
+
+```bash
+scripts/mmwavelab-flash state --json
+scripts/mmwavelab-flash doctor --json
+scripts/mmwavelab-flash dry-run \
+  --port /dev/ttyACM0 \
+  --bin build/sdk-image-smoke/smoke-xwr6843isk-mss-dss/build/app/xwr68xx_mmw_demo.bin \
+  --dslite /path/to/uniflash/dslite.sh \
+  --ccxml /path/to/mmwave.ccxml \
+  --ufsettings /path/to/generated.ufsettings \
+  --ndjson
+scripts/mmwavelab-flash ui --port 8765
+```
+
+The UI and CLI share `flash-ui/core.js`, so detection, dry-run, and guarded
+flash behavior stay aligned.
+
 List serial ports:
 
 ```bash
